@@ -15,4 +15,6 @@
 
 #include "AnnotatedTree.h"
 
+#include "Visitor.h"
+
 #endif //STATICSCRIPT_HEADERS_H

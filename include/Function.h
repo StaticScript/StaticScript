@@ -4,6 +4,7 @@
 #include <antlr4-runtime.h>
 #include "Scope.h"
 #include "FunctionType.h"
+#include "Variable.h"
 
 class Function : public Scope, public FunctionType {
 public:
@@ -20,13 +21,13 @@ public:
     Function(const std::string &name, Scope *enclosingScope, antlr4::ParserRuleContext *context);
 
     // 获取返回类型
-    Type *getReturnType() override;
+    Type *getReturnType() const override;
 
     // 获取形参类型列表
     std::vector<Type *> *getParamTypes() override;
 
     // 匹配形参类型列表
-    bool matchParameterTypes(std::vector<Type *> *externalParamTypes) override;
+    bool matchParameterTypes(const std::vector<Type *> *externalParamTypes) const override;
 
 private:
     // 形参类型列表

@@ -2,19 +2,19 @@
 
 PrimitiveType::PrimitiveType(std::string name) : name(std::move(name)) {}
 
-const std::string &PrimitiveType::getName() {
+const std::string &PrimitiveType::getName() const {
     return name;
 }
 
-const std::string &PrimitiveType::toString() {
+const std::string &PrimitiveType::toString() const {
     return name;
 }
 
-Scope *PrimitiveType::getEnclosingScope() {
+Scope *PrimitiveType::getEnclosingScope() const {
     return nullptr;
 }
 
-bool PrimitiveType::isType(Type *type) {
+bool PrimitiveType::isType(const Type *type) const {
     return this == type;
 }
 

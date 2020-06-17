@@ -1,4 +1,5 @@
 #include "Scope.h"
+#include "Function.h"
 
 void Scope::addSymbol(Symbol *symbol) {
     if (symbol != nullptr) {
@@ -7,7 +8,15 @@ void Scope::addSymbol(Symbol *symbol) {
     }
 }
 
-Variable *Scope::getVariable(Scope *scope, const std::string &name) {
+bool Scope::containsSymbol(const Symbol *symbol) const {
+    return std::find(symbols->begin(), symbols->end(), symbol) != symbols->end();
+}
+
+Variable *Scope::getVariable(const std::string &name) const {
+    return getVariable(this, name);
+}
+
+Variable *Scope::getVariable(const Scope *scope, const std::string &name) {
     for (Symbol *symbol: *scope->symbols) {
         if (Variable *variable = dynamic_cast<Variable *>(symbol); variable != nullptr && symbol->name == name) {
             return variable;
@@ -16,10 +25,17 @@ Variable *Scope::getVariable(Scope *scope, const std::string &name) {
     return nullptr;
 }
 
-Variable *Scope::getVariable(const std::string &name) {
-    return getVariable(this, name);
+Function *Scope::getFunction(const std::string &name, const std::vector<Type *> *paramTypes) const {
+    return getFunction(this, name, paramTypes);
 }
 
-bool Scope::containsSymbol(Symbol *symbol) {
-    return std::find(symbols->begin(), symbols->end(), symbol) != symbols->end();
+Function *Scope::getFunction(const Scope *scope, const std::string &name, const std::vector<Type *> *paramTypes) {
+    for (Symbol *symbol: *scope->symbols) {
+        if (Function *function = dynamic_cast<Function *>(symbol); function != nullptr && symbol->name == name) {
+            if (function->matchParameterTypes(paramTypes)) {
+                return function;
+            }
+        }
+    }
+    return nullptr;
 }

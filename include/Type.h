@@ -7,11 +7,11 @@ class Scope;
 
 class Type {
 public:
-    virtual const std::string &getName() = 0;
+    virtual const std::string &getName() const = 0;
 
-    virtual Scope *getEnclosingScope() = 0;
+    virtual Scope *getEnclosingScope() const = 0;
 
-    virtual bool isType(Type *type) = 0;
+    virtual bool isType(const Type *type) const = 0;
 };
 
 #endif //STATICSCRIPT_TYPE_H

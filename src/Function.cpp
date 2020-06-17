@@ -6,7 +6,7 @@ Function::Function(const std::string &name, Scope *enclosingScope, antlr4::Parse
     this->context = context;
 }
 
-Type *Function::getReturnType() {
+Type *Function::getReturnType() const {
     return returnType;
 }
 
@@ -21,7 +21,7 @@ std::vector<Type *> *Function::getParamTypes() {
     return paramTypes;
 }
 
-bool Function::matchParameterTypes(std::vector<Type *> *externalParamTypes) {
+bool Function::matchParameterTypes(const std::vector<Type *> *externalParamTypes) const {
     if (parameters->size() != externalParamTypes->size()) {
         return false;
     }

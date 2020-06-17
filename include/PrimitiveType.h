@@ -11,13 +11,13 @@ public:
     static PrimitiveType *Number;
     static PrimitiveType *String;
 
-    const std::string &getName() override;
+    const std::string &getName() const override;
 
-    Scope *getEnclosingScope() override;
+    Scope *getEnclosingScope() const override;
 
-    bool isType(Type *type) override;
+    bool isType(const Type *type) const override;
 
-    const std::string &toString();
+    const std::string &toString() const;
 
 private:
     explicit PrimitiveType(std::string name);
