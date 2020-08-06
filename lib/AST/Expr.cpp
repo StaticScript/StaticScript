@@ -12,11 +12,11 @@ BooleanLiteralExpr::BooleanLiteralExpr(TypeKind type, bool literal) : LiteralExp
 
 void BooleanLiteralExpr::codegen() {}
 
-StringLiteralExpr::StringLiteralExpr(TypeKind type, std::string literal) : LiteralExpr(type), literal(std::move(literal)) {}
+StringLiteralExpr::StringLiteralExpr(TypeKind type, String literal) : LiteralExpr(type), literal(std::move(literal)) {}
 
 void StringLiteralExpr::codegen() {}
 
-IdentifierExpr::IdentifierExpr(std::string name) : name(std::move(name)) {}
+IdentifierExpr::IdentifierExpr(String name) : name(std::move(name)) {}
 
 void IdentifierExpr::codegen() {}
 

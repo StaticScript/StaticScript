@@ -1,7 +1,6 @@
 #ifndef STATICSCRIPT_AST_EXPR_H
 #define STATICSCRIPT_AST_EXPR_H
 
-#include <string>
 #include "AST/Type.h"
 #include "AST/Stmt.h"
 
@@ -48,13 +47,13 @@ public:
 // 字符串字面量表达式
 class StringLiteralExpr : public LiteralExpr {
 public:
-    explicit StringLiteralExpr(TypeKind type, std::string literal);
+    explicit StringLiteralExpr(TypeKind type, String literal);
 
     ~StringLiteralExpr() override = default;
 
     void codegen() override;
 
-    std::string literal;
+    String literal;
 };
 
 // 括号表达式
@@ -66,13 +65,13 @@ public:
 // 标识符表达式
 class IdentifierExpr : public Expr {
 public:
-    explicit IdentifierExpr(std::string name);
+    explicit IdentifierExpr(String name);
 
     ~IdentifierExpr() override = default;
 
     void codegen() override;
 
-    std::string name;
+    String name;
 };
 
 // 函数调用表达式

@@ -1,8 +1,11 @@
 #ifndef STATICSCRIPT_UTIL_ALIAS_H
 #define STATICSCRIPT_UTIL_ALIAS_H
 
+#include <string>
 #include <memory>
 #include <vector>
+
+using String = std::string;
 
 template <typename T>
 using SharedPtr = std::shared_ptr<T>;

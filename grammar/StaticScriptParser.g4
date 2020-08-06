@@ -68,11 +68,7 @@ variableInitializer
     ;
 
 functionDeclaration
-    : Function Identifier callSignature functionBody
-    ;
-
-callSignature
-    : OpenParen parameterList? CloseParen typeAnnotation?
+    : Function Identifier OpenParen parameterList? CloseParen typeAnnotation? functionBody
     ;
 
 parameterList

@@ -1,8 +1,6 @@
 #ifndef STATICSCRIPT_AST_DECL_H
 #define STATICSCRIPT_AST_DECL_H
 
-#include <vector>
-#include <string>
 #include "AST/Base.h"
 #include "AST/Type.h"
 #include "AST/Stmt.h"
@@ -26,7 +24,7 @@ public:
 
     VarModifier modifier;
     SharedPtr<BuiltinType> type;
-    std::string name;
+    String name;
     SharedPtr<Expr> initVal;
 };
 

@@ -1,7 +1,6 @@
 #ifndef STATICSCRIPT_AST_STMT_H
 #define STATICSCRIPT_AST_STMT_H
 
-#include <vector>
 #include "AST/Base.h"
 
 class VarDecl;

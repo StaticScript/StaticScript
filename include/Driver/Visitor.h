@@ -2,13 +2,13 @@
 #define STATICSCRIPT_DRIVER_VISITOR_H
 
 #include <iostream>
-#include <string>
 #include "StaticScriptParserBaseVisitor.h"
 #include "AST/AST.h"
+#include "Util/Alias.h"
 
 class Visitor : public StaticScriptParserBaseVisitor {
 public:
-    explicit Visitor(std::string filename);
+    explicit Visitor(String filename);
 
     antlrcpp::Any visitModule(StaticScriptParser::ModuleContext *ctx) override;
 
@@ -37,8 +37,6 @@ public:
     antlrcpp::Any visitBuiltinType(StaticScriptParser::BuiltinTypeContext *ctx) override;
 
     antlrcpp::Any visitFunctionDeclaration(StaticScriptParser::FunctionDeclarationContext *ctx) override;
-
-    antlrcpp::Any visitCallSignature(StaticScriptParser::CallSignatureContext *ctx) override;
 
     antlrcpp::Any visitParameterList(StaticScriptParser::ParameterListContext *ctx) override;
 
@@ -79,7 +77,7 @@ public:
     antlrcpp::Any visitReturnStatement(StaticScriptParser::ReturnStatementContext *ctx) override;
 
 private:
-    const std::string filename;
+    const String filename;
 };
 
 

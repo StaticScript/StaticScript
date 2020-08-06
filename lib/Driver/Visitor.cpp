@@ -1,7 +1,7 @@
 #include "Driver/Visitor.h"
 #include "StaticScriptLexer.h"
 
-Visitor::Visitor(std::string filename) : filename(std::move(filename)) {}
+Visitor::Visitor(String filename) : filename(std::move(filename)) {}
 
 antlrcpp::Any Visitor::visitModule(StaticScriptParser::ModuleContext *ctx) {
     StaticScriptParser::StatementsContext *stmtsCtx = ctx->statements();
@@ -118,10 +118,6 @@ antlrcpp::Any Visitor::visitFunctionDeclaration(StaticScriptParser::FunctionDecl
     return StaticScriptParserBaseVisitor::visitFunctionDeclaration(ctx);
 }
 
-antlrcpp::Any Visitor::visitCallSignature(StaticScriptParser::CallSignatureContext *ctx) {
-    return StaticScriptParserBaseVisitor::visitCallSignature(ctx);
-}
-
 antlrcpp::Any Visitor::visitParameterList(StaticScriptParser::ParameterListContext *ctx) {
     return StaticScriptParserBaseVisitor::visitParameterList(ctx);
 }
@@ -178,7 +174,7 @@ antlrcpp::Any Visitor::visitLiteral(StaticScriptParser::LiteralContext *ctx) {
         int literal = std::stoi(ctx->IntegerLiteral()->getText());
         literalExpr = makeShared<IntegerLiteralExpr>(TypeKind::Integer, literal);
     } else {
-        std::string literal = ctx->StringLiteral()->getText();
+        String literal = ctx->StringLiteral()->getText();
         literal = literal.substr(1, literal.size() - 2);
         literalExpr = makeShared<StringLiteralExpr>(TypeKind::String, literal);
     }
