@@ -4,7 +4,7 @@
 #include "AST/Base.h"
 
 enum class TypeKind {
-    Unknown, Boolean, Integer, String, Reference
+    Unknown, Boolean, Integer, String
 };
 
 class Type : public ASTNode {
@@ -29,16 +29,6 @@ public:
     static inline const SharedPtr<BuiltinType> INTEGER_TYPE = makeShared<BuiltinType>(TypeKind::Integer);
     static inline const SharedPtr<BuiltinType> STRING_TYPE = makeShared<BuiltinType>(TypeKind::String);
     static inline const SharedPtr<BuiltinType> UNKNOWN_TYPE = makeShared<BuiltinType>(TypeKind::Unknown);
-};
-
-// 引用类型
-class ReferenceType : public Type {
-public:
-    explicit ReferenceType();
-
-    ~ReferenceType() override = default;
-
-    void codegen() override;
 };
 
 #endif //STATICSCRIPT_AST_TYPE_H

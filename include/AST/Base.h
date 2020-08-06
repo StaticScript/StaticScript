@@ -1,19 +1,7 @@
 #ifndef STATICSCRIPT_AST_BASE_H
 #define STATICSCRIPT_AST_BASE_H
 
-#include <memory>
-#include <vector>
-
-template <typename T>
-using SharedPtr = std::shared_ptr<T>;
-
-template <typename T>
-using SharedPtrVector = std::vector<SharedPtr<T>>;
-
-template <typename T, typename ...Args>
-SharedPtr<T> makeShared(Args&& ...args) {
-    return std::make_shared<T>(std::forward<Args>(args)...);
-}
+#include "Util/Alias.h"
 
 class ASTNode {
 public:
