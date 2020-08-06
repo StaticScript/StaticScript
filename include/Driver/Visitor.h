@@ -1,15 +1,24 @@
-#ifndef STATICSCRIPT_VISITOR_H
-#define STATICSCRIPT_VISITOR_H
+#ifndef STATICSCRIPT_DRIVER_VISITOR_H
+#define STATICSCRIPT_DRIVER_VISITOR_H
 
+#include <iostream>
+#include <string>
 #include "StaticScriptParserBaseVisitor.h"
+#include "AST/AST.h"
 
 class Visitor : public StaticScriptParserBaseVisitor {
 public:
+    explicit Visitor(std::string filename);
+
     antlrcpp::Any visitModule(StaticScriptParser::ModuleContext *ctx) override;
 
     antlrcpp::Any visitStatements(StaticScriptParser::StatementsContext *ctx) override;
 
     antlrcpp::Any visitStatement(StaticScriptParser::StatementContext *ctx) override;
+
+    antlrcpp::Any visitEmptyStatement(StaticScriptParser::EmptyStatementContext *ctx) override;
+
+    antlrcpp::Any visitDeclarationStatement(StaticScriptParser::DeclarationStatementContext *ctx) override;
 
     antlrcpp::Any visitDeclaration(StaticScriptParser::DeclarationContext *ctx) override;
 
@@ -25,7 +34,7 @@ public:
 
     antlrcpp::Any visitVariableInitializer(StaticScriptParser::VariableInitializerContext *ctx) override;
 
-    antlrcpp::Any visitPredefinedType(StaticScriptParser::PredefinedTypeContext *ctx) override;
+    antlrcpp::Any visitBuiltinType(StaticScriptParser::BuiltinTypeContext *ctx) override;
 
     antlrcpp::Any visitFunctionDeclaration(StaticScriptParser::FunctionDeclarationContext *ctx) override;
 
@@ -35,7 +44,7 @@ public:
 
     antlrcpp::Any visitFunctionBody(StaticScriptParser::FunctionBodyContext *ctx) override;
 
-    antlrcpp::Any visitFunctionCallExpression(StaticScriptParser::FunctionCallExpressionContext *ctx) override;
+    antlrcpp::Any visitCallExpression(StaticScriptParser::CallExpressionContext *ctx) override;
 
     antlrcpp::Any visitArgumentList(StaticScriptParser::ArgumentListContext *ctx) override;
 
@@ -49,7 +58,7 @@ public:
 
     antlrcpp::Any visitSelectionStatement(StaticScriptParser::SelectionStatementContext *ctx) override;
 
-    antlrcpp::Any visitIfElseStatement(StaticScriptParser::IfElseStatementContext *ctx) override;
+    antlrcpp::Any visitIfStatement(StaticScriptParser::IfStatementContext *ctx) override;
 
     antlrcpp::Any visitIterationStatement(StaticScriptParser::IterationStatementContext *ctx) override;
 
@@ -68,7 +77,10 @@ public:
     antlrcpp::Any visitBreakStatement(StaticScriptParser::BreakStatementContext *ctx) override;
 
     antlrcpp::Any visitReturnStatement(StaticScriptParser::ReturnStatementContext *ctx) override;
+
+private:
+    const std::string filename;
 };
 
 
-#endif //STATICSCRIPT_VISITOR_H
+#endif // STATICSCRIPT_DRIVER_VISITOR_H

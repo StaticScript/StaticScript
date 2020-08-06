@@ -5,7 +5,6 @@ options {
 }
 
 // 关键字
-Void:                   'void';
 Boolean:                'boolean';
 Number:                 'number';
 String:                 'string';
@@ -44,10 +43,8 @@ NotEquals:              '!=';
 
 // 字面量
 BooleanLiteral:         'true' | 'false';
-DecimalIntegerLiteral:  '0'
-                     |  [1-9] [0-9]*
-                     ;
-StringLiteral:          '\'' SingleStringCharacter* '\'';
+IntegerLiteral:         '0' |  [1-9] [0-9]*;
+StringLiteral:          '"' StringCharacter* '"';
 WhiteSpaces:            [\t\u000B\u000C\u0020\u00A0]+ -> channel(HIDDEN);
 LineTerminator:         [\r\n\u2028\u2029] -> channel(HIDDEN);
 
@@ -59,7 +56,7 @@ MultiLineComment:       '/*' .*? '*/'             -> channel(HIDDEN);
 SingleLineComment:      '//' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
 
 // Fragment规则
-fragment SingleStringCharacter
+fragment StringCharacter
     : ~['\\\r\n]
     | '\\' EscapeSequence
     | LineContinuation
@@ -91,6 +88,4 @@ fragment LetterOrDigit
     | [0-9]
     ;
 
-fragment Letter
-    : [a-zA-Z$_]
-    ;
+fragment Letter : [a-zA-Z_] ;

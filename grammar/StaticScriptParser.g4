@@ -14,12 +14,21 @@ statements
     ;
 
 statement
-    : declaration
+    : emptyStatement
+    | declarationStatement
     | compoundStatement
     | expressionStatement
     | selectionStatement
     | iterationStatement
     | jumpStatement
+    ;
+
+emptyStatement
+    : SemiColon
+    ;
+
+declarationStatement
+    : declaration
     ;
 
 declaration
@@ -45,18 +54,17 @@ variableDeclarator
     ;
 
 typeAnnotation
-    : Colon predefinedType
+    : Colon builtinType
+    ;
+
+builtinType
+    : Boolean
+    | Number
+    | String
     ;
 
 variableInitializer
     : Assign expression
-    ;
-
-predefinedType
-    : Void
-    | Boolean
-    | Number
-    | String
     ;
 
 functionDeclaration
@@ -75,7 +83,7 @@ functionBody
     : compoundStatement
     ;
 
-functionCallExpression
+callExpression
     : Identifier OpenParen argumentList? CloseParen
     ;
 
@@ -95,25 +103,26 @@ expression
     : literal
     | OpenParen expression CloseParen
     | Identifier
-    | functionCallExpression
-    | expression (Multiply | Divide) expression
-    | expression (Plus | Minus) expression
-    | expression (LessThan | MoreThan | LessThanEquals | GreaterThanEquals) expression
-    | expression (Equals | NotEquals) expression
-    | <assoc=right> expression Assign expression
+    | callExpression
+    | uop=Minus expression
+    | expression bop=(Multiply | Divide) expression
+    | expression bop=(Plus | Minus) expression
+    | expression bop=(LessThan | MoreThan | LessThanEquals | GreaterThanEquals) expression
+    | expression bop=(Equals | NotEquals) expression
+    | <assoc=right> expression bop=Assign expression
     ;
 
 literal
     : BooleanLiteral
-    | DecimalIntegerLiteral
+    | IntegerLiteral
     | StringLiteral
     ;
 
 selectionStatement
-    : ifElseStatement
+    : ifStatement
     ;
 
-ifElseStatement
+ifStatement
     : If OpenParen expression CloseParen statement (Else statement)?
     ;
 
