@@ -2,6 +2,7 @@
 #define STATICSCRIPT_AST_BASE_H
 
 #include <memory>
+#include <vector>
 
 template <typename T>
 using SharedPtr = std::shared_ptr<T>;
