@@ -30,7 +30,7 @@ jobs:
           path: ${{ github.workspace }}/thirdparty
           key: ${{ matrix.os }}-${{ matrix.compiler.cc }}-antlr
       - name: Install Prerequirements for Antlr4 Runtime
-        run: sudo apt install uuid-dev pkg-config
+        run: sudo apt-get install uuid-dev pkg-config doxygen graphviz
       - name: Install Antlr4 and Antlr4 Runtime
         if: steps.cache-antlr.outputs.cache-hit != 'true'
         env:
@@ -74,7 +74,7 @@ jobs:
           - { cc: clang, cxx: clang++ }
     steps:
       - name: Install Antlr4 and Antlr4 Runtime
-        run: brew install antlr antlr4-cpp-runtime
+        run: brew install antlr antlr4-cpp-runtime doxygen graphviz
       - name: Fetch Codebase
         uses: actions/checkout@v2
       - name: CMake Build
