@@ -20,7 +20,12 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_TEMPLATE_RELATIONS YES)
     set(DOXYGEN_DOT_TRANSPARENT YES)
     set(DOXYGEN_DOT_MULTI_TARGETS YES)
-    doxygen_add_docs(doxygen ${PROJECT_SOURCE_DIR})
+    doxygen_add_docs(
+            doxygen
+            ${PROJECT_SOURCE_DIR}/include
+            ${PROJECT_SOURCE_DIR}/lib
+            ${PROJECT_SOURCE_DIR}/README-zh_CN.md
+    )
 endif ()
 
 add_dependencies(doxygen staticscript)
