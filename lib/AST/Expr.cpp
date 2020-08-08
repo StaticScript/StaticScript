@@ -1,42 +1,21 @@
 #include "AST/Expr.h"
 
 #include <utility>
+#include "AST/Decl.h"
 
 LiteralExpr::LiteralExpr(TypeKind type) : type(type) {}
 
 IntegerLiteralExpr::IntegerLiteralExpr(TypeKind type, int literal) : LiteralExpr(type), literal(literal) {}
 
-void IntegerLiteralExpr::codegen() {}
-
 BooleanLiteralExpr::BooleanLiteralExpr(TypeKind type, bool literal) : LiteralExpr(type), literal(literal) {}
-
-void BooleanLiteralExpr::codegen() {}
 
 StringLiteralExpr::StringLiteralExpr(TypeKind type, String literal) : LiteralExpr(type), literal(std::move(literal)) {}
 
-void StringLiteralExpr::codegen() {}
-
 IdentifierExpr::IdentifierExpr(String name) : name(std::move(name)) {}
 
-void IdentifierExpr::codegen() {}
-
-void UnaryOperatorExpr::codegen() {
-
-}
-
-UnaryOperatorExpr::UnaryOperatorExpr() {}
-
 UnaryOperatorExpr::UnaryOperatorExpr(size_t operatorCode, const SharedPtr<Expr> &subExpr) : operatorCode(operatorCode), subExpr(subExpr) {}
-
-BinaryOperatorExpr::BinaryOperatorExpr() {}
 
 BinaryOperatorExpr::BinaryOperatorExpr(size_t operatorCode, const SharedPtr<Expr> &lhs, const SharedPtr<Expr> &rhs) : operatorCode(operatorCode),
                                                                                                                       lhs(lhs), rhs(rhs) {}
 
-void BinaryOperatorExpr::codegen() {
-
-}
-
-void CallExpr::codegen() {
-
-}
+CallExpr::CallExpr(String calleeName, const SharedPtrVector<Expr> &args) : calleeName(std::move(calleeName)), args(args) {}

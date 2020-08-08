@@ -6,8 +6,6 @@
 class ASTNode {
 public:
     virtual ~ASTNode() = default;
-
-    virtual void codegen() = 0;
 };
 
 

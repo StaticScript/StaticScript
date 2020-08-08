@@ -5,7 +5,7 @@
 #include "Driver/Visitor.h"
 
 int main(int argc, char *argv[]) {
-    antlr4::ANTLRInputStream inputStream("let x = 1; const y = x + 1;");
+    antlr4::ANTLRInputStream inputStream("let x=1;if(x){}else{let y=1;}while(x<10){x=x+1;}for(let i=0;i<10;i=i+1){}");
     StaticScriptLexer lexer(&inputStream);
     antlr4::CommonTokenStream tokenStream(&lexer);
     tokenStream.fill();

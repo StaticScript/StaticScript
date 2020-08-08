@@ -2,7 +2,7 @@ find_package(Doxygen REQUIRED dot)
 
 if (DOXYGEN_FOUND)
     set(DOXYGEN_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/include)
-    set(DOXYGEN_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/docs)
+    set(DOXYGEN_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/doxygen)
     set(DOXYGEN_OUTPUT_LANGUAGE Chinese)
     set(DOXYGEN_EXTRACT_ALL YES)
     set(DOXYGEN_EXTRACT_STATIC YES)
@@ -27,5 +27,3 @@ if (DOXYGEN_FOUND)
             ${PROJECT_SOURCE_DIR}/README-zh_CN.md
     )
 endif ()
-
-add_dependencies(doxygen staticscript)

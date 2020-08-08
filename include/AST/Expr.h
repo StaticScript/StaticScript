@@ -4,6 +4,8 @@
 #include "AST/Type.h"
 #include "AST/Stmt.h"
 
+class FunctionDecl;
+
 class Expr : public ValueStmt {
 public:
     ~Expr() override = default;
@@ -26,8 +28,6 @@ public:
 
     ~BooleanLiteralExpr() override = default;
 
-    void codegen() override;
-
     bool literal;
 
 };
@@ -39,8 +39,6 @@ public:
 
     ~IntegerLiteralExpr() override = default;
 
-    void codegen() override;
-
     int literal;
 };
 
@@ -50,8 +48,6 @@ public:
     explicit StringLiteralExpr(TypeKind type, String literal);
 
     ~StringLiteralExpr() override = default;
-
-    void codegen() override;
 
     String literal;
 };
@@ -69,44 +65,39 @@ public:
 
     ~IdentifierExpr() override = default;
 
-    void codegen() override;
-
     String name;
 };
 
 // 函数调用表达式
 class CallExpr : public Expr {
 public:
+
+    CallExpr(String calleeName, const SharedPtrVector<Expr> &args);
+
     ~CallExpr() override = default;
 
-    void codegen() override;
+    String calleeName;
+    SharedPtr<FunctionDecl> callee;
+    SharedPtrVector<Expr> args;
 };
 
 // 一元运算表达式
 class UnaryOperatorExpr : public Expr {
 public:
-    UnaryOperatorExpr();
-
     UnaryOperatorExpr(size_t operatorCode, const SharedPtr<Expr> &subExpr);
 
     ~UnaryOperatorExpr() override = default;
 
-    void codegen() override;
-
-    size_t operatorCode;
+    size_t operatorCode{};
     SharedPtr<Expr> subExpr;
 };
 
 // 二元运算表达式
 class BinaryOperatorExpr : public Expr {
 public:
-    BinaryOperatorExpr();
-
     BinaryOperatorExpr(size_t operatorCode, const SharedPtr<Expr> &lhs, const SharedPtr<Expr> &rhs);
 
     ~BinaryOperatorExpr() override = default;
-
-    void codegen() override;
 
     size_t operatorCode;
     SharedPtr<Expr> lhs, rhs;

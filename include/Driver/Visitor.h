@@ -60,11 +60,11 @@ public:
 
     antlrcpp::Any visitIterationStatement(StaticScriptParser::IterationStatementContext *ctx) override;
 
-    antlrcpp::Any visitForInitExpr(StaticScriptParser::ForInitExprContext *ctx) override;
+    antlrcpp::Any visitWhileStatement(StaticScriptParser::WhileStatementContext *ctx) override;
 
-    antlrcpp::Any visitForCondExpr(StaticScriptParser::ForCondExprContext *ctx) override;
+    antlrcpp::Any visitForStatement(StaticScriptParser::ForStatementContext *ctx) override;
 
-    antlrcpp::Any visitForLoopExpr(StaticScriptParser::ForLoopExprContext *ctx) override;
+    antlrcpp::Any visitForInit(StaticScriptParser::ForInitContext *ctx) override;
 
     antlrcpp::Any visitExpressionList(StaticScriptParser::ExpressionListContext *ctx) override;
 

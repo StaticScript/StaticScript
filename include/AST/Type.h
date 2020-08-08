@@ -23,8 +23,6 @@ public:
 
     ~BuiltinType() override = default;
 
-    void codegen() override;
-
     static inline const SharedPtr<BuiltinType> BOOLEAN_TYPE = makeShared<BuiltinType>(TypeKind::Boolean);
     static inline const SharedPtr<BuiltinType> INTEGER_TYPE = makeShared<BuiltinType>(TypeKind::Integer);
     static inline const SharedPtr<BuiltinType> STRING_TYPE = makeShared<BuiltinType>(TypeKind::String);

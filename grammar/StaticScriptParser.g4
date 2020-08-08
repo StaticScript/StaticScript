@@ -72,7 +72,7 @@ functionDeclaration
     ;
 
 parameterList
-    : Identifier typeAnnotation? (Comma Identifier typeAnnotation?)*
+    : Identifier typeAnnotation (Comma Identifier typeAnnotation)*
     ;
 
 functionBody
@@ -123,20 +123,21 @@ ifStatement
     ;
 
 iterationStatement
+    : whileStatement
+    | forStatement
+    ;
+
+whileStatement
     : While OpenParen expression CloseParen statement
-    | For OpenParen forInitExpr SemiColon forCondExpr SemiColon forLoopExpr CloseParen statement
     ;
 
-forInitExpr
-    : (expressionList | variableDeclarators)?
+forStatement
+    : For OpenParen forInit? SemiColon forCondition=expression? SemiColon forUpdate=expressionList? CloseParen statement
     ;
 
-forCondExpr
-    : expression?
-    ;
-
-forLoopExpr
-    : expressionList?
+forInit
+    : variableDeclarators
+    | expressionList
     ;
 
 expressionList

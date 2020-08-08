@@ -3,5 +3,3 @@
 Type::Type(TypeKind kind) : kind(kind) {}
 
 BuiltinType::BuiltinType(TypeKind kind) : Type(kind) {}
-
-void BuiltinType::codegen() {}

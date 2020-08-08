@@ -8,19 +8,14 @@ class Module {
 public:
     ~Module() = default;
 
-    explicit Module(String filename);
-
     explicit Module(String filename, SharedPtrVector<Stmt> childStmts);
 
     [[nodiscard]] const String &getFilename() const;
 
     [[nodiscard]] bool isEmpty() const;
 
-    void codegen();
-
 private:
     const String filename;
-    bool empty;
     SharedPtrVector<Stmt> childStmts;
 };
 

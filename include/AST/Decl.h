@@ -7,7 +7,7 @@
 #include "AST/Expr.h"
 
 enum class VarModifier {
-    Let, Const
+    Let, Const, Param
 };
 
 class Decl : public ASTNode {
@@ -18,29 +18,39 @@ public:
 // 变量声明
 class VarDecl : public Decl {
 public:
+    VarDecl();
+
+    VarDecl(VarModifier modifier, String name, const SharedPtr<BuiltinType> &type);
+
+    VarDecl(VarModifier modifier, String name, const SharedPtr<BuiltinType> &type, const SharedPtr<Expr> &defaultVal);
+
     ~VarDecl() override = default;
 
-    void codegen() override;
-
     VarModifier modifier;
-    SharedPtr<BuiltinType> type;
     String name;
-    SharedPtr<Expr> initVal;
+    SharedPtr<BuiltinType> type;
+    SharedPtr<Expr> defaultVal;
 };
 
 // 函数参数声明
 class ParmVarDecl : public VarDecl {
 public:
+    ParmVarDecl(const String &name, const SharedPtr<BuiltinType> &type);
+
     ~ParmVarDecl() override = default;
 };
 
 // 函数声明
 class FunctionDecl : public Decl {
 public:
+    FunctionDecl(String name, const SharedPtrVector<ParmVarDecl> &params, const SharedPtr<BuiltinType> &returnType,
+                 const SharedPtr<CompoundStmt> &body);
+
     ~FunctionDecl() override = default;
 
+    String name;
     SharedPtrVector<ParmVarDecl> params;
-    SharedPtr<Type> returnType;
+    SharedPtr<BuiltinType> returnType;
     SharedPtr<CompoundStmt> body;
 };
 

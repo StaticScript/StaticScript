@@ -2,12 +2,8 @@
 
 #include <utility>
 
-Module::Module(String filename) : filename(std::move(filename)) {
-    empty = true;
-}
 
 Module::Module(String filename, SharedPtrVector<Stmt> childStmts) : filename(std::move(filename)), childStmts(std::move(childStmts)) {
-    empty = false;
 }
 
 const String &Module::getFilename() const {
@@ -15,9 +11,5 @@ const String &Module::getFilename() const {
 }
 
 bool Module::isEmpty() const {
-    return empty;
-}
-
-void Module::codegen() {
-
+    return childStmts.empty();
 }
