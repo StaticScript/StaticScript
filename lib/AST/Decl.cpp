@@ -1,5 +1,4 @@
 #include "AST/Decl.h"
-
 #include <utility>
 
 VarDecl::VarDecl() : modifier(VarModifier::Let) {}

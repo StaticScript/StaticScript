@@ -1,4 +1,4 @@
-set(SRC Driver.cpp Visitor.cpp)
+set(SRC Driver.cpp)
 
 add_library(driver OBJECT ${SRC})
 

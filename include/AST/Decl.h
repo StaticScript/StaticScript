@@ -1,18 +1,18 @@
 #ifndef STATICSCRIPT_AST_DECL_H
 #define STATICSCRIPT_AST_DECL_H
 
-#include "AST/Base.h"
 #include "AST/Type.h"
 #include "AST/Stmt.h"
 #include "AST/Expr.h"
+#include "Util/Alias.h"
 
 enum class VarModifier {
     Let, Const, Param
 };
 
-class Decl : public ASTNode {
+class Decl {
 public:
-    ~Decl() override = default;
+    virtual ~Decl() = default;
 };
 
 // 变量声明

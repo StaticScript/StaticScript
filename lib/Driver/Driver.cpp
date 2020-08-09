@@ -2,7 +2,7 @@
 #include <antlr4-runtime.h>
 #include "StaticScriptLexer.h"
 #include "StaticScriptParser.h"
-#include "Driver/Visitor.h"
+#include "AST/AST.h"
 
 int main(int argc, char *argv[]) {
     if (argc > 1) {

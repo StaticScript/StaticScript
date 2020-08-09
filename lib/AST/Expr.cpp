@@ -1,7 +1,6 @@
 #include "AST/Expr.h"
-
-#include <utility>
 #include "AST/Decl.h"
+#include <utility>
 
 LiteralExpr::LiteralExpr(TypeKind type) : type(type) {}
 

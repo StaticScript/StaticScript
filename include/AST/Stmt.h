@@ -1,7 +1,7 @@
 #ifndef STATICSCRIPT_AST_STMT_H
 #define STATICSCRIPT_AST_STMT_H
 
-#include "AST/Base.h"
+#include "Util/Alias.h"
 
 class VarDecl;
 
@@ -9,9 +9,9 @@ class FunctionDecl;
 
 class Expr;
 
-class Stmt : public ASTNode {
+class Stmt {
 public:
-    ~Stmt() override = default;
+    virtual ~Stmt() = default;
 };
 
 // 值语句
@@ -83,6 +83,7 @@ public:
             const SharedPtrVector<Expr> &forUpdate, const SharedPtr<Stmt> &body);
 
     ~ForStmt() override = default;
+
     SharedPtr<VarDeclStmt> forInitVarDecls;
     SharedPtrVector<Expr> forInitExprList;
     SharedPtr<Expr> forCondition;
@@ -108,6 +109,7 @@ public:
     explicit ReturnStmt(const SharedPtr<Expr> &argument);
 
     ~ReturnStmt() override = default;
+
     SharedPtr<Expr> argument;
 };
 

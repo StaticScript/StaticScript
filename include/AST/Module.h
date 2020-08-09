@@ -4,9 +4,9 @@
 #include "AST/Stmt.h"
 
 // 模块声明
-class Module {
+class Module final {
 public:
-    ~Module() = default;
+    virtual ~Module() = default;
 
     explicit Module(String filename, SharedPtrVector<Stmt> childStmts);
 

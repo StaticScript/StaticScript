@@ -1,17 +1,17 @@
 #ifndef STATICSCRIPT_AST_TYPE_H
 #define STATICSCRIPT_AST_TYPE_H
 
-#include "AST/Base.h"
+#include "Util/Alias.h"
 
 enum class TypeKind {
     Unknown, Boolean, Integer, String
 };
 
-class Type : public ASTNode {
+class Type {
 public:
     explicit Type(TypeKind kind);
 
-    ~Type() override = default;
+    virtual ~Type() = default;
 
     TypeKind kind;
 };
