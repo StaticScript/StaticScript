@@ -6,7 +6,7 @@
 #include "AST/AST.h"
 #include "Util/Alias.h"
 
-class Visitor : public StaticScriptParserBaseVisitor {
+class Visitor : public StaticScriptParserVisitor {
 public:
     explicit Visitor(String filename);
 
