@@ -29,4 +29,4 @@ public:
     static inline const SharedPtr<BuiltinType> UNKNOWN_TYPE = makeShared<BuiltinType>(TypeKind::Unknown);
 };
 
-#endif //STATICSCRIPT_AST_TYPE_H
+#endif // STATICSCRIPT_AST_TYPE_H

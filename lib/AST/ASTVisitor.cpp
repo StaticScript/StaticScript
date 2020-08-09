@@ -1,13 +1,13 @@
 #include "AST/ASTVisitor.h"
 
-Visitor::Visitor(String filename) : filename(std::move(filename)) {}
+ASTVisitor::ASTVisitor(String filename) : filename(std::move(filename)) {}
 
-antlrcpp::Any Visitor::visitModule(StaticScriptParser::ModuleContext *ctx) {
+antlrcpp::Any ASTVisitor::visitModule(StaticScriptParser::ModuleContext *ctx) {
     const SharedPtrVector<Stmt> &childStmts = visitStatements(ctx->statements());
     return makeShared<Module>(filename, childStmts);
 }
 
-antlrcpp::Any Visitor::visitStatements(StaticScriptParser::StatementsContext *ctx) {
+antlrcpp::Any ASTVisitor::visitStatements(StaticScriptParser::StatementsContext *ctx) {
     SharedPtrVector<Stmt> stmts;
     if (ctx) {
         for (auto &stmtCtx: ctx->statement()) {
@@ -18,7 +18,7 @@ antlrcpp::Any Visitor::visitStatements(StaticScriptParser::StatementsContext *ct
     return stmts;
 }
 
-antlrcpp::Any Visitor::visitStatement(StaticScriptParser::StatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitStatement(StaticScriptParser::StatementContext *ctx) {
     antlrcpp::Any stmtAny;
     SharedPtr<Stmt> stmt;
     if (ctx->emptyStatement()) {
@@ -65,15 +65,15 @@ antlrcpp::Any Visitor::visitStatement(StaticScriptParser::StatementContext *ctx)
     return stmt;
 }
 
-antlrcpp::Any Visitor::visitEmptyStatement(StaticScriptParser::EmptyStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitEmptyStatement(StaticScriptParser::EmptyStatementContext *ctx) {
     return nullptr;
 }
 
-antlrcpp::Any Visitor::visitDeclarationStatement(StaticScriptParser::DeclarationStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitDeclarationStatement(StaticScriptParser::DeclarationStatementContext *ctx) {
     return visitDeclaration(ctx->declaration());
 }
 
-antlrcpp::Any Visitor::visitDeclaration(StaticScriptParser::DeclarationContext *ctx) {
+antlrcpp::Any ASTVisitor::visitDeclaration(StaticScriptParser::DeclarationContext *ctx) {
     if (ctx->variableDeclaration()) {
         return visitVariableDeclaration(ctx->variableDeclaration());
     } else if (ctx->functionDeclaration()) {
@@ -82,11 +82,11 @@ antlrcpp::Any Visitor::visitDeclaration(StaticScriptParser::DeclarationContext *
     return nullptr;
 }
 
-antlrcpp::Any Visitor::visitVariableDeclaration(StaticScriptParser::VariableDeclarationContext *ctx) {
+antlrcpp::Any ASTVisitor::visitVariableDeclaration(StaticScriptParser::VariableDeclarationContext *ctx) {
     return visitVariableDeclarators(ctx->variableDeclarators());
 }
 
-antlrcpp::Any Visitor::visitVariableDeclarators(StaticScriptParser::VariableDeclaratorsContext *ctx) {
+antlrcpp::Any ASTVisitor::visitVariableDeclarators(StaticScriptParser::VariableDeclaratorsContext *ctx) {
     VarModifier modifier = visitVariableModifier(ctx->variableModifier());
     SharedPtr<VarDeclStmt> varDeclStmt = makeShared<VarDeclStmt>();
     for (auto &declCtx : ctx->variableDeclarator()) {
@@ -97,14 +97,14 @@ antlrcpp::Any Visitor::visitVariableDeclarators(StaticScriptParser::VariableDecl
     return varDeclStmt;
 }
 
-antlrcpp::Any Visitor::visitVariableModifier(StaticScriptParser::VariableModifierContext *ctx) {
+antlrcpp::Any ASTVisitor::visitVariableModifier(StaticScriptParser::VariableModifierContext *ctx) {
     if (ctx->Const()) {
         return VarModifier::Const;
     }
     return VarModifier::Let;
 }
 
-antlrcpp::Any Visitor::visitVariableDeclarator(StaticScriptParser::VariableDeclaratorContext *ctx) {
+antlrcpp::Any ASTVisitor::visitVariableDeclarator(StaticScriptParser::VariableDeclaratorContext *ctx) {
     SharedPtr<VarDecl> varDecl = makeShared<VarDecl>();
     varDecl->type = visitTypeAnnotation(ctx->typeAnnotation());
     varDecl->name = ctx->Identifier()->getText();
@@ -112,14 +112,14 @@ antlrcpp::Any Visitor::visitVariableDeclarator(StaticScriptParser::VariableDecla
     return varDecl;
 }
 
-antlrcpp::Any Visitor::visitTypeAnnotation(StaticScriptParser::TypeAnnotationContext *ctx) {
+antlrcpp::Any ASTVisitor::visitTypeAnnotation(StaticScriptParser::TypeAnnotationContext *ctx) {
     if (ctx) {
         return visitBuiltinType(ctx->builtinType());
     }
     return BuiltinType::UNKNOWN_TYPE;
 }
 
-antlrcpp::Any Visitor::visitBuiltinType(StaticScriptParser::BuiltinTypeContext *ctx) {
+antlrcpp::Any ASTVisitor::visitBuiltinType(StaticScriptParser::BuiltinTypeContext *ctx) {
     if (ctx->Boolean()) {
         return BuiltinType::BOOLEAN_TYPE;
     } else if (ctx->Number()) {
@@ -128,11 +128,11 @@ antlrcpp::Any Visitor::visitBuiltinType(StaticScriptParser::BuiltinTypeContext *
     return BuiltinType::STRING_TYPE;
 }
 
-antlrcpp::Any Visitor::visitVariableInitializer(StaticScriptParser::VariableInitializerContext *ctx) {
+antlrcpp::Any ASTVisitor::visitVariableInitializer(StaticScriptParser::VariableInitializerContext *ctx) {
     return visitExpression(ctx->expression());
 }
 
-antlrcpp::Any Visitor::visitFunctionDeclaration(StaticScriptParser::FunctionDeclarationContext *ctx) {
+antlrcpp::Any ASTVisitor::visitFunctionDeclaration(StaticScriptParser::FunctionDeclarationContext *ctx) {
     String name = ctx->Identifier()->getText();
     SharedPtrVector<ParmVarDecl> params = visitParameterList(ctx->parameterList());
     SharedPtr<BuiltinType> returnType = visitTypeAnnotation(ctx->typeAnnotation());
@@ -142,7 +142,7 @@ antlrcpp::Any Visitor::visitFunctionDeclaration(StaticScriptParser::FunctionDecl
     return functionDeclStmt;
 }
 
-antlrcpp::Any Visitor::visitParameterList(StaticScriptParser::ParameterListContext *ctx) {
+antlrcpp::Any ASTVisitor::visitParameterList(StaticScriptParser::ParameterListContext *ctx) {
     SharedPtrVector<ParmVarDecl> params;
     if (ctx) {
         for (size_t i = 0; i < ctx->Identifier().size(); ++i) {
@@ -155,32 +155,32 @@ antlrcpp::Any Visitor::visitParameterList(StaticScriptParser::ParameterListConte
     return params;
 }
 
-antlrcpp::Any Visitor::visitFunctionBody(StaticScriptParser::FunctionBodyContext *ctx) {
+antlrcpp::Any ASTVisitor::visitFunctionBody(StaticScriptParser::FunctionBodyContext *ctx) {
     return visitCompoundStatement(ctx->compoundStatement());
 }
 
-antlrcpp::Any Visitor::visitCallExpression(StaticScriptParser::CallExpressionContext *ctx) {
+antlrcpp::Any ASTVisitor::visitCallExpression(StaticScriptParser::CallExpressionContext *ctx) {
     String calleeName = ctx->Identifier()->getText();
     SharedPtrVector<Expr> args = visitArgumentList(ctx->argumentList());
     SharedPtr<CallExpr> callExpr = makeShared<CallExpr>(calleeName, args);
     return callExpr;
 }
 
-antlrcpp::Any Visitor::visitArgumentList(StaticScriptParser::ArgumentListContext *ctx) {
+antlrcpp::Any ASTVisitor::visitArgumentList(StaticScriptParser::ArgumentListContext *ctx) {
     return visitExpressionList(ctx->expressionList());
 }
 
-antlrcpp::Any Visitor::visitCompoundStatement(StaticScriptParser::CompoundStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitCompoundStatement(StaticScriptParser::CompoundStatementContext *ctx) {
     SharedPtrVector<Stmt> childStmts = visitStatements(ctx->statements());
     SharedPtr<CompoundStmt> compoundStmt = makeShared<CompoundStmt>(childStmts);
     return compoundStmt;
 }
 
-antlrcpp::Any Visitor::visitExpressionStatement(StaticScriptParser::ExpressionStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitExpressionStatement(StaticScriptParser::ExpressionStatementContext *ctx) {
     return visitExpression(ctx->expression());
 }
 
-antlrcpp::Any Visitor::visitExpression(StaticScriptParser::ExpressionContext *ctx) {
+antlrcpp::Any ASTVisitor::visitExpression(StaticScriptParser::ExpressionContext *ctx) {
     if (ctx) {
         SharedPtr<Expr> expr;
         if (ctx->literal()) {
@@ -206,7 +206,7 @@ antlrcpp::Any Visitor::visitExpression(StaticScriptParser::ExpressionContext *ct
     return nullptr;
 }
 
-antlrcpp::Any Visitor::visitLiteral(StaticScriptParser::LiteralContext *ctx) {
+antlrcpp::Any ASTVisitor::visitLiteral(StaticScriptParser::LiteralContext *ctx) {
     SharedPtr<LiteralExpr> literalExpr;
     if (ctx->BooleanLiteral()) {
         bool literal = ctx->BooleanLiteral()->getText() == "true";
@@ -222,14 +222,14 @@ antlrcpp::Any Visitor::visitLiteral(StaticScriptParser::LiteralContext *ctx) {
     return literalExpr;
 }
 
-antlrcpp::Any Visitor::visitSelectionStatement(StaticScriptParser::SelectionStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitSelectionStatement(StaticScriptParser::SelectionStatementContext *ctx) {
     if (ctx->ifStatement()) {
         return visitIfStatement(ctx->ifStatement());
     }
     return nullptr;
 }
 
-antlrcpp::Any Visitor::visitIfStatement(StaticScriptParser::IfStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitIfStatement(StaticScriptParser::IfStatementContext *ctx) {
     SharedPtr<Expr> condition = visitExpression(ctx->expression());
     SharedPtr<Stmt> thenBody = visitStatement(ctx->statement(0));
     SharedPtr<Stmt> elseBody;
@@ -240,7 +240,7 @@ antlrcpp::Any Visitor::visitIfStatement(StaticScriptParser::IfStatementContext *
     return ifStmt;
 }
 
-antlrcpp::Any Visitor::visitIterationStatement(StaticScriptParser::IterationStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitIterationStatement(StaticScriptParser::IterationStatementContext *ctx) {
     if (ctx->whileStatement()) {
         return visitWhileStatement(ctx->whileStatement());
     } else if (ctx->forStatement()) {
@@ -249,14 +249,14 @@ antlrcpp::Any Visitor::visitIterationStatement(StaticScriptParser::IterationStat
     return nullptr;
 }
 
-antlrcpp::Any Visitor::visitWhileStatement(StaticScriptParser::WhileStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitWhileStatement(StaticScriptParser::WhileStatementContext *ctx) {
     SharedPtr<Expr> condition = visitExpression(ctx->expression());
     SharedPtr<Stmt> body = visitStatement(ctx->statement());
     SharedPtr<WhileStmt> whileStmt = makeShared<WhileStmt>(condition, body);
     return whileStmt;
 }
 
-antlrcpp::Any Visitor::visitForStatement(StaticScriptParser::ForStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitForStatement(StaticScriptParser::ForStatementContext *ctx) {
     antlrcpp::Any forInitAny = visitForInit(ctx->forInit());
     SharedPtr<VarDeclStmt> forInitVarDecls;
     SharedPtrVector<Expr> forInitExprList;
@@ -274,7 +274,7 @@ antlrcpp::Any Visitor::visitForStatement(StaticScriptParser::ForStatementContext
     return forStmt;
 }
 
-antlrcpp::Any Visitor::visitForInit(StaticScriptParser::ForInitContext *ctx) {
+antlrcpp::Any ASTVisitor::visitForInit(StaticScriptParser::ForInitContext *ctx) {
     if (ctx) {
         if (ctx->variableDeclarators()) {
             return visitVariableDeclarators(ctx->variableDeclarators());
@@ -285,7 +285,7 @@ antlrcpp::Any Visitor::visitForInit(StaticScriptParser::ForInitContext *ctx) {
     return nullptr;
 }
 
-antlrcpp::Any Visitor::visitExpressionList(StaticScriptParser::ExpressionListContext *ctx) {
+antlrcpp::Any ASTVisitor::visitExpressionList(StaticScriptParser::ExpressionListContext *ctx) {
     SharedPtrVector<Expr> exprList;
     for (auto exprCtx : ctx->expression()) {
         SharedPtr<Expr> expr = visitExpression(exprCtx);
@@ -294,7 +294,7 @@ antlrcpp::Any Visitor::visitExpressionList(StaticScriptParser::ExpressionListCon
     return exprList;
 }
 
-antlrcpp::Any Visitor::visitJumpStatement(StaticScriptParser::JumpStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitJumpStatement(StaticScriptParser::JumpStatementContext *ctx) {
     if (ctx->continueStatement()) {
         return visitContinueStatement(ctx->continueStatement());
     } else if (ctx->breakStatement()) {
@@ -305,17 +305,17 @@ antlrcpp::Any Visitor::visitJumpStatement(StaticScriptParser::JumpStatementConte
     return nullptr;
 }
 
-antlrcpp::Any Visitor::visitContinueStatement(StaticScriptParser::ContinueStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitContinueStatement(StaticScriptParser::ContinueStatementContext *ctx) {
     SharedPtr<ContinueStmt> continueStmt = makeShared<ContinueStmt>();
     return continueStmt;
 }
 
-antlrcpp::Any Visitor::visitBreakStatement(StaticScriptParser::BreakStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitBreakStatement(StaticScriptParser::BreakStatementContext *ctx) {
     SharedPtr<BreakStmt> breakStmt = makeShared<BreakStmt>();
     return breakStmt;
 }
 
-antlrcpp::Any Visitor::visitReturnStatement(StaticScriptParser::ReturnStatementContext *ctx) {
+antlrcpp::Any ASTVisitor::visitReturnStatement(StaticScriptParser::ReturnStatementContext *ctx) {
     SharedPtr<Expr> argument = visitExpression(ctx->expression());
     SharedPtr<ReturnStmt> returnStmt = makeShared<ReturnStmt>(argument);
     return returnStmt;

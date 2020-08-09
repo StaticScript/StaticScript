@@ -21,35 +21,34 @@ public:
 };
 
 // 复合语句
-class CompoundStmt : public Stmt {
+class CompoundStmt final : public Stmt {
 public:
-
     explicit CompoundStmt(const SharedPtrVector<Stmt> &childStmts);
 
     ~CompoundStmt() override = default;
+
+    [[nodiscard]] virtual bool isEmpty() const;
 
     SharedPtrVector<Stmt> childStmts;
 };
 
 // 变量声明语句
-class VarDeclStmt : public Stmt {
+class VarDeclStmt final : public Stmt {
 public:
     ~VarDeclStmt() override = default;
 
     virtual void pushVarDecl(const SharedPtr<VarDecl> &varDecl);
 
-private:
     SharedPtrVector<VarDecl> childVarDecls;
 };
 
 // 函数声明语句
-class FunctionDeclStmt : public Stmt {
+class FunctionDeclStmt final : public Stmt {
 public:
     explicit FunctionDeclStmt(const SharedPtr<FunctionDecl> &childFunctionDecl);
 
     ~FunctionDeclStmt() override = default;
 
-private:
     SharedPtr<FunctionDecl> childFunctionDecl;
 };
 
@@ -114,4 +113,4 @@ public:
 };
 
 
-#endif //STATICSCRIPT_AST_STMT_H
+#endif // STATICSCRIPT_AST_STMT_H

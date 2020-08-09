@@ -3,21 +3,20 @@
 
 #include "AST/Stmt.h"
 
-// 模块声明
+/// 一个文件就是一个模块, 即一个翻译单元
 class Module final {
 public:
     virtual ~Module() = default;
 
     explicit Module(String filename, SharedPtrVector<Stmt> childStmts);
 
-    [[nodiscard]] const String &getFilename() const;
+    [[nodiscard]] virtual const String &getFilename() const;
 
-    [[nodiscard]] bool isEmpty() const;
+    [[nodiscard]] virtual bool isEmpty() const;
 
-private:
-    const String filename;
+    String filename;
     SharedPtrVector<Stmt> childStmts;
 };
 
 
-#endif //STATICSCRIPT_AST_MODULE_H
+#endif // STATICSCRIPT_AST_MODULE_H

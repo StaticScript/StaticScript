@@ -54,4 +54,4 @@ public:
     SharedPtr<CompoundStmt> body;
 };
 
-#endif //STATICSCRIPT_AST_DECL_H
+#endif // STATICSCRIPT_AST_DECL_H

@@ -3,13 +3,14 @@
 #include "StaticScriptLexer.h"
 #include "StaticScriptParser.h"
 #include "AST/AST.h"
+#include "Util/Output.h"
 
 int main(int argc, char *argv[]) {
     if (argc > 1) {
         const String &codeFilename = argv[1];
         std::ifstream fin(codeFilename);
         if (!fin) {
-            std::cerr << "Can not open " << argv[1] << '.' << std::endl;
+            errPrintln("Can not open ", argv[1]);
             return 1;
         }
         antlr4::ANTLRInputStream inputStream(fin);
@@ -18,10 +19,10 @@ int main(int argc, char *argv[]) {
         tokenStream.fill();
         StaticScriptParser parser(&tokenStream);
         antlr4::tree::ParseTree *tree = parser.module();
-        Visitor visitor(codeFilename);
+        ASTVisitor visitor(codeFilename);
         SharedPtr<Module> module = visitor.visit(tree);
-        std::cout << module->getFilename() << std::endl;
+        outPrintln(module->getFilename());
     } else {
-        std::cerr << "At least one parameter is required." << std::endl;
+        errPrintln("At least one parameter is required.");
     }
 }

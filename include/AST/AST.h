@@ -8,4 +8,4 @@
 #include "AST/Module.h"
 #include "AST/ASTVisitor.h"
 
-#endif //STATICSCRIPT_AST_AST_H
+#endif // STATICSCRIPT_AST_AST_H

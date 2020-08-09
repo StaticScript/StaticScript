@@ -1,5 +1,5 @@
-#ifndef STATICSCRIPT_AST_VISITOR_H
-#define STATICSCRIPT_AST_VISITOR_H
+#ifndef STATICSCRIPT_AST_ASTVISITOR_H
+#define STATICSCRIPT_AST_ASTVISITOR_H
 
 #include <iostream>
 #include "StaticScriptParserBaseVisitor.h"
@@ -10,9 +10,9 @@
 #include "AST/Module.h"
 #include "Util/Alias.h"
 
-class Visitor : public StaticScriptParserVisitor {
+class ASTVisitor final : public StaticScriptParserVisitor {
 public:
-    explicit Visitor(String filename);
+    explicit ASTVisitor(String filename);
 
     antlrcpp::Any visitModule(StaticScriptParser::ModuleContext *ctx) override;
 
@@ -85,4 +85,4 @@ private:
 };
 
 
-#endif // STATICSCRIPT_AST_VISITOR_H
+#endif // STATICSCRIPT_AST_ASTVISITOR_H

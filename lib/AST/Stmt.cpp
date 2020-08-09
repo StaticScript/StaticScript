@@ -7,6 +7,10 @@ void VarDeclStmt::pushVarDecl(const SharedPtr<VarDecl> &varDecl) {
 
 CompoundStmt::CompoundStmt(const SharedPtrVector<Stmt> &childStmts) : childStmts(childStmts) {}
 
+bool CompoundStmt::isEmpty() const {
+    return childStmts.empty();
+}
+
 FunctionDeclStmt::FunctionDeclStmt(const SharedPtr<FunctionDecl> &childFunctionDecl) : childFunctionDecl(childFunctionDecl) {}
 
 IfStmt::IfStmt(const SharedPtr<Expr> &condition, const SharedPtr<Stmt> &thenStmt, const SharedPtr<Stmt> &elseStmt) : condition(condition),

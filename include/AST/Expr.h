@@ -103,4 +103,4 @@ public:
     SharedPtr<Expr> lhs, rhs;
 };
 
-#endif //STATICSCRIPT_AST_EXPR_H
+#endif // STATICSCRIPT_AST_EXPR_H
