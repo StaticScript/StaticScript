@@ -1,0 +1,12 @@
+let a: number = 1;
+let b: boolean = false;
+let c: string = "string content";
+let d = 1;
+let e = false;
+let f = "string content";
+const g: number = 1;
+const h: boolean = false;
+const i: string = "string content";
+const j = 1;
+const k = false;
+const l = "string content";
