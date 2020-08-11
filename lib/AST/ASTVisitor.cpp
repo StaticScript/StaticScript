@@ -11,7 +11,7 @@ antlrcpp::Any ASTVisitor::visitStatements(StaticScriptParser::StatementsContext 
     SharedPtrVector<Stmt> stmts;
     if (ctx) {
         for (auto &stmtCtx: ctx->statement()) {
-            SharedPtr<Stmt> stmt= visitStatement(stmtCtx);
+            SharedPtr<Stmt> stmt = visitStatement(stmtCtx);
             stmts.push_back(stmt);
         }
     }
@@ -22,38 +22,38 @@ antlrcpp::Any ASTVisitor::visitStatement(StaticScriptParser::StatementContext *c
     antlrcpp::Any stmtAny;
     SharedPtr<Stmt> stmt;
     if (ctx->emptyStatement()) {
-        stmtAny =  visitEmptyStatement(ctx->emptyStatement());
+        stmtAny = visitEmptyStatement(ctx->emptyStatement());
     } else if (ctx->declarationStatement()) {
-        stmtAny =  visitDeclarationStatement(ctx->declarationStatement());
+        stmtAny = visitDeclarationStatement(ctx->declarationStatement());
         if (stmtAny.is<SharedPtr<VarDeclStmt>>()) {
             stmt = stmtAny.as<SharedPtr<VarDeclStmt>>();
         } else if (stmtAny.is<SharedPtr<FunctionDeclStmt>>()) {
             stmt = stmtAny.as<SharedPtr<FunctionDeclStmt>>();
         }
     } else if (ctx->compoundStatement()) {
-        stmtAny =  visitCompoundStatement(ctx->compoundStatement());
+        stmtAny = visitCompoundStatement(ctx->compoundStatement());
         if (stmtAny.is<SharedPtr<CompoundStmt>>()) {
             stmt = stmtAny.as<SharedPtr<CompoundStmt>>();
         }
     } else if (ctx->expressionStatement()) {
-        stmtAny =  visitExpressionStatement(ctx->expressionStatement());
+        stmtAny = visitExpressionStatement(ctx->expressionStatement());
         if (stmtAny.is<SharedPtr<Expr>>()) {
             stmt = stmtAny.as<SharedPtr<Expr>>();
         }
     } else if (ctx->selectionStatement()) {
-        stmtAny =  visitSelectionStatement(ctx->selectionStatement());
+        stmtAny = visitSelectionStatement(ctx->selectionStatement());
         if (stmtAny.is<SharedPtr<IfStmt>>()) {
             stmt = stmtAny.as<SharedPtr<IfStmt>>();
         }
     } else if (ctx->iterationStatement()) {
-        stmtAny =  visitIterationStatement(ctx->iterationStatement());
+        stmtAny = visitIterationStatement(ctx->iterationStatement());
         if (stmtAny.is<SharedPtr<WhileStmt>>()) {
             stmt = stmtAny.as<SharedPtr<WhileStmt>>();
         } else if (stmtAny.is<SharedPtr<ForStmt>>()) {
             stmt = stmtAny.as<SharedPtr<ForStmt>>();
         }
     } else if (ctx->jumpStatement()) {
-        stmtAny =  visitJumpStatement(ctx->jumpStatement());
+        stmtAny = visitJumpStatement(ctx->jumpStatement());
         if (stmtAny.is<SharedPtr<ContinueStmt>>()) {
             stmt = stmtAny.as<SharedPtr<ContinueStmt>>();
         } else if (stmtAny.is<SharedPtr<BreakStmt>>()) {
