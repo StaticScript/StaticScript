@@ -15,9 +15,13 @@ public:
 };
 
 // 值语句
-class ValueStmt : public Stmt {
+class ExprStmt : public Stmt {
 public:
-    ~ValueStmt() override = default;
+    SharedPtr<Expr> expr;
+
+    explicit ExprStmt(const SharedPtr<Expr> &expr);
+
+    ~ExprStmt() override = default;
 };
 
 // 复合语句

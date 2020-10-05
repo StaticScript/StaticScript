@@ -1,14 +1,16 @@
 #include "AST/Stmt.h"
 #include "AST/Decl.h"
 
-void VarDeclStmt::pushVarDecl(const SharedPtr<VarDecl> &varDecl) {
-    childVarDecls.push_back(varDecl);
-}
+ExprStmt::ExprStmt(const SharedPtr<Expr> &expr) : expr(expr) {}
 
 CompoundStmt::CompoundStmt(const SharedPtrVector<Stmt> &childStmts) : childStmts(childStmts) {}
 
 bool CompoundStmt::isEmpty() const {
     return childStmts.empty();
+}
+
+void VarDeclStmt::pushVarDecl(const SharedPtr<VarDecl> &varDecl) {
+    childVarDecls.push_back(varDecl);
 }
 
 FunctionDeclStmt::FunctionDeclStmt(const SharedPtr<FunctionDecl> &childFunctionDecl) : childFunctionDecl(childFunctionDecl) {}

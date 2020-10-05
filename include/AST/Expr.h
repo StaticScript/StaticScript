@@ -6,9 +6,9 @@
 
 class FunctionDecl;
 
-class Expr : public ValueStmt {
+class Expr {
 public:
-    ~Expr() override = default;
+    virtual ~Expr() = default;
 };
 
 // 字面量表达式
@@ -29,7 +29,6 @@ public:
     ~BooleanLiteralExpr() override = default;
 
     bool literal;
-
 };
 
 // 整数字面量表达式
@@ -84,22 +83,22 @@ public:
 // 一元运算表达式
 class UnaryOperatorExpr : public Expr {
 public:
-    UnaryOperatorExpr(size_t operatorCode, const SharedPtr<Expr> &subExpr);
+    UnaryOperatorExpr(unsigned int opCode, const SharedPtr<Expr> &subExpr);
 
     ~UnaryOperatorExpr() override = default;
 
-    size_t operatorCode{};
+    unsigned int opCode;
     SharedPtr<Expr> subExpr;
 };
 
 // 二元运算表达式
 class BinaryOperatorExpr : public Expr {
 public:
-    BinaryOperatorExpr(size_t operatorCode, const SharedPtr<Expr> &lhs, const SharedPtr<Expr> &rhs);
+    BinaryOperatorExpr(unsigned int opCode, const SharedPtr<Expr> &lhs, const SharedPtr<Expr> &rhs);
 
     ~BinaryOperatorExpr() override = default;
 
-    size_t operatorCode;
+    unsigned int opCode;
     SharedPtr<Expr> lhs, rhs;
 };
 

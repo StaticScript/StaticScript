@@ -37,8 +37,8 @@ antlrcpp::Any ASTVisitor::visitStatement(StaticScriptParser::StatementContext *c
         }
     } else if (ctx->expressionStatement()) {
         stmtAny = visitExpressionStatement(ctx->expressionStatement());
-        if (stmtAny.is<SharedPtr<Expr>>()) {
-            stmt = stmtAny.as<SharedPtr<Expr>>();
+        if (stmtAny.is<SharedPtr<ExprStmt>>()) {
+            stmt = stmtAny.as<SharedPtr<ExprStmt>>();
         }
     } else if (ctx->selectionStatement()) {
         stmtAny = visitSelectionStatement(ctx->selectionStatement());
@@ -177,7 +177,9 @@ antlrcpp::Any ASTVisitor::visitCompoundStatement(StaticScriptParser::CompoundSta
 }
 
 antlrcpp::Any ASTVisitor::visitExpressionStatement(StaticScriptParser::ExpressionStatementContext *ctx) {
-    return visitExpression(ctx->expression());
+    SharedPtr<Expr> expr = visitExpression(ctx->expression());
+    SharedPtr<ExprStmt> exprStmt = makeShared<ExprStmt>(expr);
+    return exprStmt;
 }
 
 antlrcpp::Any ASTVisitor::visitExpression(StaticScriptParser::ExpressionContext *ctx) {

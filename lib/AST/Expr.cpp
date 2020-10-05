@@ -12,9 +12,9 @@ StringLiteralExpr::StringLiteralExpr(TypeKind type, String literal) : LiteralExp
 
 IdentifierExpr::IdentifierExpr(String name) : name(std::move(name)) {}
 
-UnaryOperatorExpr::UnaryOperatorExpr(size_t operatorCode, const SharedPtr<Expr> &subExpr) : operatorCode(operatorCode), subExpr(subExpr) {}
+UnaryOperatorExpr::UnaryOperatorExpr(unsigned int opCode, const SharedPtr<Expr> &subExpr) : opCode(opCode), subExpr(subExpr) {}
 
-BinaryOperatorExpr::BinaryOperatorExpr(size_t operatorCode, const SharedPtr<Expr> &lhs, const SharedPtr<Expr> &rhs) : operatorCode(operatorCode),
+BinaryOperatorExpr::BinaryOperatorExpr(unsigned int opCode, const SharedPtr<Expr> &lhs, const SharedPtr<Expr> &rhs) : opCode(opCode),
                                                                                                                       lhs(lhs), rhs(rhs) {}
 
 CallExpr::CallExpr(String calleeName, const SharedPtrVector<Expr> &args) : calleeName(std::move(calleeName)), args(args) {}
