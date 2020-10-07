@@ -1,4 +1,4 @@
-set(SRC Decl.cpp Type.cpp Stmt.cpp Expr.cpp Module.cpp ASTVisitor.cpp)
+set(SRC DeclNode.cpp TypeNode.cpp StmtNode.cpp ExprNode.cpp Module.cpp ASTBuilder.cpp)
 
 add_library(ast OBJECT ${SRC})
 

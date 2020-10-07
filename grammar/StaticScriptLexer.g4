@@ -1,7 +1,7 @@
 lexer grammar StaticScriptLexer;
 
 options {
-	language   = Cpp;
+	language = Cpp;
 }
 
 // 关键字
