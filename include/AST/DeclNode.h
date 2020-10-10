@@ -1,6 +1,6 @@
-#ifndef STATICSCRIPT_AST_DECLNODE_H
-#define STATICSCRIPT_AST_DECLNODE_H
+#pragma once
 
+#include "AST/Node.h"
 #include "AST/TypeNode.h"
 #include "AST/StmtNode.h"
 #include "AST/ExprNode.h"
@@ -10,9 +10,9 @@ enum class VarModifier {
     Let, Const, Param
 };
 
-class DeclNode {
+class DeclNode : public Node {
 public:
-    virtual ~DeclNode() = default;
+    ~DeclNode() override = default;
 };
 
 // 变量声明
@@ -53,5 +53,3 @@ public:
     SharedPtr<BuiltinTypeNode> returnType;
     SharedPtr<CompoundStmtNode> body;
 };
-
-#endif // STATICSCRIPT_AST_DECLNODE_H

@@ -1,14 +1,14 @@
-#ifndef STATICSCRIPT_AST_MODULE_H
-#define STATICSCRIPT_AST_MODULE_H
+#pragma once
 
+#include "AST/Node.h"
 #include "AST/StmtNode.h"
 
 /// 一个文件就是一个模块, 即一个翻译单元
-class Module final {
+class ModuleNode final: public Node {
 public:
-    virtual ~Module() = default;
+    ~ModuleNode() override = default;
 
-    explicit Module(String filename, SharedPtrVector<StmtNode> childStmts);
+    explicit ModuleNode(String filename, SharedPtrVector<StmtNode> childStmts);
 
     [[nodiscard]] virtual const String &getFilename() const;
 
@@ -17,6 +17,3 @@ public:
     String filename;
     SharedPtrVector<StmtNode> childStmts;
 };
-
-
-#endif // STATICSCRIPT_AST_MODULE_H

@@ -1,5 +1,4 @@
-#ifndef STATICSCRIPT_UTIL_OUTPUT_H
-#define STATICSCRIPT_UTIL_OUTPUT_H
+#pragma once
 
 #include <iostream>
 #include "Util/Alias.h"
@@ -44,5 +43,3 @@ inline void errPrintln(T &&...content) {
     print(std::cerr, content...);
     errPrintln();
 }
-
-#endif // STATICSCRIPT_UTIL_OUTPUT_H

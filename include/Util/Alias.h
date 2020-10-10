@@ -1,5 +1,4 @@
-#ifndef STATICSCRIPT_UTIL_ALIAS_H
-#define STATICSCRIPT_UTIL_ALIAS_H
+#pragma once
 
 #include <string>
 #include <memory>
@@ -17,5 +16,3 @@ template<typename T, typename ...Args>
 inline SharedPtr<T> makeShared(Args &&...args) {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
-
-#endif // STATICSCRIPT_UTIL_ALIAS_H

@@ -1,14 +1,14 @@
-#ifndef STATICSCRIPT_AST_EXPRNODE_H
-#define STATICSCRIPT_AST_EXPRNODE_H
+#pragma once
 
+#include "AST/Node.h"
 #include "AST/TypeNode.h"
 #include "AST/StmtNode.h"
 
 class FunctionDeclNode;
 
-class ExprNode {
+class ExprNode: public Node {
 public:
-    virtual ~ExprNode() = default;
+    ~ExprNode() override = default;
 };
 
 // 字面量表达式
@@ -101,5 +101,3 @@ public:
     unsigned int opCode;
     SharedPtr<ExprNode> lhs, rhs;
 };
-
-#endif // STATICSCRIPT_AST_EXPRNODE_H

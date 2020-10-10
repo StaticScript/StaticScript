@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
         StaticScriptParser parser(&tokenStream);
         antlr4::tree::ParseTree *tree = parser.module();
         ASTBuilder builder(codeFilename);
-        SharedPtr<Module> module = builder.visit(tree);
+        SharedPtr<ModuleNode> module = builder.visit(tree);
         outPrintln(module->getFilename());
     } else {
         errPrintln("At least one parameter is required.");

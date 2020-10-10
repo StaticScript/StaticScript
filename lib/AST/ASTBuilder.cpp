@@ -4,7 +4,7 @@ ASTBuilder::ASTBuilder(String filename) : filename(std::move(filename)) {}
 
 antlrcpp::Any ASTBuilder::visitModule(StaticScriptParser::ModuleContext *ctx) {
     const SharedPtrVector<StmtNode> &childStmts = visitStatements(ctx->statements());
-    return makeShared<Module>(filename, childStmts);
+    return makeShared<ModuleNode>(filename, childStmts);
 }
 
 antlrcpp::Any ASTBuilder::visitStatements(StaticScriptParser::StatementsContext *ctx) {

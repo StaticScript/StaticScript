@@ -1,6 +1,6 @@
-#ifndef STATICSCRIPT_AST_STMTNODE_H
-#define STATICSCRIPT_AST_STMTNODE_H
+#pragma once
 
+#include "AST/Node.h"
 #include "Util/Alias.h"
 
 class VarDeclNode;
@@ -9,9 +9,9 @@ class FunctionDeclNode;
 
 class ExprNode;
 
-class StmtNode {
+class StmtNode: public Node {
 public:
-    virtual ~StmtNode() = default;
+    ~StmtNode() override = default;
 };
 
 // 值语句
@@ -115,6 +115,3 @@ public:
 
     SharedPtr<ExprNode> argument;
 };
-
-
-#endif // STATICSCRIPT_AST_STMTNODE_H

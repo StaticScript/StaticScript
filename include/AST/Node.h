@@ -1,9 +1,6 @@
-#ifndef STATICSCRIPT_AST_NODE_H
-#define STATICSCRIPT_AST_NODE_H
+#pragma once
 
 class Node {
 public:
-
+    virtual ~Node() = default;
 };
-
-#endif // STATICSCRIPT_AST_NODE_H

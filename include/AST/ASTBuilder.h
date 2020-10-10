@@ -1,5 +1,4 @@
-#ifndef STATICSCRIPT_AST_ASTBUILDER_H
-#define STATICSCRIPT_AST_ASTBUILDER_H
+#pragma once
 
 #include <iostream>
 #include "StaticScriptParserBaseVisitor.h"
@@ -7,7 +6,7 @@
 #include "AST/StmtNode.h"
 #include "AST/TypeNode.h"
 #include "AST/ExprNode.h"
-#include "AST/Module.h"
+#include "AST/ModuleNode.h"
 #include "Util/Alias.h"
 
 class ASTBuilder final : public StaticScriptParserVisitor {
@@ -83,6 +82,3 @@ public:
 private:
     const String filename;
 };
-
-
-#endif // STATICSCRIPT_AST_ASTBUILDER_H
