@@ -8,12 +8,13 @@ class FunctionDeclNode;
 
 class ExprNode;
 
+/// 语句节点
 class StmtNode : public Node {
 public:
     ~StmtNode() override = default;
 };
 
-// 值语句
+/// 表达式语句节点
 class ExprStmtNode final : public StmtNode {
 public:
     explicit ExprStmtNode(const SharedPtr<ExprNode> &expr);
@@ -25,7 +26,7 @@ public:
     SharedPtr<ExprNode> expr;
 };
 
-// 复合语句
+/// 复合语句节点
 class CompoundStmtNode final : public StmtNode {
 public:
     explicit CompoundStmtNode(const SharedPtrVector<StmtNode> &childStmts);
@@ -37,9 +38,11 @@ public:
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     SharedPtrVector<StmtNode> childStmts;
+
+    SharedPtr<Scope> internalScope;
 };
 
-// 变量声明语句
+/// 变量声明语句节点
 class VarDeclStmtNode final : public StmtNode {
 public:
 
@@ -52,7 +55,7 @@ public:
     SharedPtrVector<VarDeclNode> childVarDecls;
 };
 
-// 函数声明语句
+/// 函数声明语句节点
 class FunctionDeclStmtNode final : public StmtNode {
 public:
     explicit FunctionDeclStmtNode(const SharedPtr<FunctionDeclNode> &childFunctionDecl);
@@ -64,7 +67,7 @@ public:
     SharedPtr<FunctionDeclNode> childFunctionDecl;
 };
 
-// if语句
+/// if语句节点
 class IfStmtNode final : public StmtNode {
 public:
     IfStmtNode(
@@ -82,7 +85,7 @@ public:
     SharedPtr<StmtNode> elseBody;
 };
 
-// while语句
+/// while语句节点
 class WhileStmtNode final : public StmtNode {
 public:
     WhileStmtNode(const SharedPtr<ExprNode> &condition, const SharedPtr<StmtNode> &body);
@@ -95,7 +98,7 @@ public:
     SharedPtr<StmtNode> body;
 };
 
-// for语句
+/// for语句节点
 class ForStmtNode final : public StmtNode {
 public:
     ForStmtNode(
@@ -115,9 +118,11 @@ public:
     SharedPtr<ExprNode> forCondition;
     SharedPtrVector<ExprNode> forUpdate;
     SharedPtr<StmtNode> body;
+
+    SharedPtr<Scope> internalScope;
 };
 
-// continue语句
+/// continue语句节点
 class ContinueStmtNode final : public StmtNode {
 public:
     ~ContinueStmtNode() override = default;
@@ -126,7 +131,7 @@ public:
 };
 
 
-// break语句
+/// break语句节点
 class BreakStmtNode final : public StmtNode {
 public:
     ~BreakStmtNode() override = default;
@@ -134,7 +139,7 @@ public:
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 };
 
-// return语句
+/// return语句节点
 class ReturnStmtNode final : public StmtNode {
 public:
     explicit ReturnStmtNode(const SharedPtr<ExprNode> &argument);

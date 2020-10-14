@@ -4,6 +4,7 @@
 #include <utility>
 #include "Util/Alias.h"
 
+/// 编译异常
 class CompilerException : public std::exception {
 public:
     ~CompilerException() noexcept override = default;

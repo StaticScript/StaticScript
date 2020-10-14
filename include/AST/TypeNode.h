@@ -6,6 +6,7 @@ enum class TypeKind {
     Unknown, Boolean, Integer, String
 };
 
+/// 类型节点
 class TypeNode : public Node {
 public:
     explicit TypeNode(TypeKind kind);
@@ -17,7 +18,7 @@ public:
     TypeKind kind;
 };
 
-// 内建类型
+/// 内建类型节点
 class BuiltinTypeNode : public TypeNode {
 public:
     explicit BuiltinTypeNode(TypeKind kind);

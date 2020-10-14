@@ -4,7 +4,8 @@
 #include "StaticScriptParser.h"
 #include "AST/AST.h"
 #include "Util/Output.h"
-#include "Sema/VariableResolver.h"
+#include "Sema/ReferenceResolver.h"
+#include "Sema/ScopeScanner.h"
 
 int main(int argc, char *argv[]) {
     if (argc > 1) {
@@ -22,7 +23,9 @@ int main(int argc, char *argv[]) {
         antlr4::tree::ParseTree *tree = parser.module();
         ASTBuilder builder(codeFilename);
         SharedPtr<ModuleNode> module = builder.visit(tree);
-        SharedPtr<VariableResolver> resolver = makeShared<VariableResolver>();
+//        SharedPtr<ScopeScanner> scanner = makeShared<ScopeScanner>();
+//        scanner->resolve(module);
+        SharedPtr<ReferenceResolver> resolver = makeShared<ReferenceResolver>();
         resolver->resolve(module);
     } else {
         errPrintln("At least one parameter is required.");

@@ -1,32 +1,25 @@
-#include "Sema/VariableResolver.h"
+#include "Sema/ReferenceResolver.h"
 
-void VariableResolver::visit(const SharedPtr<ModuleNode> &module) {
-    SharedPtr<TopLevelScope> topLevelScope = TopLevelScope::create();
-    pushScope(topLevelScope);
+void ReferenceResolver::visit(const SharedPtr<ModuleNode> &module) {
+    pushScope(module->internalScope);
     for (const SharedPtr<StmtNode> &stmt: module->childStmts) {
         stmt->accept(getThisSharedPtr());
     }
     popScope();
 }
 
-void VariableResolver::visit(const SharedPtr<VarDeclNode> &varDecl) {
+void ReferenceResolver::visit(const SharedPtr<VarDeclNode> &varDecl) {
     getCurrentScope()->addVariable(varDecl->name, varDecl);
 }
 
-void VariableResolver::visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) {
+void ReferenceResolver::visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) {
     getCurrentScope()->addVariable(paramVarDecl->name, paramVarDecl);
 }
 
-void VariableResolver::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
-    SharedPtr<TopLevelScope> scope = dynPtrCast<TopLevelScope>(getCurrentScope());
-    if (scope) {
-        scope->addFunction(funcDecl->name, funcDecl);
-    } else {
-        throw SemanticException("不允许函数嵌套");
-    }
-    /// 参数作用域: 在外层作作用域与内层作用域之间的辅助作用域
-    SharedPtr<LocalScope> paramScope = LocalScope::create(scope);
-    pushScope(paramScope);
+void ReferenceResolver::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
+    const SharedPtr<TopLevelScope> &topLevelScope = dynPtrCast<TopLevelScope>(getCurrentScope());
+    topLevelScope->addFunction(funcDecl->name, funcDecl);
+    pushScope(funcDecl->internalScope);
     for (const SharedPtr<ParmVarDeclNode> &paramVarDecl : funcDecl->params) {
         paramVarDecl->accept(getThisSharedPtr());
     }
@@ -34,8 +27,8 @@ void VariableResolver::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
     popScope();
 }
 
-void VariableResolver::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
-    SharedPtr<VarDeclNode> varDecl = resolveVariable(varExpr->name);
+void ReferenceResolver::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
+    const SharedPtr<VarDeclNode> &varDecl = resolveVariable(varExpr->name);
     if (varDecl) {
         varExpr->assocVarDecl = varDecl;
     } else {
@@ -43,7 +36,7 @@ void VariableResolver::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
     }
 }
 
-void VariableResolver::visit(const SharedPtr<CallExprNode> &callExpr) {
+void ReferenceResolver::visit(const SharedPtr<CallExprNode> &callExpr) {
     SharedPtr<FunctionDeclNode> funcDecl = resolveFunction(callExpr->calleeName);
     if (funcDecl) {
         callExpr->assocFuncDecl = funcDecl;
@@ -55,39 +48,38 @@ void VariableResolver::visit(const SharedPtr<CallExprNode> &callExpr) {
     }
 }
 
-void VariableResolver::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
+void ReferenceResolver::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
     uopExpr->subExpr->accept(getThisSharedPtr());
 }
 
-void VariableResolver::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
+void ReferenceResolver::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     bopExpr->lhs->accept(getThisSharedPtr());
     bopExpr->rhs->accept(getThisSharedPtr());
 }
 
-void VariableResolver::visit(const SharedPtr<ExprStmtNode> &exprStmt) {
+void ReferenceResolver::visit(const SharedPtr<ExprStmtNode> &exprStmt) {
     exprStmt->expr->accept(getThisSharedPtr());
 }
 
-void VariableResolver::visit(const SharedPtr<CompoundStmtNode> &compStmt) {
-    SharedPtr<LocalScope> localScope = LocalScope::create(getCurrentScope());
-    pushScope(localScope);
+void ReferenceResolver::visit(const SharedPtr<CompoundStmtNode> &compStmt) {
+    pushScope(compStmt->internalScope);
     for (const SharedPtr<StmtNode> &stmt: compStmt->childStmts) {
         stmt->accept(getThisSharedPtr());
     }
     popScope();
 }
 
-void VariableResolver::visit(const SharedPtr<VarDeclStmtNode> &varDeclStmt) {
+void ReferenceResolver::visit(const SharedPtr<VarDeclStmtNode> &varDeclStmt) {
     for (const SharedPtr<VarDeclNode> &varDecl : varDeclStmt->childVarDecls) {
         varDecl->accept(getThisSharedPtr());
     }
 }
 
-void VariableResolver::visit(const SharedPtr<FunctionDeclStmtNode> &funcDeclStmt) {
+void ReferenceResolver::visit(const SharedPtr<FunctionDeclStmtNode> &funcDeclStmt) {
     funcDeclStmt->childFunctionDecl->accept(getThisSharedPtr());
 }
 
-void VariableResolver::visit(const SharedPtr<IfStmtNode> &ifStmt) {
+void ReferenceResolver::visit(const SharedPtr<IfStmtNode> &ifStmt) {
     ifStmt->condition->accept(getThisSharedPtr());
     ifStmt->thenBody->accept(getThisSharedPtr());
     if (ifStmt->elseBody) {
@@ -95,14 +87,13 @@ void VariableResolver::visit(const SharedPtr<IfStmtNode> &ifStmt) {
     }
 }
 
-void VariableResolver::visit(const SharedPtr<WhileStmtNode> &whileStmt) {
+void ReferenceResolver::visit(const SharedPtr<WhileStmtNode> &whileStmt) {
     whileStmt->condition->accept(getThisSharedPtr());
     whileStmt->body->accept(getThisSharedPtr());
 }
 
-void VariableResolver::visit(const SharedPtr<ForStmtNode> &forStmt) {
-    SharedPtr<LocalScope> forScope = LocalScope::create(getCurrentScope());
-    pushScope(forScope);
+void ReferenceResolver::visit(const SharedPtr<ForStmtNode> &forStmt) {
+    pushScope(forStmt->internalScope);
     if (forStmt->forInitVarDecls) {
         forStmt->forInitVarDecls->accept(getThisSharedPtr());
     } else {
@@ -120,7 +111,7 @@ void VariableResolver::visit(const SharedPtr<ForStmtNode> &forStmt) {
     popScope();
 }
 
-void VariableResolver::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
+void ReferenceResolver::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
     if (returnStmt->returnExpr) {
         returnStmt->returnExpr->accept(getThisSharedPtr());
     }

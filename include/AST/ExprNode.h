@@ -6,12 +6,13 @@
 
 class FunctionDeclNode;
 
+/// 表达式节点
 class ExprNode : public Node {
 public:
     ~ExprNode() override = default;
 };
 
-// 字面量表达式
+/// 字面量表达式节点
 class LiteralExprNode : public ExprNode {
 public:
     explicit LiteralExprNode(TypeKind type);
@@ -21,7 +22,7 @@ public:
     TypeKind type;
 };
 
-// 布尔值字面量表达式
+/// 布尔值字面量表达式节点
 class BooleanLiteralExprNode : public LiteralExprNode {
 public:
     explicit BooleanLiteralExprNode(TypeKind type, bool literal);
@@ -33,7 +34,7 @@ public:
     bool literal;
 };
 
-// 整数字面量表达式
+/// 整数字面量表达式节点
 class IntegerLiteralExprNode : public LiteralExprNode {
 public:
     explicit IntegerLiteralExprNode(TypeKind type, int literal);
@@ -45,7 +46,7 @@ public:
     int literal;
 };
 
-// 字符串字面量表达式
+/// 字符串字面量表达式节点
 class StringLiteralExprNode : public LiteralExprNode {
 public:
     explicit StringLiteralExprNode(TypeKind type, String literal);
@@ -57,13 +58,7 @@ public:
     String literal;
 };
 
-// 括号表达式
-class ParenExprNode : public ExprNode {
-public:
-    ~ParenExprNode() override = default;
-};
-
-// 标识符表达式
+/// 标识符表达式节点
 class IdentifierExprNode : public ExprNode {
 public:
     explicit IdentifierExprNode(String name);
@@ -77,7 +72,7 @@ public:
     SharedPtr<VarDeclNode> assocVarDecl;
 };
 
-// 函数调用表达式
+/// 函数调用表达式节点
 class CallExprNode : public ExprNode {
 public:
 
@@ -93,7 +88,7 @@ public:
     SharedPtr<FunctionDeclNode> assocFuncDecl;
 };
 
-// 一元运算表达式
+/// 一元运算表达式节点
 class UnaryOperatorExprNode : public ExprNode {
 public:
     UnaryOperatorExprNode(unsigned int opCode, const SharedPtr<ExprNode> &subExpr);
@@ -106,7 +101,7 @@ public:
     SharedPtr<ExprNode> subExpr;
 };
 
-// 二元运算表达式
+/// 二元运算表达式节点
 class BinaryOperatorExprNode : public ExprNode {
 public:
     BinaryOperatorExprNode(unsigned int opCode, const SharedPtr<ExprNode> &lhs, const SharedPtr<ExprNode> &rhs);

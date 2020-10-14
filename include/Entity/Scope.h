@@ -9,6 +9,7 @@ class TopLevelScope;
 
 class LocalScope;
 
+/// 作用域
 class Scope : public std::enable_shared_from_this<Scope> {
 public:
     Scope() = default;
@@ -32,6 +33,7 @@ protected:
     SharedPtrMap<String, VarDeclNode> variables;
 };
 
+/// 顶级作用域
 class TopLevelScope : public Scope {
 public:
     static SharedPtr<TopLevelScope> create();
@@ -56,6 +58,7 @@ protected:
     SharedPtrMap<String, FunctionDeclNode> functions;
 };
 
+/// 局部作用域
 class LocalScope : public Scope {
 public:
     static SharedPtr<LocalScope> create(const SharedPtr<Scope> &parent);

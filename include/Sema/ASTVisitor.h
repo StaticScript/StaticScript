@@ -3,6 +3,7 @@
 #include <memory>
 #include "AST/AST.h"
 
+/// AST遍历器
 class ASTVisitor : public std::enable_shared_from_this<ASTVisitor> {
 public:
     virtual void visit(const SharedPtr<ModuleNode> &module);

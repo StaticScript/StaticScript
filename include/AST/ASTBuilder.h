@@ -9,6 +9,7 @@
 #include "AST/ModuleNode.h"
 #include "Util/Alias.h"
 
+/// AST构建器
 class ASTBuilder final : public StaticScriptParserVisitor {
 public:
     explicit ASTBuilder(String filename);

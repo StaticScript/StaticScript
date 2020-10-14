@@ -9,12 +9,13 @@ enum class VarModifier {
     Let, Const, Param
 };
 
+/// 声明节点
 class DeclNode : public Node {
 public:
     ~DeclNode() override = default;
 };
 
-// 变量声明
+/// 变量声明节点
 class VarDeclNode : public DeclNode {
 public:
     VarDeclNode();
@@ -42,7 +43,7 @@ public:
     SharedPtr<ExprNode> defaultVal;
 };
 
-// 函数参数声明
+/// 函数参数声明节点
 class ParmVarDeclNode : public VarDeclNode {
 public:
     ParmVarDeclNode(const String &name, const SharedPtr<BuiltinTypeNode> &type);
@@ -52,7 +53,7 @@ public:
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 };
 
-// 函数声明
+/// 函数声明节点
 class FunctionDeclNode : public DeclNode {
 public:
     FunctionDeclNode(
@@ -70,4 +71,6 @@ public:
     SharedPtrVector<ParmVarDeclNode> params;
     SharedPtr<BuiltinTypeNode> returnType;
     SharedPtr<CompoundStmtNode> body;
+
+    SharedPtr<Scope> internalScope;
 };

@@ -5,7 +5,8 @@
 #include "Sema/ASTVisitor.h"
 #include "Exception/SemanticException.h"
 
-class VariableResolver final : public ASTVisitor {
+/// 引用消解器
+class ReferenceResolver final : public ASTVisitor {
 public:
     inline void resolve(const SharedPtr<ModuleNode> &module) {
         module->accept(getThisSharedPtr());
@@ -44,8 +45,8 @@ private:
 
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
 
-    inline SharedPtr<VariableResolver> getThisSharedPtr() {
-        return staticPtrCast<VariableResolver>(shared_from_this());
+    inline SharedPtr<ReferenceResolver> getThisSharedPtr() {
+        return staticPtrCast<ReferenceResolver>(shared_from_this());
     }
 
     inline void pushScope(const SharedPtr<Scope> &scope) {
@@ -56,20 +57,32 @@ private:
         scopeStack.pop();
     }
 
-    inline SharedPtr<Scope> getCurrentScope() {
+    inline const SharedPtr<Scope> &getCurrentScope() {
         return scopeStack.top();
     }
 
-    /// 查找变量, 沿着当前作用域递归向上查找
+    /**
+     * @brief 查找变量
+     * @details 沿着当前作用域递归向上查找变量
+     *
+     * @param name 变量名
+     * @return 变量定义节点
+     */
     inline SharedPtr<VarDeclNode> resolveVariable(const String &name) {
-        SharedPtr<Scope> scope = getCurrentScope();
-        return scope->resolveVariable(name);
+        return getCurrentScope()->resolveVariable(name);
     }
 
+    /**
+     * @brief 查找函数
+     * @details 在顶级作用域中查找函数
+     *
+     * @param name 函数名
+     * @return 函数定义节点
+     */
     inline SharedPtr<FunctionDeclNode> resolveFunction(const String &name) {
-        SharedPtr<TopLevelScope> topLevelScope = getCurrentScope()->getTopLevel();
-        return topLevelScope->resolveFunction(name);
+        return getCurrentScope()->getTopLevel()->resolveFunction(name);
     }
 
+    /// 作用域栈
     std::stack<SharedPtr<Scope>> scopeStack;
 };
