@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "AST/AST.h"
+#include "AST/DeclNode.h"
 #include "Util/Alias.h"
 #include "Util/Find.h"
 
