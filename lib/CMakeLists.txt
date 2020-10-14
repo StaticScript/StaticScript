@@ -1,11 +1,14 @@
 add_subdirectory(Entity)
 add_subdirectory(AST)
+add_subdirectory(Sema)
 add_subdirectory(Driver)
 
 add_executable(
         staticscript
         $<TARGET_OBJECTS:parser>
+        $<TARGET_OBJECTS:entity>
         $<TARGET_OBJECTS:ast>
+        $<TARGET_OBJECTS:sema>
         $<TARGET_OBJECTS:driver>
 )
 

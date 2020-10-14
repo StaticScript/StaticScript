@@ -1,3 +1,11 @@
+let x;
+const y;
+let xn: number;
+let xb: boolean;
+let xs: string;
+const yn: number;
+const yb: boolean;
+const ys: string;
 let a: number = 1;
 let b: boolean = false;
 let c: string = "string content";

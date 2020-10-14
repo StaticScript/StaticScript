@@ -119,7 +119,7 @@ selectionStatement
     ;
 
 ifStatement
-    : If OpenParen expression CloseParen statement (Else statement)?
+    : If OpenParen ifCondition=expression CloseParen thenBody=statement (Else elseBody=statement)?
     ;
 
 iterationStatement
@@ -128,11 +128,11 @@ iterationStatement
     ;
 
 whileStatement
-    : While OpenParen expression CloseParen statement
+    : While OpenParen whileCondition=expression CloseParen whileBody=statement
     ;
 
 forStatement
-    : For OpenParen forInit? SemiColon forCondition=expression? SemiColon forUpdate=expressionList? CloseParen statement
+    : For OpenParen forInit? SemiColon forCondition=expression? SemiColon forUpdate=expressionList? CloseParen forBody=statement
     ;
 
 forInit
@@ -159,5 +159,5 @@ breakStatement
     ;
 
 returnStatement
-    : Return expression? SemiColon
+    : Return returnExpr=expression? SemiColon
     ;

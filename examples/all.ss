@@ -1,3 +1,10 @@
+let v = 20;
+const vv = "happy";
+
+function test() {
+    return;
+}
+
 function func(a: number, b: number): number {
     let x = a + 1;
     let y = b - 1;
@@ -15,4 +22,4 @@ function func(a: number, b: number): number {
     return x + y;
 }
 
-add(1, 2);
+func(1, 2);

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AST/Node.h"
-#include "Util/Alias.h"
 
 enum class TypeKind {
     Unknown, Boolean, Integer, String
@@ -13,6 +12,8 @@ public:
 
     ~TypeNode() override = default;
 
+    virtual bool isBuiltin() const = 0;
+
     TypeKind kind;
 };
 
@@ -22,6 +23,10 @@ public:
     explicit BuiltinTypeNode(TypeKind kind);
 
     ~BuiltinTypeNode() override = default;
+
+    bool isBuiltin() const override;
+
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     static inline const SharedPtr<BuiltinTypeNode> BOOLEAN_TYPE = makeShared<BuiltinTypeNode>(TypeKind::Boolean);
     static inline const SharedPtr<BuiltinTypeNode> INTEGER_TYPE = makeShared<BuiltinTypeNode>(TypeKind::Integer);

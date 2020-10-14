@@ -6,7 +6,7 @@
 
 class FunctionDeclNode;
 
-class ExprNode: public Node {
+class ExprNode : public Node {
 public:
     ~ExprNode() override = default;
 };
@@ -28,6 +28,8 @@ public:
 
     ~BooleanLiteralExprNode() override = default;
 
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
     bool literal;
 };
 
@@ -38,6 +40,8 @@ public:
 
     ~IntegerLiteralExprNode() override = default;
 
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
     int literal;
 };
 
@@ -47,6 +51,8 @@ public:
     explicit StringLiteralExprNode(TypeKind type, String literal);
 
     ~StringLiteralExprNode() override = default;
+
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     String literal;
 };
@@ -64,7 +70,11 @@ public:
 
     ~IdentifierExprNode() override = default;
 
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
     String name;
+
+    SharedPtr<VarDeclNode> assocVarDecl;
 };
 
 // 函数调用表达式
@@ -75,9 +85,12 @@ public:
 
     ~CallExprNode() override = default;
 
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
     String calleeName;
-    SharedPtr<FunctionDeclNode> callee;
     SharedPtrVector<ExprNode> args;
+
+    SharedPtr<FunctionDeclNode> assocFuncDecl;
 };
 
 // 一元运算表达式
@@ -86,6 +99,8 @@ public:
     UnaryOperatorExprNode(unsigned int opCode, const SharedPtr<ExprNode> &subExpr);
 
     ~UnaryOperatorExprNode() override = default;
+
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     unsigned int opCode;
     SharedPtr<ExprNode> subExpr;
@@ -97,6 +112,8 @@ public:
     BinaryOperatorExprNode(unsigned int opCode, const SharedPtr<ExprNode> &lhs, const SharedPtr<ExprNode> &rhs);
 
     ~BinaryOperatorExprNode() override = default;
+
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     unsigned int opCode;
     SharedPtr<ExprNode> lhs, rhs;

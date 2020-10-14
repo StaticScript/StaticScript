@@ -1,3 +1,13 @@
+function nop() {
+}
+
+function nopRet() {
+    return;
+}
+
+function print(s: string) {
+}
+
 function add(a: number, b: number): number {
     return a + b;
 }
@@ -17,6 +27,8 @@ function concat(a: string, b: string): string {
     return a + b;
 }
 
+nop();
+nopRet();
 add(1, 2);
 max(1, 2);
 lessThan(1, 2);
