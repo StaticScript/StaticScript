@@ -10,7 +10,7 @@ public:
 
     explicit CompilerException(String  message) : message(std::move(message)) {}
 
-    [[nodiscard]] const char *what() const _NOEXCEPT override {
+    [[nodiscard]] const char *what() const noexcept override {
         return message.c_str();
     }
 
