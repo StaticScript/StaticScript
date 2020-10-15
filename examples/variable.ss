@@ -1,5 +1,3 @@
-let x;
-const y;
 let xn: number;
 let xb: boolean;
 let xs: string;

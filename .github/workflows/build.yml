@@ -60,9 +60,17 @@ jobs:
           cd cmake-build-debug
           sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
           sudo cmake --build . --target staticscript doxygen
+          for file in ../examples/*
+          do
+            ./lib/staticscript $file
+          done
           cd ../cmake-build-release
           sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
           sudo cmake --build . --target staticscript doxygen
+          for file in ../examples/*
+          do
+            ./lib/staticscript $file
+          done
 
   build_on_macos:
     name: Build on macOS
@@ -86,6 +94,14 @@ jobs:
           cd cmake-build-debug
           sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
           sudo cmake --build . --target staticscript doxygen
+          for file in ../examples/*
+          do
+            ./lib/staticscript $file
+          done
           cd ../cmake-build-release
           sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
           sudo cmake --build . --target staticscript doxygen
+          for file in ../examples/*
+          do
+            ./lib/staticscript $file
+          done

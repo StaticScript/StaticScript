@@ -57,7 +57,7 @@ SingleLineComment:      '//' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
 
 // Fragment规则
 fragment StringCharacter
-    : ~['\\\r\n]
+    : ~["\\\r\n]
     | '\\' EscapeSequence
     | LineContinuation
     ;
