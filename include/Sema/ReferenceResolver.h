@@ -7,11 +7,6 @@
 
 /// 引用消解器
 class ReferenceResolver final : public ASTVisitor {
-public:
-    inline void resolve(const SharedPtr<ModuleNode> &module) {
-        module->accept(getThisSharedPtr());
-    }
-
 private:
     void visit(const SharedPtr<ModuleNode> &module) override;
 
@@ -45,22 +40,6 @@ private:
 
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
 
-    inline SharedPtr<ReferenceResolver> getThisSharedPtr() {
-        return staticPtrCast<ReferenceResolver>(shared_from_this());
-    }
-
-    inline void pushScope(const SharedPtr<Scope> &scope) {
-        scopeStack.push(scope);
-    }
-
-    inline void popScope() {
-        scopeStack.pop();
-    }
-
-    inline const SharedPtr<Scope> &getCurrentScope() {
-        return scopeStack.top();
-    }
-
     /**
      * @brief 查找变量
      * @details 沿着当前作用域递归向上查找变量
@@ -82,7 +61,4 @@ private:
     inline SharedPtr<FunctionDeclNode> resolveFunction(const String &name) {
         return getCurrentScope()->getTopLevel()->resolveFunction(name);
     }
-
-    /// 作用域栈
-    std::stack<SharedPtr<Scope>> scopeStack;
 };

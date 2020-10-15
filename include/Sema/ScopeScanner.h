@@ -6,11 +6,6 @@
 
 /// 作用域扫描器
 class ScopeScanner final : public ASTVisitor {
-public:
-    inline void resolve(const SharedPtr<ModuleNode> &module) {
-        module->accept(getThisSharedPtr());
-    }
-
 private:
     void visit(const SharedPtr<ModuleNode> &module) override;
 
@@ -53,39 +48,4 @@ private:
     void visit(const SharedPtr<BreakStmtNode> &breakStmt) override;
 
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
-
-    /**
-     * @brief 获取当前扫描器实例的智能指针
-     * @return 当前扫描器实例的智能指针
-     */
-    inline SharedPtr<ScopeScanner> getThisSharedPtr() {
-        return staticPtrCast<ScopeScanner>(shared_from_this());
-    }
-
-    /**
-     * @brief 将作用域压栈
-     *
-     * @param scope 作用域
-     */
-    inline void pushScope(const SharedPtr<Scope> &scope) {
-        scopeStack.push(scope);
-    }
-
-    /**
-     * @brief 作用域出栈
-     */
-    inline void popScope() {
-        scopeStack.pop();
-    }
-
-    /**
-     * @brief 获取当前作用域
-     * @return 当前作用域
-     */
-    inline const SharedPtr<Scope> &getCurrentScope() {
-        return scopeStack.top();
-    }
-
-    /// 作用域栈
-    std::stack<SharedPtr<Scope>> scopeStack;
 };

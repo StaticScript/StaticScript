@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
         antlr4::tree::ParseTree *tree = parser.module();
         ASTBuilder builder(codeFilename);
         SharedPtr<ModuleNode> module = builder.visit(tree);
-//        SharedPtr<ScopeScanner> scanner = makeShared<ScopeScanner>();
-//        scanner->resolve(module);
+        SharedPtr<ScopeScanner> scanner = makeShared<ScopeScanner>();
+        scanner->resolve(module);
         SharedPtr<ReferenceResolver> resolver = makeShared<ReferenceResolver>();
         resolver->resolve(module);
     } else {

@@ -6,6 +6,10 @@
 /// AST遍历器
 class ASTVisitor : public std::enable_shared_from_this<ASTVisitor> {
 public:
+    inline void resolve(const SharedPtr<ModuleNode> &module) {
+        module->accept(shared_from_this());
+    }
+
     virtual void visit(const SharedPtr<ModuleNode> &module);
 
     virtual void visit(const SharedPtr<BuiltinTypeNode> &builtinType);
@@ -49,4 +53,32 @@ public:
     virtual void visit(const SharedPtr<BreakStmtNode> &breakStmt);
 
     virtual void visit(const SharedPtr<ReturnStmtNode> &returnStmt);
+
+protected:
+    /**
+     * @brief 将作用域压栈
+     *
+     * @param scope 作用域
+     */
+    inline void pushScope(const SharedPtr<Scope> &scope) {
+        scopeStack.push(scope);
+    }
+
+    /**
+     * @brief 作用域出栈
+     */
+    inline void popScope() {
+        scopeStack.pop();
+    }
+
+    /**
+     * @brief 获取当前作用域
+     * @return 当前作用域
+     */
+    inline const SharedPtr<Scope> &getCurrentScope() {
+        return scopeStack.top();
+    }
+
+    /// 作用域栈
+    std::stack<SharedPtr<Scope>> scopeStack;
 };
