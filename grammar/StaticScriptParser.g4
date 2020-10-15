@@ -103,7 +103,7 @@ expression
     | uop=Minus expression
     | expression bop=(Multiply | Divide) expression
     | expression bop=(Plus | Minus) expression
-    | expression bop=(LessThan | MoreThan | LessThanEquals | GreaterThanEquals) expression
+    | expression bop=(LessThan | GreaterThan | LessThanEquals | GreaterThanEquals) expression
     | expression bop=(Equals | NotEquals) expression
     | <assoc=right> expression bop=Assign expression
     ;

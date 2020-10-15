@@ -13,11 +13,11 @@ VarDeclNode::VarDeclNode(
 VarDeclNode::VarDeclNode(VarModifier modifier,
                          String name,
                          const SharedPtr<BuiltinTypeNode> &type,
-                         const SharedPtr<ExprNode> &defaultVal
+                         const SharedPtr<ExprNode> &initVal
 ) : modifier(modifier),
     name(std::move(name)),
     type(type),
-    defaultVal(defaultVal) {}
+    initVal(initVal) {}
 
 void VarDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<VarDeclNode>(shared_from_this()));

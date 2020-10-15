@@ -3,7 +3,7 @@
 #include "AST/Node.h"
 
 enum class TypeKind {
-    Unknown, Boolean, Integer, String
+    Boolean, Integer, String
 };
 
 /// 类型节点
@@ -32,5 +32,4 @@ public:
     static inline const SharedPtr<BuiltinTypeNode> BOOLEAN_TYPE = makeShared<BuiltinTypeNode>(TypeKind::Boolean);
     static inline const SharedPtr<BuiltinTypeNode> INTEGER_TYPE = makeShared<BuiltinTypeNode>(TypeKind::Integer);
     static inline const SharedPtr<BuiltinTypeNode> STRING_TYPE = makeShared<BuiltinTypeNode>(TypeKind::String);
-    static inline const SharedPtr<BuiltinTypeNode> UNKNOWN_TYPE = makeShared<BuiltinTypeNode>(TypeKind::Unknown);
 };

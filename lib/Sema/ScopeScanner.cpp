@@ -3,6 +3,7 @@
 void ScopeScanner::visit(const SharedPtr<ModuleNode> &module) {
     SharedPtr<TopLevelScope> topLevelScope = TopLevelScope::create();
     module->internalScope = topLevelScope;
+    topLevelScope->host = module;
     pushScope(topLevelScope);
     ASTVisitor::visit(module);
     popScope();
@@ -26,6 +27,7 @@ void ScopeScanner::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
     // 函数参数作用域: 在外层作作用域与内层作用域之间的辅助作用域
     SharedPtr<LocalScope> paramScope = LocalScope::create(topLevelScope);
     funcDecl->internalScope = paramScope;
+    paramScope->host = funcDecl;
     pushScope(paramScope);
     ASTVisitor::visit(funcDecl);
     popScope();
@@ -69,9 +71,10 @@ void ScopeScanner::visit(const SharedPtr<ExprStmtNode> &exprStmt) {
 
 void ScopeScanner::visit(const SharedPtr<CompoundStmtNode> &compStmt) {
     compStmt->scope = getCurrentScope();
-    SharedPtr<LocalScope> localScope = LocalScope::create(getCurrentScope());
-    compStmt->internalScope = localScope;
-    pushScope(localScope);
+    SharedPtr<LocalScope> blockScope = LocalScope::create(getCurrentScope());
+    compStmt->internalScope = blockScope;
+    blockScope->host = compStmt;
+    pushScope(blockScope);
     ASTVisitor::visit(compStmt);
     popScope();
 }
@@ -100,6 +103,7 @@ void ScopeScanner::visit(const SharedPtr<ForStmtNode> &forStmt) {
     forStmt->scope = getCurrentScope();
     SharedPtr<LocalScope> forScope = LocalScope::create(getCurrentScope());
     forStmt->internalScope = forScope;
+    forScope->host = forStmt;
     pushScope(forScope);
     ASTVisitor::visit(forStmt);
     popScope();

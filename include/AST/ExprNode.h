@@ -9,23 +9,27 @@ class FunctionDeclNode;
 /// 表达式节点
 class ExprNode : public Node {
 public:
+    ExprNode() = default;
+
+    explicit ExprNode(const SharedPtr<BuiltinTypeNode> &type);
+
     ~ExprNode() override = default;
+
+    SharedPtr<BuiltinTypeNode> type;
 };
 
 /// 字面量表达式节点
 class LiteralExprNode : public ExprNode {
 public:
-    explicit LiteralExprNode(TypeKind type);
+    explicit LiteralExprNode(const SharedPtr<BuiltinTypeNode> &type);
 
     ~LiteralExprNode() override = default;
-
-    TypeKind type;
 };
 
 /// 布尔值字面量表达式节点
 class BooleanLiteralExprNode : public LiteralExprNode {
 public:
-    explicit BooleanLiteralExprNode(TypeKind type, bool literal);
+    explicit BooleanLiteralExprNode(bool literal);
 
     ~BooleanLiteralExprNode() override = default;
 
@@ -37,7 +41,7 @@ public:
 /// 整数字面量表达式节点
 class IntegerLiteralExprNode : public LiteralExprNode {
 public:
-    explicit IntegerLiteralExprNode(TypeKind type, int literal);
+    explicit IntegerLiteralExprNode(int literal);
 
     ~IntegerLiteralExprNode() override = default;
 
@@ -49,7 +53,7 @@ public:
 /// 字符串字面量表达式节点
 class StringLiteralExprNode : public LiteralExprNode {
 public:
-    explicit StringLiteralExprNode(TypeKind type, String literal);
+    explicit StringLiteralExprNode(String literal);
 
     ~StringLiteralExprNode() override = default;
 

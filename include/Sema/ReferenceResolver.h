@@ -20,21 +20,7 @@ private:
 
     void visit(const SharedPtr<CallExprNode> &callExpr) override;
 
-    void visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) override;
-
-    void visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) override;
-
-    void visit(const SharedPtr<ExprStmtNode> &exprStmt) override;
-
     void visit(const SharedPtr<CompoundStmtNode> &compStmt) override;
-
-    void visit(const SharedPtr<VarDeclStmtNode> &varDeclStmt) override;
-
-    void visit(const SharedPtr<FunctionDeclStmtNode> &funcDeclStmt) override;
-
-    void visit(const SharedPtr<IfStmtNode> &ifStmt) override;
-
-    void visit(const SharedPtr<WhileStmtNode> &whileStmt) override;
 
     void visit(const SharedPtr<ForStmtNode> &forStmt) override;
 

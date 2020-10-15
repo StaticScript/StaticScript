@@ -103,7 +103,7 @@ antlrcpp::Any ASTBuilder::visitVariableDeclarator(StaticScriptParser::VariableDe
         varDecl->type = visitTypeAnnotation(ctx->typeAnnotation());
     }
     if (ctx->variableInitializer()) {
-        varDecl->defaultVal = visitVariableInitializer(ctx->variableInitializer());
+        varDecl->initVal = visitVariableInitializer(ctx->variableInitializer());
     }
     return varDecl;
 }
@@ -129,7 +129,7 @@ antlrcpp::Any ASTBuilder::visitFunctionDeclaration(StaticScriptParser::FunctionD
     String name = ctx->Identifier()->getText();
     SharedPtrVector<ParmVarDeclNode> params;
     SharedPtr<BuiltinTypeNode> returnType;
-    if(ctx->parameterList()) {
+    if (ctx->parameterList()) {
         antlrcpp::Any paramsAny = visitParameterList(ctx->parameterList());
         params = paramsAny.as<SharedPtrVector<ParmVarDeclNode>>();
     }
@@ -215,14 +215,14 @@ antlrcpp::Any ASTBuilder::visitLiteral(StaticScriptParser::LiteralContext *ctx) 
     SharedPtr<LiteralExprNode> literalExpr;
     if (ctx->BooleanLiteral()) {
         bool literal = ctx->BooleanLiteral()->getText() == "true";
-        literalExpr = makeShared<BooleanLiteralExprNode>(TypeKind::Boolean, literal);
+        literalExpr = makeShared<BooleanLiteralExprNode>(literal);
     } else if (ctx->IntegerLiteral()) {
         int literal = std::stoi(ctx->IntegerLiteral()->getText());
-        literalExpr = makeShared<IntegerLiteralExprNode>(TypeKind::Integer, literal);
+        literalExpr = makeShared<IntegerLiteralExprNode>(literal);
     } else {
         String literal = ctx->StringLiteral()->getText();
         literal = literal.substr(1, literal.size() - 2);
-        literalExpr = makeShared<StringLiteralExprNode>(TypeKind::String, literal);
+        literalExpr = makeShared<StringLiteralExprNode>(literal);
     }
     return literalExpr;
 }
@@ -272,7 +272,7 @@ antlrcpp::Any ASTBuilder::visitForStatement(StaticScriptParser::ForStatementCont
     if (ctx->forCondition) {
         forCondition = visitExpression(ctx->forCondition);
     }
-    if(ctx->forUpdate) {
+    if (ctx->forUpdate) {
         antlrcpp::Any forUpdateAny = visitExpressionList(ctx->forUpdate);
         forUpdate = forUpdateAny.as<SharedPtrVector<ExprNode>>();
     }

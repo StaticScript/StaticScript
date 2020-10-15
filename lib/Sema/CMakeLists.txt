@@ -1,4 +1,4 @@
-set(SRC ASTVisitor.cpp ReferenceResolver.cpp ScopeScanner.cpp)
+set(SRC ASTVisitor.cpp ScopeScanner.cpp ReferenceResolver.cpp TypeChecker.cpp)
 
 add_library(sema OBJECT ${SRC})
 

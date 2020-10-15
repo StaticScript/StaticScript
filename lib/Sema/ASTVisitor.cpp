@@ -8,7 +8,11 @@ void ASTVisitor::visit(const SharedPtr<ModuleNode> &module) {
 
 void ASTVisitor::visit(const SharedPtr<BuiltinTypeNode> &builtinType) {}
 
-void ASTVisitor::visit(const SharedPtr<VarDeclNode> &varDecl) {}
+void ASTVisitor::visit(const SharedPtr<VarDeclNode> &varDecl) {
+    if(varDecl->initVal) {
+        varDecl->initVal->accept(shared_from_this());
+    }
+}
 
 void ASTVisitor::visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) {}
 

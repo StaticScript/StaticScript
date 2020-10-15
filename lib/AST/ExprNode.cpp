@@ -3,21 +3,23 @@
 #include "AST/DeclNode.h"
 #include "Sema/ASTVisitor.h"
 
-LiteralExprNode::LiteralExprNode(TypeKind type) : type(type) {}
+ExprNode::ExprNode(const SharedPtr<BuiltinTypeNode> &type) : type(type) {}
 
-IntegerLiteralExprNode::IntegerLiteralExprNode(TypeKind type, int literal) : LiteralExprNode(type), literal(literal) {}
+LiteralExprNode::LiteralExprNode(const SharedPtr<BuiltinTypeNode> &type) : ExprNode(type) {}
+
+IntegerLiteralExprNode::IntegerLiteralExprNode(int literal) : literal(literal), LiteralExprNode(BuiltinTypeNode::INTEGER_TYPE) {}
 
 void IntegerLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<IntegerLiteralExprNode>(shared_from_this()));
 }
 
-BooleanLiteralExprNode::BooleanLiteralExprNode(TypeKind type, bool literal) : LiteralExprNode(type), literal(literal) {}
+BooleanLiteralExprNode::BooleanLiteralExprNode(bool literal) : literal(literal), LiteralExprNode(BuiltinTypeNode::BOOLEAN_TYPE) {}
 
 void BooleanLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<BooleanLiteralExprNode>(shared_from_this()));
 }
 
-StringLiteralExprNode::StringLiteralExprNode(TypeKind type, String literal) : LiteralExprNode(type), literal(std::move(literal)) {}
+StringLiteralExprNode::StringLiteralExprNode(String literal) : literal(std::move(literal)), LiteralExprNode(BuiltinTypeNode::STRING_TYPE) {}
 
 void StringLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<StringLiteralExprNode>(shared_from_this()));

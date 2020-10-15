@@ -16,9 +16,11 @@ public:
 
     virtual ~Scope() = default;
 
-    virtual void addChild(const SharedPtr<LocalScope> &scope);
+    virtual void addChild(const SharedPtr<LocalScope> &scope) final;
 
     virtual void addVariable(const String &varName, const SharedPtr<VarDeclNode> &varDecl) final;
+
+    virtual bool hasVariable(const String &name) final;
 
     virtual bool isTopLevel() = 0;
 
@@ -27,6 +29,8 @@ public:
     virtual SharedPtr<Scope> getParent() = 0;
 
     virtual SharedPtr<VarDeclNode> resolveVariable(const String &name) = 0;
+
+    SharedPtr<Node> host;
 
 protected:
     SharedPtrVector<LocalScope> children;
@@ -49,6 +53,8 @@ public:
     SharedPtr<Scope> getParent() override;
 
     virtual void addFunction(const String &name, const SharedPtr<FunctionDeclNode> &funcDecl) final;
+
+    virtual bool hasFunction(const String &name) final;
 
     SharedPtr<VarDeclNode> resolveVariable(const String &name) override;
 

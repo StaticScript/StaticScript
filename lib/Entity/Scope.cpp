@@ -8,6 +8,10 @@ void Scope::addVariable(const String &varName, const SharedPtr<VarDeclNode> &var
     variables[varName] = varDecl;
 }
 
+bool Scope::hasVariable(const String &varName) {
+    return mapFind(variables, varName) != nullptr;
+}
+
 SharedPtr<TopLevelScope> TopLevelScope::create() {
     return makeShared<TopLevelScope>();
 }
@@ -34,6 +38,10 @@ SharedPtr<VarDeclNode> TopLevelScope::resolveVariable(const String &name) {
 
 SharedPtr<FunctionDeclNode> TopLevelScope::resolveFunction(const String &name) {
     return mapFind(functions, name);
+}
+
+bool TopLevelScope::hasFunction(const String &name) {
+    return resolveFunction(name) != nullptr;
 }
 
 SharedPtr<LocalScope> LocalScope::create(const SharedPtr<Scope> &parent) {

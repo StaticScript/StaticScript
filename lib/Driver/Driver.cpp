@@ -1,19 +1,17 @@
-#include <iostream>
 #include <antlr4-runtime.h>
 #include "StaticScriptLexer.h"
 #include "StaticScriptParser.h"
-#include "AST/AST.h"
-#include "Util/Output.h"
-#include "Sema/ReferenceResolver.h"
 #include "Sema/ScopeScanner.h"
+#include "Sema/ReferenceResolver.h"
+#include "Sema/TypeChecker.h"
+#include "Exception/DriverException.h"
 
 int main(int argc, char *argv[]) {
     if (argc > 1) {
         const String &codeFilename = argv[1];
         std::ifstream fin(codeFilename);
         if (!fin) {
-            errPrintln("Can not open ", argv[1]);
-            return 1;
+            throw DriverException("打开文件失败");
         }
         antlr4::ANTLRInputStream inputStream(fin);
         StaticScriptLexer lexer(&inputStream);
@@ -27,7 +25,9 @@ int main(int argc, char *argv[]) {
         scanner->resolve(module);
         SharedPtr<ReferenceResolver> resolver = makeShared<ReferenceResolver>();
         resolver->resolve(module);
+        SharedPtr<TypeChecker> checker = makeShared<TypeChecker>();
+        checker->resolve(module);
     } else {
-        errPrintln("At least one parameter is required.");
+        throw DriverException("至少需要一个参数");
     }
 }

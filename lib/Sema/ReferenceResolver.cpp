@@ -7,7 +7,12 @@ void ReferenceResolver::visit(const SharedPtr<ModuleNode> &module) {
 }
 
 void ReferenceResolver::visit(const SharedPtr<VarDeclNode> &varDecl) {
-    getCurrentScope()->addVariable(varDecl->name, varDecl);
+    if (getCurrentScope()->hasVariable(varDecl->name)) {
+        throw SemanticException("变量重复定义: " + varDecl->name);
+    } else {
+        getCurrentScope()->addVariable(varDecl->name, varDecl);
+    }
+    ASTVisitor::visit(varDecl);
 }
 
 void ReferenceResolver::visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) {
@@ -16,7 +21,11 @@ void ReferenceResolver::visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) {
 
 void ReferenceResolver::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
     const SharedPtr<TopLevelScope> &topLevelScope = dynPtrCast<TopLevelScope>(getCurrentScope());
-    topLevelScope->addFunction(funcDecl->name, funcDecl);
+    if (topLevelScope->hasFunction(funcDecl->name)) {
+        throw SemanticException("函数重复定义: " + funcDecl->name);
+    } else {
+        topLevelScope->addFunction(funcDecl->name, funcDecl);
+    }
     pushScope(funcDecl->internalScope);
     ASTVisitor::visit(funcDecl);
     popScope();
@@ -41,38 +50,10 @@ void ReferenceResolver::visit(const SharedPtr<CallExprNode> &callExpr) {
     ASTVisitor::visit(callExpr);
 }
 
-void ReferenceResolver::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
-    ASTVisitor::visit(uopExpr);
-}
-
-void ReferenceResolver::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
-    ASTVisitor::visit(bopExpr);
-}
-
-void ReferenceResolver::visit(const SharedPtr<ExprStmtNode> &exprStmt) {
-    ASTVisitor::visit(exprStmt);
-}
-
 void ReferenceResolver::visit(const SharedPtr<CompoundStmtNode> &compStmt) {
     pushScope(compStmt->internalScope);
     ASTVisitor::visit(compStmt);
     popScope();
-}
-
-void ReferenceResolver::visit(const SharedPtr<VarDeclStmtNode> &varDeclStmt) {
-    ASTVisitor::visit(varDeclStmt);
-}
-
-void ReferenceResolver::visit(const SharedPtr<FunctionDeclStmtNode> &funcDeclStmt) {
-    ASTVisitor::visit(funcDeclStmt);
-}
-
-void ReferenceResolver::visit(const SharedPtr<IfStmtNode> &ifStmt) {
-    ASTVisitor::visit(ifStmt);
-}
-
-void ReferenceResolver::visit(const SharedPtr<WhileStmtNode> &whileStmt) {
-    ASTVisitor::visit(whileStmt);
 }
 
 void ReferenceResolver::visit(const SharedPtr<ForStmtNode> &forStmt) {
@@ -82,5 +63,19 @@ void ReferenceResolver::visit(const SharedPtr<ForStmtNode> &forStmt) {
 }
 
 void ReferenceResolver::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
+    SharedPtr<Scope> scope = returnStmt->scope->getParent();
+    SharedPtr<FunctionDeclNode> funcDecl;
+    while (scope) {
+        funcDecl = dynPtrCast<FunctionDeclNode>(scope->host);
+        if (funcDecl) {
+            break;
+        }
+        scope = scope->getParent();
+    }
+    if (funcDecl) {
+        returnStmt->assocFuncDecl = funcDecl;
+    } else {
+        throw SemanticException("return语句不在函数内");
+    }
     ASTVisitor::visit(returnStmt);
 }

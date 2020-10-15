@@ -149,4 +149,6 @@ public:
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     SharedPtr<ExprNode> returnExpr;
+
+    SharedPtr<FunctionDeclNode> assocFuncDecl;
 };

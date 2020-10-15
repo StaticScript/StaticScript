@@ -6,7 +6,7 @@
 /// AST遍历器
 class ASTVisitor : public std::enable_shared_from_this<ASTVisitor> {
 public:
-    inline void resolve(const SharedPtr<ModuleNode> &module) {
+    virtual void resolve(const SharedPtr<ModuleNode> &module) {
         module->accept(shared_from_this());
     }
 

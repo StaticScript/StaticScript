@@ -35,7 +35,7 @@ Minus:                  '-';
 Multiply:               '*';
 Divide:                 '/';
 LessThan:               '<';
-MoreThan:               '>';
+GreaterThan:            '>';
 LessThanEquals:         '<=';
 GreaterThanEquals:      '>=';
 Equals:                 '==';

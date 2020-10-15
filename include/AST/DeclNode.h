@@ -30,7 +30,7 @@ public:
             VarModifier modifier,
             String name,
             const SharedPtr<BuiltinTypeNode> &type,
-            const SharedPtr<ExprNode> &defaultVal
+            const SharedPtr<ExprNode> &initVal
     );
 
     ~VarDeclNode() override = default;
@@ -39,8 +39,8 @@ public:
 
     VarModifier modifier;
     String name;
-    SharedPtr<BuiltinTypeNode> type = BuiltinTypeNode::UNKNOWN_TYPE;
-    SharedPtr<ExprNode> defaultVal;
+    SharedPtr<BuiltinTypeNode> type;
+    SharedPtr<ExprNode> initVal;
 };
 
 /// 函数参数声明节点
