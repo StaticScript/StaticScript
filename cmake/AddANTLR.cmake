@@ -1,4 +1,4 @@
-set(CMAKE_PREFIX_PATH /usr/local/lib/cmake/antlr4)
+list(APPEND CMAKE_PREFIX_PATH /usr/local/lib/cmake/antlr4)
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
     set(ANTLR4_JAR_LOCATION ${PROJECT_SOURCE_DIR}/thirdparty/antlr/antlr-4.8-complete.jar)

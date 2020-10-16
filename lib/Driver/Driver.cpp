@@ -1,6 +1,7 @@
 #include <antlr4-runtime.h>
 #include "StaticScriptLexer.h"
 #include "StaticScriptParser.h"
+#include "AST/ASTBuilder.h"
 #include "Sema/ScopeScanner.h"
 #include "Sema/ReferenceResolver.h"
 #include "Sema/TypeChecker.h"

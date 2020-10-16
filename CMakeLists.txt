@@ -4,9 +4,11 @@ project(StaticScript CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 include(AddANTLR)
+
+include(AddLLVM)
 
 include(AddDoxygen)
 
