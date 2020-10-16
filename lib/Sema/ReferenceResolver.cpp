@@ -34,7 +34,7 @@ void ReferenceResolver::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
 void ReferenceResolver::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
     const SharedPtr<VarDeclNode> &varDecl = resolveVariable(varExpr->name);
     if (varDecl) {
-        varExpr->assocVarDecl = varDecl;
+        varExpr->refVarDecl = varDecl;
     } else {
         throw SemanticException("变量未定义: " + varExpr->name);
     }
@@ -43,7 +43,7 @@ void ReferenceResolver::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
 void ReferenceResolver::visit(const SharedPtr<CallExprNode> &callExpr) {
     SharedPtr<FunctionDeclNode> funcDecl = resolveFunction(callExpr->calleeName);
     if (funcDecl) {
-        callExpr->assocFuncDecl = funcDecl;
+        callExpr->refFuncDecl = funcDecl;
     } else {
         throw SemanticException("函数未定义: " + callExpr->calleeName);
     }
@@ -73,8 +73,10 @@ void ReferenceResolver::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
         scope = scope->getParent();
     }
     if (funcDecl) {
-        returnStmt->assocFuncDecl = funcDecl;
+        returnStmt->refFuncDecl = funcDecl;
+        funcDecl->refReturnStmt = returnStmt;
     } else {
+        // 这里本应该是语义合法性检查器的责任, 但是类型检查器要使用到refFuncDecl信息,所以提前到这里做
         throw SemanticException("return语句不在函数内");
     }
     ASTVisitor::visit(returnStmt);

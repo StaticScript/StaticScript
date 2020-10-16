@@ -7,7 +7,7 @@
 
 /// 引用消解器
 class ReferenceResolver final : public ASTVisitor {
-private:
+public:
     void visit(const SharedPtr<ModuleNode> &module) override;
 
     void visit(const SharedPtr<VarDeclNode> &varDecl) override;
@@ -26,6 +26,7 @@ private:
 
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
 
+private:
     /**
      * @brief 查找变量
      * @details 沿着当前作用域递归向上查找变量

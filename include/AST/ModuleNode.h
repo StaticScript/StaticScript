@@ -12,6 +12,8 @@ public:
 
     virtual bool isEmpty() const;
 
+    void bindChildrenInversely() override;
+
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     String filename;

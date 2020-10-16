@@ -12,3 +12,10 @@ bool ModuleNode::isEmpty() const {
 void ModuleNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<ModuleNode>(shared_from_this()));
 }
+
+void ModuleNode::bindChildrenInversely() {
+    auto self = shared_from_this();
+    for (const SharedPtr<StmtNode> &stmt: childStmts) {
+        stmt->parent = self;
+    }
+}

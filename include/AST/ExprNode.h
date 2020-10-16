@@ -15,7 +15,7 @@ public:
 
     ~ExprNode() override = default;
 
-    SharedPtr<BuiltinTypeNode> type;
+    SharedPtr<BuiltinTypeNode> inferType;
 };
 
 /// 字面量表达式节点
@@ -73,7 +73,7 @@ public:
 
     String name;
 
-    SharedPtr<VarDeclNode> assocVarDecl;
+    SharedPtr<VarDeclNode> refVarDecl;
 };
 
 /// 函数调用表达式节点
@@ -84,12 +84,14 @@ public:
 
     ~CallExprNode() override = default;
 
+    void bindChildrenInversely() override;
+
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     String calleeName;
     SharedPtrVector<ExprNode> args;
 
-    SharedPtr<FunctionDeclNode> assocFuncDecl;
+    SharedPtr<FunctionDeclNode> refFuncDecl;
 };
 
 /// 一元运算表达式节点
@@ -98,6 +100,8 @@ public:
     UnaryOperatorExprNode(unsigned int opCode, const SharedPtr<ExprNode> &subExpr);
 
     ~UnaryOperatorExprNode() override = default;
+
+    void bindChildrenInversely() override;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
@@ -111,6 +115,8 @@ public:
     BinaryOperatorExprNode(unsigned int opCode, const SharedPtr<ExprNode> &lhs, const SharedPtr<ExprNode> &rhs);
 
     ~BinaryOperatorExprNode() override = default;
+
+    void bindChildrenInversely() override;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 

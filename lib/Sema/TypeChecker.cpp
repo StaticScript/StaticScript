@@ -5,11 +5,11 @@ void TypeChecker::visit(const SharedPtr<VarDeclNode> &varDecl) {
     if (varDecl->initVal) {
         varDecl->initVal->accept(shared_from_this());
         if (varDecl->type) {
-            if (varDecl->type != varDecl->initVal->type) {
+            if (varDecl->type != varDecl->initVal->inferType) {
                 throw SemanticException("变量声明类型与初始值类型不匹配: " + varDecl->name);
             }
         } else {
-            varDecl->type = varDecl->initVal->type;
+            varDecl->type = varDecl->initVal->inferType;
         }
     } else {
         if (!varDecl->type) {
@@ -19,29 +19,29 @@ void TypeChecker::visit(const SharedPtr<VarDeclNode> &varDecl) {
 }
 
 void TypeChecker::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
-    varExpr->type = varExpr->assocVarDecl->type;
+    varExpr->inferType = varExpr->refVarDecl->type;
 }
 
 void TypeChecker::visit(const SharedPtr<CallExprNode> &callExpr) {
     ASTVisitor::visit(callExpr);
     size_t argsSize = callExpr->args.size();
-    size_t paramsSize = callExpr->assocFuncDecl->params.size();
+    size_t paramsSize = callExpr->refFuncDecl->params.size();
     if (argsSize != paramsSize) {
         throw SemanticException("调用" + callExpr->calleeName + "函数时参数数量不匹配");
     }
     for (size_t i = 0; i < argsSize; ++i) {
-        if (callExpr->args[i]->type != callExpr->assocFuncDecl->params[i]->type) {
+        if (callExpr->args[i]->inferType != callExpr->refFuncDecl->params[i]->type) {
             throw SemanticException("调用" + callExpr->calleeName + "函数时第" + std::to_string(i + 1) + "个参数类型不匹配");
         }
     }
-    callExpr->type = callExpr->assocFuncDecl->returnType;
+    callExpr->inferType = callExpr->refFuncDecl->returnType;
 }
 
 void TypeChecker::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
     ASTVisitor::visit(uopExpr);
     switch (uopExpr->opCode) {
         case StaticScriptLexer::Minus: {
-            if (uopExpr->subExpr->type != BuiltinTypeNode::INTEGER_TYPE) {
+            if (uopExpr->subExpr->inferType != BuiltinTypeNode::INTEGER_TYPE) {
                 throw SemanticException("目前Minus运算符只允许对整数进行运算");
             }
             break;
@@ -50,13 +50,13 @@ void TypeChecker::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
             throw SemanticException("未知的一元运算符");
         }
     }
-    uopExpr->type = uopExpr->subExpr->type;
+    uopExpr->inferType = uopExpr->subExpr->inferType;
 }
 
 void TypeChecker::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     ASTVisitor::visit(bopExpr);
-    const SharedPtr<BuiltinTypeNode> &leftType = bopExpr->lhs->type;
-    const SharedPtr<BuiltinTypeNode> &rightType = bopExpr->rhs->type;
+    const SharedPtr<BuiltinTypeNode> &leftType = bopExpr->lhs->inferType;
+    const SharedPtr<BuiltinTypeNode> &rightType = bopExpr->rhs->inferType;
     // 检查二元运算符的运算表达式是否符合类型要求
     switch (bopExpr->opCode) {
         case StaticScriptLexer::Minus:
@@ -104,7 +104,7 @@ void TypeChecker::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
         case StaticScriptLexer::GreaterThanEquals:
         case StaticScriptLexer::Equals:
         case StaticScriptLexer::NotEquals: {
-            bopExpr->type = BuiltinTypeNode::BOOLEAN_TYPE;
+            bopExpr->inferType = BuiltinTypeNode::BOOLEAN_TYPE;
             break;
         }
         case StaticScriptLexer::Plus:
@@ -112,7 +112,7 @@ void TypeChecker::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
         case StaticScriptLexer::Multiply:
         case StaticScriptLexer::Divide:
         case StaticScriptLexer::Assign: {
-            bopExpr->type = leftType;
+            bopExpr->inferType = leftType;
             break;
         }
     }
@@ -120,14 +120,14 @@ void TypeChecker::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
 
 void TypeChecker::visit(const SharedPtr<IfStmtNode> &ifStmt) {
     ASTVisitor::visit(ifStmt);
-    if (ifStmt->condition->type != BuiltinTypeNode::BOOLEAN_TYPE) {
+    if (ifStmt->condition->inferType != BuiltinTypeNode::BOOLEAN_TYPE) {
         throw SemanticException("if语句条件暂时只支持boolean类型");
     }
 }
 
 void TypeChecker::visit(const SharedPtr<WhileStmtNode> &whileStmt) {
     ASTVisitor::visit(whileStmt);
-    if (whileStmt->condition->type != BuiltinTypeNode::BOOLEAN_TYPE) {
+    if (whileStmt->condition->inferType != BuiltinTypeNode::BOOLEAN_TYPE) {
         throw SemanticException("while语句条件暂时只支持boolean类型");
     }
 }
@@ -135,7 +135,7 @@ void TypeChecker::visit(const SharedPtr<WhileStmtNode> &whileStmt) {
 void TypeChecker::visit(const SharedPtr<ForStmtNode> &forStmt) {
     ASTVisitor::visit(forStmt);
     if (forStmt->forCondition &&
-        forStmt->forCondition->type != BuiltinTypeNode::BOOLEAN_TYPE) {
+        forStmt->forCondition->inferType != BuiltinTypeNode::BOOLEAN_TYPE) {
         throw SemanticException("for语句条件暂时只支持boolean类型");
     }
 }
@@ -143,7 +143,7 @@ void TypeChecker::visit(const SharedPtr<ForStmtNode> &forStmt) {
 void TypeChecker::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
     ASTVisitor::visit(returnStmt);
     if (returnStmt->returnExpr) {
-        if (returnStmt->returnExpr->type != returnStmt->assocFuncDecl->returnType) {
+        if (returnStmt->returnExpr->inferType != returnStmt->refFuncDecl->returnType) {
             throw SemanticException("return返回值类型与函数返回值类型不匹配");
         }
     }

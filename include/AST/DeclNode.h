@@ -35,6 +35,8 @@ public:
 
     ~VarDeclNode() override = default;
 
+    void bindChildrenInversely() override;
+
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     VarModifier modifier;
@@ -65,6 +67,8 @@ public:
 
     ~FunctionDeclNode() override = default;
 
+    void bindChildrenInversely() override;
+
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     String name;
@@ -73,4 +77,5 @@ public:
     SharedPtr<CompoundStmtNode> body;
 
     SharedPtr<Scope> internalScope;
+    SharedPtr<ReturnStmtNode> refReturnStmt;
 };

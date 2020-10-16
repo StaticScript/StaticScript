@@ -3,12 +3,14 @@
 ASTBuilder::ASTBuilder(String filename) : filename(std::move(filename)) {}
 
 antlrcpp::Any ASTBuilder::visitModule(StaticScriptParser::ModuleContext *ctx) {
-    SharedPtrVector<StmtNode> stmts;
+    SharedPtrVector<StmtNode> childStmts;
     if (ctx->statements()) {
         antlrcpp::Any stmtsAny = visitStatements(ctx->statements());
-        stmts = stmtsAny.as<SharedPtrVector<StmtNode>>();
+        childStmts = stmtsAny.as<SharedPtrVector<StmtNode>>();
     }
-    return makeShared<ModuleNode>(filename, stmts);
+    SharedPtr<ModuleNode> module = makeShared<ModuleNode>(filename, childStmts);
+    module->bindChildrenInversely();
+    return module;
 }
 
 antlrcpp::Any ASTBuilder::visitStatements(StaticScriptParser::StatementsContext *ctx) {
@@ -86,6 +88,7 @@ antlrcpp::Any ASTBuilder::visitVariableDeclarators(StaticScriptParser::VariableD
         varDecl->modifier = modifier;
         varDeclStmt->pushVarDecl(varDecl);
     }
+    varDeclStmt->bindChildrenInversely();
     return varDeclStmt;
 }
 
@@ -105,6 +108,7 @@ antlrcpp::Any ASTBuilder::visitVariableDeclarator(StaticScriptParser::VariableDe
     if (ctx->variableInitializer()) {
         varDecl->initVal = visitVariableInitializer(ctx->variableInitializer());
     }
+    varDecl->bindChildrenInversely();
     return varDecl;
 }
 
@@ -139,6 +143,8 @@ antlrcpp::Any ASTBuilder::visitFunctionDeclaration(StaticScriptParser::FunctionD
     SharedPtr<CompoundStmtNode> body = visitFunctionBody(ctx->functionBody());
     SharedPtr<FunctionDeclNode> functionDecl = makeShared<FunctionDeclNode>(name, params, returnType, body);
     SharedPtr<FunctionDeclStmtNode> functionDeclStmt = makeShared<FunctionDeclStmtNode>(functionDecl);
+    functionDecl->bindChildrenInversely();
+    functionDeclStmt->bindChildrenInversely();
     return functionDeclStmt;
 }
 
@@ -148,6 +154,7 @@ antlrcpp::Any ASTBuilder::visitParameterList(StaticScriptParser::ParameterListCo
         String name = ctx->Identifier(i)->getText();
         SharedPtr<BuiltinTypeNode> type = visitTypeAnnotation(ctx->typeAnnotation(i));
         SharedPtr<ParmVarDeclNode> param = makeShared<ParmVarDeclNode>(name, type);
+        param->bindChildrenInversely();
         params.push_back(param);
     }
     return params;
@@ -165,6 +172,7 @@ antlrcpp::Any ASTBuilder::visitCallExpression(StaticScriptParser::CallExpression
         args = argsAny.as<SharedPtrVector<ExprNode>>();
     }
     SharedPtr<CallExprNode> callExpr = makeShared<CallExprNode>(calleeName, args);
+    callExpr->bindChildrenInversely();
     return callExpr;
 }
 
@@ -179,12 +187,14 @@ antlrcpp::Any ASTBuilder::visitCompoundStatement(StaticScriptParser::CompoundSta
         childStmts = stmtsAny.as<SharedPtrVector<StmtNode>>();
     }
     SharedPtr<CompoundStmtNode> compoundStmt = makeShared<CompoundStmtNode>(childStmts);
+    compoundStmt->bindChildrenInversely();
     return compoundStmt;
 }
 
 antlrcpp::Any ASTBuilder::visitExpressionStatement(StaticScriptParser::ExpressionStatementContext *ctx) {
     SharedPtr<ExprNode> expr = visitExpression(ctx->expression());
     SharedPtr<ExprStmtNode> exprStmt = makeShared<ExprStmtNode>(expr);
+    exprStmt->bindChildrenInversely();
     return exprStmt;
 }
 
@@ -208,6 +218,7 @@ antlrcpp::Any ASTBuilder::visitExpression(StaticScriptParser::ExpressionContext 
         SharedPtr<ExprNode> rhs = visitExpression(ctx->expression(1));
         expr = makeShared<BinaryOperatorExprNode>(ctx->bop->getType(), lhs, rhs);
     }
+    expr->bindChildrenInversely();
     return expr;
 }
 
@@ -239,6 +250,7 @@ antlrcpp::Any ASTBuilder::visitIfStatement(StaticScriptParser::IfStatementContex
         elseBody = visitStatement(ctx->elseBody);
     }
     SharedPtr<IfStmtNode> ifStmt = makeShared<IfStmtNode>(condition, thenBody, elseBody);
+    ifStmt->bindChildrenInversely();
     return ifStmt;
 }
 
@@ -253,6 +265,7 @@ antlrcpp::Any ASTBuilder::visitWhileStatement(StaticScriptParser::WhileStatement
     SharedPtr<ExprNode> condition = visitExpression(ctx->whileCondition);
     SharedPtr<StmtNode> body = visitStatement(ctx->whileBody);
     SharedPtr<WhileStmtNode> whileStmt = makeShared<WhileStmtNode>(condition, body);
+    whileStmt->bindChildrenInversely();
     return whileStmt;
 }
 
@@ -278,6 +291,7 @@ antlrcpp::Any ASTBuilder::visitForStatement(StaticScriptParser::ForStatementCont
     }
     SharedPtr<StmtNode> body = visitStatement(ctx->forBody);
     SharedPtr<ForStmtNode> forStmt = makeShared<ForStmtNode>(forInitVarDecls, forInitExprList, forCondition, forUpdate, body);
+    forStmt->bindChildrenInversely();
     return forStmt;
 }
 
@@ -322,5 +336,8 @@ antlrcpp::Any ASTBuilder::visitReturnStatement(StaticScriptParser::ReturnStateme
         returnExpr = visitExpression(ctx->expression());
     }
     SharedPtr<ReturnStmtNode> returnStmt = makeShared<ReturnStmtNode>(returnExpr);
+
+    returnStmt->bindChildrenInversely();
+
     return returnStmt;
 }

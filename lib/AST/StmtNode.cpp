@@ -8,6 +8,10 @@ void ExprStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<ExprStmtNode>(shared_from_this()));
 }
 
+void ExprStmtNode::bindChildrenInversely() {
+    expr->parent = shared_from_this();
+}
+
 CompoundStmtNode::CompoundStmtNode(const SharedPtrVector<StmtNode> &childStmts) : childStmts(childStmts) {}
 
 bool CompoundStmtNode::isEmpty() const {
@@ -16,6 +20,13 @@ bool CompoundStmtNode::isEmpty() const {
 
 void CompoundStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<CompoundStmtNode>(shared_from_this()));
+}
+
+void CompoundStmtNode::bindChildrenInversely() {
+    auto self = shared_from_this();
+    for (const SharedPtr<StmtNode> &stmt: childStmts) {
+        stmt->parent = self;
+    }
 }
 
 
@@ -27,12 +38,23 @@ void VarDeclStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<VarDeclStmtNode>(shared_from_this()));
 }
 
+void VarDeclStmtNode::bindChildrenInversely() {
+    auto self = shared_from_this();
+    for (const SharedPtr<VarDeclNode> &varDecl: childVarDecls) {
+        varDecl->parent = self;
+    }
+}
+
 FunctionDeclStmtNode::FunctionDeclStmtNode(
         const SharedPtr<FunctionDeclNode> &childFunctionDecl
 ) : childFunctionDecl(childFunctionDecl) {}
 
 void FunctionDeclStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<FunctionDeclStmtNode>(shared_from_this()));
+}
+
+void FunctionDeclStmtNode::bindChildrenInversely() {
+    childFunctionDecl->parent = shared_from_this();
 }
 
 IfStmtNode::IfStmtNode(
@@ -45,6 +67,14 @@ void IfStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<IfStmtNode>(shared_from_this()));
 }
 
+void IfStmtNode::bindChildrenInversely() {
+    auto self = shared_from_this();
+    condition->parent = thenBody->parent = self;
+    if (elseBody) {
+        elseBody->parent = self;
+    }
+}
+
 WhileStmtNode::WhileStmtNode(
         const SharedPtr<ExprNode> &condition,
         const SharedPtr<StmtNode> &body
@@ -52,6 +82,10 @@ WhileStmtNode::WhileStmtNode(
 
 void WhileStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<WhileStmtNode>(shared_from_this()));
+}
+
+void WhileStmtNode::bindChildrenInversely() {
+    condition->parent = body->parent = shared_from_this();
 }
 
 ForStmtNode::ForStmtNode(
@@ -69,6 +103,23 @@ void ForStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<ForStmtNode>(shared_from_this()));
 }
 
+void ForStmtNode::bindChildrenInversely() {
+    auto self = shared_from_this();
+    if (forInitVarDecls) {
+        forInitVarDecls->parent = self;
+    }
+    for (const SharedPtr<ExprNode> &forInitExpr: forInitExprList) {
+        forInitExpr->parent = self;
+    }
+    if (forCondition) {
+        forCondition->parent = self;
+    }
+    for (const SharedPtr<ExprNode> &forUpdateItem: forUpdate) {
+        forUpdateItem->parent = self;
+    }
+    body->parent = self;
+}
+
 void ContinueStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<ContinueStmtNode>(shared_from_this()));
 }
@@ -81,4 +132,10 @@ ReturnStmtNode::ReturnStmtNode(const SharedPtr<ExprNode> &argument) : returnExpr
 
 void ReturnStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<ReturnStmtNode>(shared_from_this()));
+}
+
+void ReturnStmtNode::bindChildrenInversely() {
+    if (returnExpr) {
+        returnExpr->parent = shared_from_this();
+    }
 }

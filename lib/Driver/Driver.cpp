@@ -4,6 +4,7 @@
 #include "Sema/ScopeScanner.h"
 #include "Sema/ReferenceResolver.h"
 #include "Sema/TypeChecker.h"
+#include "Sema/SemanticValidator.h"
 #include "Exception/DriverException.h"
 
 int main(int argc, char *argv[]) {
@@ -27,6 +28,8 @@ int main(int argc, char *argv[]) {
         resolver->resolve(module);
         SharedPtr<TypeChecker> checker = makeShared<TypeChecker>();
         checker->resolve(module);
+        SharedPtr<SemanticValidator> validator = makeShared<SemanticValidator>();
+        validator->resolve(module);
     } else {
         throw DriverException("至少需要一个参数");
     }

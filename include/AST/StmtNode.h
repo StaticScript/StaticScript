@@ -21,6 +21,8 @@ public:
 
     ~ExprStmtNode() override = default;
 
+    void bindChildrenInversely() override;
+
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     SharedPtr<ExprNode> expr;
@@ -34,6 +36,8 @@ public:
     ~CompoundStmtNode() override = default;
 
     [[nodiscard]] virtual bool isEmpty() const;
+
+    void bindChildrenInversely() override;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
@@ -50,6 +54,8 @@ public:
 
     virtual void pushVarDecl(const SharedPtr<VarDeclNode> &varDecl);
 
+    void bindChildrenInversely() override;
+
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     SharedPtrVector<VarDeclNode> childVarDecls;
@@ -61,6 +67,8 @@ public:
     explicit FunctionDeclStmtNode(const SharedPtr<FunctionDeclNode> &childFunctionDecl);
 
     ~FunctionDeclStmtNode() override = default;
+
+    void bindChildrenInversely() override;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
@@ -78,6 +86,8 @@ public:
 
     ~IfStmtNode() override = default;
 
+    void bindChildrenInversely() override;
+
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     SharedPtr<ExprNode> condition;
@@ -91,6 +101,8 @@ public:
     WhileStmtNode(const SharedPtr<ExprNode> &condition, const SharedPtr<StmtNode> &body);
 
     ~WhileStmtNode() override = default;
+
+    void bindChildrenInversely() override;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
@@ -110,6 +122,8 @@ public:
     );
 
     ~ForStmtNode() override = default;
+
+    void bindChildrenInversely() override;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
@@ -146,9 +160,11 @@ public:
 
     ~ReturnStmtNode() override = default;
 
+    void bindChildrenInversely() override;
+
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     SharedPtr<ExprNode> returnExpr;
 
-    SharedPtr<FunctionDeclNode> assocFuncDecl;
+    SharedPtr<FunctionDeclNode> refFuncDecl;
 };

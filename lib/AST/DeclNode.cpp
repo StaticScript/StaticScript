@@ -23,6 +23,16 @@ void VarDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<VarDeclNode>(shared_from_this()));
 }
 
+void VarDeclNode::bindChildrenInversely() {
+    auto self = shared_from_this();
+    if (type) {
+        type->parent = self;
+    }
+    if (initVal) {
+        initVal->parent = self;
+    }
+}
+
 ParmVarDeclNode::ParmVarDeclNode(
         const String &name,
         const SharedPtr<BuiltinTypeNode> &type
@@ -44,4 +54,15 @@ FunctionDeclNode::FunctionDeclNode(
 
 void FunctionDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<FunctionDeclNode>(shared_from_this()));
+}
+
+void FunctionDeclNode::bindChildrenInversely() {
+    auto self = shared_from_this();
+    for (const SharedPtr<ParmVarDeclNode> &param: params) {
+        param->parent = self;
+    }
+    if (returnType) {
+        returnType->parent = self;
+    }
+    body->parent = self;
 }

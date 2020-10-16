@@ -3,7 +3,7 @@
 #include "AST/DeclNode.h"
 #include "Sema/ASTVisitor.h"
 
-ExprNode::ExprNode(const SharedPtr<BuiltinTypeNode> &type) : type(type) {}
+ExprNode::ExprNode(const SharedPtr<BuiltinTypeNode> &type) : inferType(type) {}
 
 LiteralExprNode::LiteralExprNode(const SharedPtr<BuiltinTypeNode> &type) : ExprNode(type) {}
 
@@ -37,10 +37,21 @@ void CallExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<CallExprNode>(shared_from_this()));
 }
 
+void CallExprNode::bindChildrenInversely() {
+    auto self = shared_from_this();
+    for (const SharedPtr<ExprNode> &arg: args) {
+        arg->parent = self;
+    }
+}
+
 UnaryOperatorExprNode::UnaryOperatorExprNode(unsigned int opCode, const SharedPtr<ExprNode> &subExpr) : opCode(opCode), subExpr(subExpr) {}
 
 void UnaryOperatorExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<UnaryOperatorExprNode>(shared_from_this()));
+}
+
+void UnaryOperatorExprNode::bindChildrenInversely() {
+    subExpr->parent = shared_from_this();
 }
 
 BinaryOperatorExprNode::BinaryOperatorExprNode(
@@ -53,6 +64,10 @@ BinaryOperatorExprNode::BinaryOperatorExprNode(
 
 void BinaryOperatorExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<BinaryOperatorExprNode>(shared_from_this()));
+}
+
+void BinaryOperatorExprNode::bindChildrenInversely() {
+    lhs->parent = rhs->parent = shared_from_this();
 }
 
 

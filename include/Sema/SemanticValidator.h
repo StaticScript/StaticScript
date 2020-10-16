@@ -1,13 +1,20 @@
-#pragma once
-
-#include "Entity/Scope.h"
+#include "StaticScriptLexer.h"
 #include "Sema/ASTVisitor.h"
 #include "Exception/SemanticException.h"
 
-/// 作用域扫描器
-class ScopeScanner final : public ASTVisitor {
+/**
+ * @par 语义合法性规则
+ * * break/continue语句只能出现在循环里
+ * * 有返回类型的函数必须有return语句
+ * * return语句只能出现在函数里
+ */
+
+/// 语义合法性验证器
+class SemanticValidator : public ASTVisitor {
 public:
     void visit(const SharedPtr<ModuleNode> &module) override;
+
+    void visit(const SharedPtr<BuiltinTypeNode> &builtinType) override;
 
     void visit(const SharedPtr<VarDeclNode> &varDecl) override;
 
@@ -48,4 +55,7 @@ public:
     void visit(const SharedPtr<BreakStmtNode> &breakStmt) override;
 
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
+
+private:
+    static bool isInLoop(const SharedPtr<Node> &node);
 };
