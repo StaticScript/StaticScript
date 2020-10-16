@@ -4,10 +4,14 @@ on:
   push:
     paths-ignore:
       - 'README.md'
+      - 'README-zh_CN.md'
+      - 'ROADMAP-zh_CN.md'
       - 'LICENSE'
   pull_request:
     paths-ignore:
       - 'README.md'
+      - 'README-zh_CN.md'
+      - 'ROADMAP-zh_CN.md'
       - 'LICENSE'
 
 jobs:
