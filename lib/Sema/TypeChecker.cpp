@@ -1,4 +1,3 @@
-#include "Entity/Scope.h"
 #include "Sema/TypeChecker.h"
 
 void TypeChecker::visit(const SharedPtr<VarDeclNode> &varDecl) {

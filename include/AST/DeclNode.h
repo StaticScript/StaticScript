@@ -18,7 +18,7 @@ public:
 /// 变量声明节点
 class VarDeclNode : public DeclNode {
 public:
-    VarDeclNode();
+    explicit VarDeclNode();
 
     VarDeclNode(
             VarModifier modifier,

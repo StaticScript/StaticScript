@@ -6,6 +6,7 @@
 #include "Sema/ReferenceResolver.h"
 #include "Sema/TypeChecker.h"
 #include "Sema/SemanticValidator.h"
+#include "CodeGen/IRGenerator.h"
 #include "Exception/DriverException.h"
 
 int main(int argc, char *argv[]) {

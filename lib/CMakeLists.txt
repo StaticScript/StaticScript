@@ -1,6 +1,7 @@
 add_subdirectory(Entity)
 add_subdirectory(AST)
 add_subdirectory(Sema)
+add_subdirectory(CodeGen)
 add_subdirectory(Driver)
 
 add_executable(
@@ -9,6 +10,7 @@ add_executable(
         $<TARGET_OBJECTS:entity>
         $<TARGET_OBJECTS:ast>
         $<TARGET_OBJECTS:sema>
+        $<TARGET_OBJECTS:codegen>
         $<TARGET_OBJECTS:driver>
 )
 

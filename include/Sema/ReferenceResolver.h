@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stack>
 #include "Entity/Scope.h"
 #include "Sema/ASTVisitor.h"
 #include "Exception/SemanticException.h"

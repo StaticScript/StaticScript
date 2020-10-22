@@ -21,4 +21,7 @@ public:
 
     // 当前节点所处的作用域
     SharedPtr<Scope> scope;
+
+    // 当前节点的ir
+    LLVMValue *code;
 };

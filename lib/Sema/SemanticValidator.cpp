@@ -57,6 +57,8 @@ void SemanticValidator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) 
             if (varExpr->refVarDecl->modifier == VarModifier::Const) {
                 throw SemanticException("不允许对常量赋值");
             }
+        } else {
+            throw SemanticException("不允许对右值赋值");
         }
     }
 }

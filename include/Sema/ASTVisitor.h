@@ -1,14 +1,16 @@
 #pragma once
 
 #include <memory>
-#include "AST/AST.h"
+#include "AST/TypeNode.h"
+#include "AST/DeclNode.h"
+#include "AST/StmtNode.h"
+#include "AST/ExprNode.h"
+#include "AST/ModuleNode.h"
 
 /// AST遍历器
 class ASTVisitor : public std::enable_shared_from_this<ASTVisitor> {
 public:
-    virtual void resolve(const SharedPtr<ModuleNode> &module) {
-        module->accept(shared_from_this());
-    }
+    virtual void resolve(const SharedPtr<ModuleNode> &module);
 
     virtual void visit(const SharedPtr<ModuleNode> &module);
 
@@ -80,5 +82,5 @@ protected:
     }
 
     /// 作用域栈
-    std::stack<SharedPtr<Scope>> scopeStack;
+    Stack<SharedPtr<Scope>> scopeStack;
 };

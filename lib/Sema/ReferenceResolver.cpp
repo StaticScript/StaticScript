@@ -16,7 +16,11 @@ void ReferenceResolver::visit(const SharedPtr<VarDeclNode> &varDecl) {
 }
 
 void ReferenceResolver::visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) {
-    getCurrentScope()->addVariable(paramVarDecl->name, paramVarDecl);
+    if (getCurrentScope()->hasVariable(paramVarDecl->name)) {
+        throw SemanticException("变量重复定义: " + paramVarDecl->name);
+    } else {
+        getCurrentScope()->addVariable(paramVarDecl->name, paramVarDecl);
+    }
 }
 
 void ReferenceResolver::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {

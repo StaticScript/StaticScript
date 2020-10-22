@@ -1,5 +1,9 @@
 #include "Sema/ASTVisitor.h"
 
+void ASTVisitor::resolve(const SharedPtr<ModuleNode> &module)  {
+    module->accept(shared_from_this());
+}
+
 void ASTVisitor::visit(const SharedPtr<ModuleNode> &module) {
     for (const SharedPtr<StmtNode> &stmt: module->childStmts) {
         stmt->accept(shared_from_this());

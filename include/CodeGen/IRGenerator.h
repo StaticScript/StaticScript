@@ -2,11 +2,15 @@
 
 #include "StaticScriptLexer.h"
 #include "Sema/ASTVisitor.h"
-#include "Exception/SemanticException.h"
+#include "Util/Alias.h"
+#include "Exception/CodeGenException.h"
 
-/// 语义合法性验证器
-class SemanticValidator : public ASTVisitor {
+class IRGenerator : public ASTVisitor {
 public:
+    explicit IRGenerator();
+
+    void resolve(const SharedPtr<ModuleNode> &module) override;
+
     void visit(const SharedPtr<ModuleNode> &module) override;
 
     void visit(const SharedPtr<BuiltinTypeNode> &builtinType) override;
@@ -52,5 +56,21 @@ public:
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
 
 private:
-    static bool isInLoop(const SharedPtr<Node> &node);
+    LLVMType *getType(const SharedPtr<BuiltinTypeNode> &builtinType) {
+        LLVMType *type = llvmIRBuilder.getVoidTy();
+        if (builtinType == BuiltinTypeNode::BOOLEAN_TYPE) {
+            type = llvmIRBuilder.getInt1Ty();
+        } else if (builtinType == BuiltinTypeNode::INTEGER_TYPE) {
+            type = llvmIRBuilder.getInt64Ty();
+        } else {
+            // TODO: 字符串类型
+        }
+        return type;
+    }
+
+    LLVMContext llvmContext;
+    LLVMIRBuilder llvmIRBuilder;
+    SharedPtr<LLVMModule> llvmModule;
 };
+
+
