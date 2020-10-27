@@ -66,6 +66,14 @@ void ReferenceResolver::visit(const SharedPtr<ForStmtNode> &forStmt) {
     popScope();
 }
 
+void ReferenceResolver::visit(const SharedPtr<ContinueStmtNode> &continueStmt) {
+    continueStmt->refIterationStmt = resolveRefIterationStmt(continueStmt);
+}
+
+void ReferenceResolver::visit(const SharedPtr<BreakStmtNode> &breakStmt) {
+    breakStmt->refIterationStmt = resolveRefIterationStmt(breakStmt);
+}
+
 void ReferenceResolver::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
     SharedPtr<Scope> scope = returnStmt->scope->getParent();
     SharedPtr<FunctionDeclNode> funcDecl;
@@ -84,4 +92,27 @@ void ReferenceResolver::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
         throw SemanticException("return语句不在函数内");
     }
     ASTVisitor::visit(returnStmt);
+}
+
+SharedPtr<StmtNode> ReferenceResolver::resolveRefIterationStmt(const SharedPtr<Node> &node) {
+    SharedPtr<Node> iterNode = node->parent;
+    SharedPtr<WhileStmtNode> refWhileStmt = nullptr;
+    SharedPtr<ForStmtNode> refForStmt = nullptr;
+    while (iterNode) {
+        SharedPtr<WhileStmtNode> whileStmt = dynPtrCast<WhileStmtNode>(iterNode);
+        if (whileStmt) {
+            refWhileStmt = whileStmt;
+            break;
+        }
+        SharedPtr<ForStmtNode> forStmt = dynPtrCast<ForStmtNode>(iterNode);
+        if (forStmt) {
+            refForStmt = forStmt;
+            break;
+        }
+        iterNode = iterNode->parent;
+    }
+    if (refWhileStmt) {
+        return refWhileStmt;
+    }
+    return refForStmt;
 }

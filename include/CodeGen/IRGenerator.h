@@ -55,6 +55,10 @@ public:
 
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
 
+    LLVMModule &getLLVMModule() const {
+        return *llvmModule;
+    }
+
 private:
     LLVMType *getType(const SharedPtr<BuiltinTypeNode> &builtinType) {
         LLVMType *type = llvmIRBuilder.getVoidTy();
@@ -68,9 +72,46 @@ private:
         return type;
     }
 
+    void setFuncInsertPoint(LLVMFunction *func) {
+        LLVMBasicBlock *curBB = &(func->getBasicBlockList().back());
+        llvmIRBuilder.SetInsertPoint(curBB);
+    }
+
+    inline LLVMBasicBlock *createBasicBlock(const String &name, LLVMFunction *parent = nullptr, LLVMBasicBlock *before = nullptr) {
+        return LLVMBasicBlock::Create(llvmContext, name, parent, before);
+    }
+
+    void emitBlock(LLVMBasicBlock *bb, bool isFinished = false) {
+        LLVMBasicBlock *curBB = llvmIRBuilder.GetInsertBlock();
+        emitBranch(bb);
+        if (isFinished && bb->use_empty()) {
+            delete bb;
+            return;
+        }
+        if (curBB && curBB->getParent()) {
+            curFn->getBasicBlockList().insertAfter(curBB->getIterator(), bb);
+        } else {
+            curFn->getBasicBlockList().push_back(bb);
+        }
+        llvmIRBuilder.SetInsertPoint(bb);
+    }
+
+    void emitBranch(LLVMBasicBlock *targetBB) {
+        LLVMBasicBlock *curBB = llvmIRBuilder.GetInsertBlock();
+        if (!curBB || curBB->getTerminator()) {
+
+        } else {
+            llvmIRBuilder.CreateBr(targetBB);
+        }
+        llvmIRBuilder.ClearInsertionPoint();
+    }
+
     LLVMContext llvmContext;
     LLVMIRBuilder llvmIRBuilder;
     SharedPtr<LLVMModule> llvmModule;
+
+    LLVMFunction *mainFn = nullptr;
+    LLVMFunction *curFn = nullptr;
 };
 
 

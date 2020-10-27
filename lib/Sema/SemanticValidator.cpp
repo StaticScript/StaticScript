@@ -10,6 +10,11 @@ void SemanticValidator::visit(const SharedPtr<BuiltinTypeNode> &builtinType) {
 
 void SemanticValidator::visit(const SharedPtr<VarDeclNode> &varDecl) {
     ASTVisitor::visit(varDecl);
+    if (varDecl->isConstant()) {
+        if (!dynPtrCast<LiteralExprNode>(varDecl->initVal)) {
+            throw SemanticException("常量初始值暂时只支持字面量");
+        }
+    }
 }
 
 void SemanticValidator::visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) {
@@ -22,6 +27,8 @@ void SemanticValidator::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
         if (!funcDecl->refReturnStmt) {
             throw SemanticException("有返回类型的函数必须有return语句");
         }
+    } else if (funcDecl->name == "main") {
+        throw SemanticException("函数名不能为main");
     }
 }
 
@@ -54,7 +61,7 @@ void SemanticValidator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) 
     if (bopExpr->opCode == StaticScriptLexer::Assign) {
         SharedPtr<IdentifierExprNode> varExpr = dynPtrCast<IdentifierExprNode>(bopExpr->lhs);
         if (varExpr) {
-            if (varExpr->refVarDecl->modifier == VarModifier::Const) {
+            if (varExpr->refVarDecl->isConstant()) {
                 throw SemanticException("不允许对常量赋值");
             }
         } else {
@@ -92,37 +99,17 @@ void SemanticValidator::visit(const SharedPtr<ForStmtNode> &forStmt) {
 }
 
 void SemanticValidator::visit(const SharedPtr<ContinueStmtNode> &continueStmt) {
-    if (!isInLoop(continueStmt)) {
+    if (!continueStmt->refIterationStmt) {
         throw SemanticException("continue语句语句只能出现在循环里");
     }
 }
 
 void SemanticValidator::visit(const SharedPtr<BreakStmtNode> &breakStmt) {
-    if (!isInLoop(breakStmt)) {
+    if (!breakStmt->refIterationStmt) {
         throw SemanticException("break语句只能出现在循环里");
     }
 }
 
 void SemanticValidator::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
     ASTVisitor::visit(returnStmt);
-}
-
-bool SemanticValidator::isInLoop(const SharedPtr<Node> &node) {
-    SharedPtr<Node> iterNode = node->parent;
-    SharedPtr<WhileStmtNode> ancestorWhileStmt;
-    SharedPtr<ForStmtNode> ancestorForStmt;
-    while (iterNode) {
-        SharedPtr<WhileStmtNode> whileStmt = dynPtrCast<WhileStmtNode>(iterNode);
-        if (whileStmt) {
-            ancestorWhileStmt = whileStmt;
-            break;
-        }
-        SharedPtr<ForStmtNode> forStmt = dynPtrCast<ForStmtNode>(iterNode);
-        if (forStmt) {
-            ancestorForStmt = forStmt;
-            break;
-        }
-        iterNode = iterNode->parent;
-    }
-    return ancestorWhileStmt || ancestorForStmt;
 }

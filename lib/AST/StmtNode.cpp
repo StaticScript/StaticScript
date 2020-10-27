@@ -94,10 +94,10 @@ ForStmtNode::ForStmtNode(
         const SharedPtr<ExprNode> &forCondition,
         const SharedPtrVector<ExprNode> &forUpdate,
         const SharedPtr<StmtNode> &body
-) : forInitVarDecls(forInitVarDecls),
-    forInitExprList(forInitExprList),
-    forCondition(forCondition),
-    forUpdate(forUpdate), body(body) {}
+) : initVarStmt(forInitVarDecls),
+    initExprs(forInitExprList),
+    condition(forCondition),
+    updates(forUpdate), body(body) {}
 
 void ForStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<ForStmtNode>(shared_from_this()));
@@ -105,16 +105,16 @@ void ForStmtNode::accept(const SharedPtr<ASTVisitor> &visitor) {
 
 void ForStmtNode::bindChildrenInversely() {
     auto self = shared_from_this();
-    if (forInitVarDecls) {
-        forInitVarDecls->parent = self;
+    if (initVarStmt) {
+        initVarStmt->parent = self;
     }
-    for (const SharedPtr<ExprNode> &forInitExpr: forInitExprList) {
+    for (const SharedPtr<ExprNode> &forInitExpr: initExprs) {
         forInitExpr->parent = self;
     }
-    if (forCondition) {
-        forCondition->parent = self;
+    if (condition) {
+        condition->parent = self;
     }
-    for (const SharedPtr<ExprNode> &forUpdateItem: forUpdate) {
+    for (const SharedPtr<ExprNode> &forUpdateItem: updates) {
         forUpdateItem->parent = self;
     }
     body->parent = self;

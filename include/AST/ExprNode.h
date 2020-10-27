@@ -15,13 +15,18 @@ public:
 
     ~ExprNode() override = default;
 
-    SharedPtr<BuiltinTypeNode> inferType;
+    SharedPtr<BuiltinTypeNode> inferType = nullptr;
+
+    // 当前表达式的ir
+    LLVMValue *code = nullptr;
 };
 
 /// 字面量表达式节点
 class LiteralExprNode : public ExprNode {
 public:
     explicit LiteralExprNode(const SharedPtr<BuiltinTypeNode> &type);
+
+    LiteralExprNode() = default;
 
     ~LiteralExprNode() override = default;
 };
@@ -55,6 +60,8 @@ class StringLiteralExprNode : public LiteralExprNode {
 public:
     explicit StringLiteralExprNode(String literal);
 
+    StringLiteralExprNode() = default;
+
     ~StringLiteralExprNode() override = default;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
@@ -73,7 +80,7 @@ public:
 
     String name;
 
-    SharedPtr<VarDeclNode> refVarDecl;
+    SharedPtr<VarDeclNode> refVarDecl = nullptr;
 };
 
 /// 函数调用表达式节点
@@ -91,7 +98,7 @@ public:
     String calleeName;
     SharedPtrVector<ExprNode> args;
 
-    SharedPtr<FunctionDeclNode> refFuncDecl;
+    SharedPtr<FunctionDeclNode> refFuncDecl = nullptr;
 };
 
 /// 一元运算表达式节点
@@ -106,7 +113,7 @@ public:
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     unsigned int opCode;
-    SharedPtr<ExprNode> subExpr;
+    SharedPtr<ExprNode> subExpr = nullptr;
 };
 
 /// 二元运算表达式节点
@@ -121,5 +128,5 @@ public:
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     unsigned int opCode;
-    SharedPtr<ExprNode> lhs, rhs;
+    SharedPtr<ExprNode> lhs = nullptr, rhs = nullptr;
 };

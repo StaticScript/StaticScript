@@ -33,6 +33,10 @@ void VarDeclNode::bindChildrenInversely() {
     }
 }
 
+bool VarDeclNode::isConstant() const {
+    return modifier == VarModifier::Const;
+}
+
 ParmVarDeclNode::ParmVarDeclNode(
         const String &name,
         const SharedPtr<BuiltinTypeNode> &type

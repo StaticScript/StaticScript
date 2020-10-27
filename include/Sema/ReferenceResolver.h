@@ -23,6 +23,10 @@ public:
 
     void visit(const SharedPtr<ForStmtNode> &forStmt) override;
 
+    void visit(const SharedPtr<ContinueStmtNode> &continueStmt) override;
+
+    void visit(const SharedPtr<BreakStmtNode> &breakStmt) override;
+
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
 
 private:
@@ -47,4 +51,6 @@ private:
     inline SharedPtr<FunctionDeclNode> resolveFunction(const String &name) {
         return getCurrentScope()->getTopLevel()->resolveFunction(name);
     }
+
+    static SharedPtr<StmtNode> resolveRefIterationStmt(const SharedPtr<Node> &node);
 };

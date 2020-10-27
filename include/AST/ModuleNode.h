@@ -19,5 +19,5 @@ public:
     String filename;
     SharedPtrVector<StmtNode> childStmts;
 
-    SharedPtr<Scope> internalScope;
+    SharedPtr<Scope> internalScope = nullptr;
 };

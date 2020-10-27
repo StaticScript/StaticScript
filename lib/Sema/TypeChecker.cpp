@@ -14,6 +14,14 @@ void TypeChecker::visit(const SharedPtr<VarDeclNode> &varDecl) {
         if (!varDecl->type) {
             throw SemanticException("变量未指定类型: " + varDecl->name);
         }
+        // 如果变量声明时未指定初始值, 则默认为其类型对应的零值
+        if (varDecl->type == BuiltinTypeNode::BOOLEAN_TYPE) {
+            varDecl->initVal = makeShared<BooleanLiteralExprNode>(false);
+        } else if (varDecl->type == BuiltinTypeNode::INTEGER_TYPE) {
+            varDecl->initVal = makeShared<IntegerLiteralExprNode>(0);
+        } else {
+            varDecl->initVal = makeShared<StringLiteralExprNode>();
+        }
     }
 }
 
@@ -133,8 +141,8 @@ void TypeChecker::visit(const SharedPtr<WhileStmtNode> &whileStmt) {
 
 void TypeChecker::visit(const SharedPtr<ForStmtNode> &forStmt) {
     ASTVisitor::visit(forStmt);
-    if (forStmt->forCondition &&
-        forStmt->forCondition->inferType != BuiltinTypeNode::BOOLEAN_TYPE) {
+    if (forStmt->condition &&
+        forStmt->condition->inferType != BuiltinTypeNode::BOOLEAN_TYPE) {
         throw SemanticException("for语句条件暂时只支持boolean类型");
     }
 }

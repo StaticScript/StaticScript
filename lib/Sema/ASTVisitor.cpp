@@ -84,20 +84,20 @@ void ASTVisitor::visit(const SharedPtr<WhileStmtNode> &whileStmt) {
 }
 
 void ASTVisitor::visit(const SharedPtr<ForStmtNode> &forStmt) {
-    if (forStmt->forInitVarDecls) {
-        forStmt->forInitVarDecls->accept(shared_from_this());
+    if (forStmt->initVarStmt) {
+        forStmt->initVarStmt->accept(shared_from_this());
     } else {
-        for (const SharedPtr<ExprNode> &initExpr: forStmt->forInitExprList) {
+        for (const SharedPtr<ExprNode> &initExpr: forStmt->initExprs) {
             initExpr->accept(shared_from_this());
         }
     }
-    if (forStmt->forCondition) {
-        forStmt->forCondition->accept(shared_from_this());
-    }
-    for (const SharedPtr<ExprNode> &updateExpr: forStmt->forUpdate) {
-        updateExpr->accept(shared_from_this());
+    if (forStmt->condition) {
+        forStmt->condition->accept(shared_from_this());
     }
     forStmt->body->accept(shared_from_this());
+    for (const SharedPtr<ExprNode> &updateExpr: forStmt->updates) {
+        updateExpr->accept(shared_from_this());
+    }
 }
 
 void ASTVisitor::visit(const SharedPtr<ContinueStmtNode> &continueStmt) {}

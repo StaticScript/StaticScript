@@ -25,7 +25,7 @@ public:
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
-    SharedPtr<ExprNode> expr;
+    SharedPtr<ExprNode> expr = nullptr;
 };
 
 /// 复合语句节点
@@ -43,7 +43,7 @@ public:
 
     SharedPtrVector<StmtNode> childStmts;
 
-    SharedPtr<Scope> internalScope;
+    SharedPtr<Scope> internalScope = nullptr;
 };
 
 /// 变量声明语句节点
@@ -72,7 +72,7 @@ public:
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
-    SharedPtr<FunctionDeclNode> childFunctionDecl;
+    SharedPtr<FunctionDeclNode> childFunctionDecl = nullptr;
 };
 
 /// if语句节点
@@ -90,9 +90,13 @@ public:
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
-    SharedPtr<ExprNode> condition;
-    SharedPtr<StmtNode> thenBody;
-    SharedPtr<StmtNode> elseBody;
+    SharedPtr<ExprNode> condition = nullptr;
+    SharedPtr<StmtNode> thenBody = nullptr;
+    SharedPtr<StmtNode> elseBody = nullptr;
+
+    LLVMBasicBlock *thenBB = nullptr;
+    LLVMBasicBlock *elseBB = nullptr;
+    LLVMBasicBlock *endBB = nullptr;
 };
 
 /// while语句节点
@@ -106,8 +110,12 @@ public:
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
-    SharedPtr<ExprNode> condition;
-    SharedPtr<StmtNode> body;
+    SharedPtr<ExprNode> condition = nullptr;
+    SharedPtr<StmtNode> body = nullptr;
+
+    LLVMBasicBlock *condBB = nullptr;
+    LLVMBasicBlock *bodyBB = nullptr;
+    LLVMBasicBlock *endBB = nullptr;
 };
 
 /// for语句节点
@@ -127,13 +135,18 @@ public:
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
-    SharedPtr<VarDeclStmtNode> forInitVarDecls;
-    SharedPtrVector<ExprNode> forInitExprList;
-    SharedPtr<ExprNode> forCondition;
-    SharedPtrVector<ExprNode> forUpdate;
-    SharedPtr<StmtNode> body;
+    SharedPtr<VarDeclStmtNode> initVarStmt = nullptr;
+    SharedPtrVector<ExprNode> initExprs;
+    SharedPtr<ExprNode> condition = nullptr;
+    SharedPtrVector<ExprNode> updates;
+    SharedPtr<StmtNode> body = nullptr;
 
-    SharedPtr<Scope> internalScope;
+    SharedPtr<Scope> internalScope = nullptr;
+
+    LLVMBasicBlock *condBB = nullptr;
+    LLVMBasicBlock *bodyBB = nullptr;
+    LLVMBasicBlock *updateBB = nullptr;
+    LLVMBasicBlock *endBB = nullptr;
 };
 
 /// continue语句节点
@@ -142,6 +155,8 @@ public:
     ~ContinueStmtNode() override = default;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
+    SharedPtr<StmtNode> refIterationStmt = nullptr;
 };
 
 
@@ -151,6 +166,8 @@ public:
     ~BreakStmtNode() override = default;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
+    SharedPtr<StmtNode> refIterationStmt = nullptr;
 };
 
 /// return语句节点
@@ -164,7 +181,7 @@ public:
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
-    SharedPtr<ExprNode> returnExpr;
+    SharedPtr<ExprNode> returnExpr = nullptr;
 
-    SharedPtr<FunctionDeclNode> refFuncDecl;
+    SharedPtr<FunctionDeclNode> refFuncDecl = nullptr;
 };

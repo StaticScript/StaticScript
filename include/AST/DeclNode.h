@@ -39,10 +39,15 @@ public:
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
+    bool isConstant() const;
+
     VarModifier modifier;
     String name;
-    SharedPtr<BuiltinTypeNode> type;
-    SharedPtr<ExprNode> initVal;
+    SharedPtr<BuiltinTypeNode> type = nullptr;
+    SharedPtr<ExprNode> initVal = nullptr;
+
+    // 当前变量声明的alloca/load ir
+    LLVMValue *code = nullptr;
 };
 
 /// 函数参数声明节点
@@ -73,9 +78,9 @@ public:
 
     String name;
     SharedPtrVector<ParmVarDeclNode> params;
-    SharedPtr<BuiltinTypeNode> returnType;
-    SharedPtr<CompoundStmtNode> body;
+    SharedPtr<BuiltinTypeNode> returnType = nullptr;
+    SharedPtr<CompoundStmtNode> body = nullptr;
 
-    SharedPtr<Scope> internalScope;
+    SharedPtr<Scope> internalScope = nullptr;
     SharedPtr<ReturnStmtNode> refReturnStmt;
 };

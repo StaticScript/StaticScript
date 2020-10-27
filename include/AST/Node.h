@@ -17,11 +17,8 @@ public:
     virtual void accept(const SharedPtr<ASTVisitor> &visitor) = 0;
 
     // 父节点
-    SharedPtr<Node> parent;
+    SharedPtr<Node> parent = nullptr;
 
     // 当前节点所处的作用域
-    SharedPtr<Scope> scope;
-
-    // 当前节点的ir
-    LLVMValue *code;
+    SharedPtr<Scope> scope = nullptr;
 };

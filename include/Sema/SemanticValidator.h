@@ -50,7 +50,4 @@ public:
     void visit(const SharedPtr<BreakStmtNode> &breakStmt) override;
 
     void visit(const SharedPtr<ReturnStmtNode> &returnStmt) override;
-
-private:
-    static bool isInLoop(const SharedPtr<Node> &node);
 };

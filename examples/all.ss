@@ -1,5 +1,4 @@
 let v = 20;
-const vv = "happy";
 
 function test() {
     return;
