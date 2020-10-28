@@ -75,12 +75,15 @@ void IRGenerator::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
     LLVMBasicBlock *entryBlock = createBasicBlock("entry", func);
     llvmIRBuilder.SetInsertPoint(entryBlock);
 
-    for (size_t i = 0; i < func->arg_size(); ++i) {
-        auto arg = func->getArg(i);
-        arg->setName(funcDecl->params[i]->name);
-        LLVMValue *paramAlloca = llvmIRBuilder.CreateAlloca(getType(funcDecl->params[i]->type));
-        llvmIRBuilder.CreateStore(arg, paramAlloca);
-        funcDecl->params[i]->code = paramAlloca;
+    {
+        size_t i = 0;
+        for (llvm::Argument &arg : func->args()) {
+            arg.setName(funcDecl->params[i]->name);
+            LLVMValue *paramAlloca = llvmIRBuilder.CreateAlloca(getType(funcDecl->params[i]->type));
+            llvmIRBuilder.CreateStore(&arg, paramAlloca);
+            funcDecl->params[i]->code = paramAlloca;
+            i += 1;
+        }
     }
 
     funcDecl->body->accept(shared_from_this());

@@ -22,7 +22,7 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_DOT_TRANSPARENT YES)
     set(DOXYGEN_DOT_MULTI_TARGETS YES)
     doxygen_add_docs(
-            doxygen
+            document
             ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/lib
             ${PROJECT_SOURCE_DIR}/README-zh_CN.md

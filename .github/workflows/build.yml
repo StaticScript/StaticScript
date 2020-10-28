@@ -33,7 +33,7 @@ jobs:
         with:
           path: ${{ github.workspace }}/thirdparty
           key: ${{ matrix.os }}-${{ matrix.compiler.cc }}-antlr
-      - name: Install Prerequirements for Antlr4 Runtime
+      - name: Install Prerequirements
         run: sudo apt-get install uuid-dev pkg-config doxygen graphviz
       - name: Install Antlr4 and Antlr4 Runtime
         if: steps.cache-antlr.outputs.cache-hit != 'true'
@@ -63,17 +63,17 @@ jobs:
           sudo mkdir cmake-build-debug cmake-build-release
           cd cmake-build-debug
           sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
-          sudo cmake --build . --target staticscript doxygen
+          sudo cmake --build . --target staticscript document
           for file in ../examples/*
           do
-            ./lib/staticscript $file
+            sudo ./lib/staticscript $file
           done
           cd ../cmake-build-release
           sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
-          sudo cmake --build . --target staticscript doxygen
+          sudo cmake --build . --target staticscript document
           for file in ../examples/*
           do
-            ./lib/staticscript $file
+            sudo ./lib/staticscript $file
           done
 
   build_on_macos:
@@ -85,7 +85,7 @@ jobs:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }
     steps:
-      - name: Install Antlr4 and Antlr4 Runtime
+      - name: Install Prerequirements
         run: brew install antlr antlr4-cpp-runtime doxygen graphviz
       - name: Fetch Codebase
         uses: actions/checkout@v2
@@ -97,15 +97,15 @@ jobs:
           sudo mkdir cmake-build-debug cmake-build-release
           cd cmake-build-debug
           sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
-          sudo cmake --build . --target staticscript doxygen
+          sudo cmake --build . --target staticscript document
           for file in ../examples/*
           do
-            ./lib/staticscript $file
+            sudo ./lib/staticscript $file
           done
           cd ../cmake-build-release
           sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
-          sudo cmake --build . --target staticscript doxygen
+          sudo cmake --build . --target staticscript document
           for file in ../examples/*
           do
-            ./lib/staticscript $file
+            sudo ./lib/staticscript $file
           done

@@ -2,10 +2,10 @@ list(APPEND CMAKE_PREFIX_PATH /usr/local/opt/llvm/lib/cmake/llvm)
 
 find_package(LLVM REQUIRED CONFIG)
 
-add_definitions(${LLVM_DEFINITIONS})
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 
 include_directories(${LLVM_INCLUDE_DIRS})
 
-link_directories(${LLVM_LIBRARY_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
 
 llvm_map_components_to_libnames(llvm_libs support core orcjit nativecodegen)
