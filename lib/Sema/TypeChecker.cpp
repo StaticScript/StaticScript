@@ -11,6 +11,9 @@ void TypeChecker::visit(const SharedPtr<VarDeclNode> &varDecl) {
             varDecl->type = varDecl->initVal->inferType;
         }
     } else {
+        if (varDecl->isConstant()) {
+            throw SemanticException("const常量必须有初始值");
+        }
         if (!varDecl->type) {
             throw SemanticException("变量未指定类型: " + varDecl->name);
         }
@@ -152,6 +155,10 @@ void TypeChecker::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
     if (returnStmt->returnExpr) {
         if (returnStmt->returnExpr->inferType != returnStmt->refFuncDecl->returnType) {
             throw SemanticException("return返回值类型与函数返回值类型不匹配");
+        }
+    } else {
+        if (returnStmt->refFuncDecl->returnType) {
+            throw SemanticException("return语句缺少返回值");
         }
     }
 }

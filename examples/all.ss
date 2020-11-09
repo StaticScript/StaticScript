@@ -1,10 +1,13 @@
-let v = 20;
+let v = 20 + 1;
+const s = "string content";
+let f = true;
 
 function test() {
     return;
 }
 
 function func(a: number, b: number): number {
+    let s = "chenwengang";
     let x = a + 1;
     let y = b - 1;
     if (x < y) {

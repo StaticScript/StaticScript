@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 
         llvmModule.setDataLayout(targetMachine->createDataLayout());
 
-        String outputFilename = llvm::sys::path::stem(codeFilename).str() + ".bc";
+        String outputFilename = llvm::sys::path::stem(codeFilename).str() + ".ll";
 
         std::error_code ec;
         llvm::raw_fd_ostream dest(outputFilename, ec, llvm::sys::fs::OF_None);
@@ -73,7 +73,8 @@ int main(int argc, char *argv[]) {
             llvm::errs() << "Could not open file: " << ec.message();
         }
 
-        llvm::WriteBitcodeToFile(llvmModule, dest);
+        dest << llvmModule;
+//        llvm::WriteBitcodeToFile(llvmModule, dest);
         dest.flush();
     } else {
         throw DriverException("至少需要一个参数");

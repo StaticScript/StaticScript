@@ -19,6 +19,8 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/IRReader/IRReader.h>
+#include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/FileSystem.h>
@@ -81,6 +83,11 @@ using LLVMGlobalVariable = llvm::GlobalVariable;
 template<typename X, typename Y>
 inline bool LLVMIsa(const Y &val) {
     return llvm::isa<X>(val);
+}
+
+template<typename X, typename Y>
+inline X* LLVMCast(const Y &val) {
+    return llvm::cast<X>(val);
 }
 
 template<typename X, typename Y>

@@ -1,12 +1,16 @@
 #include "CodeGen/IRGenerator.h"
+#include "CodeGen/Pass.h"
 #include "Entity/Scope.h"
 
 IRGenerator::IRGenerator() : llvmIRBuilder(llvmContext) {}
 
 void IRGenerator::resolve(const SharedPtr<ModuleNode> &module) {
     llvmModule = makeShared<LLVMModule>(module->filename, llvmContext);
+    // 初始化外部bitcode
+    Builtin::initialize(*llvmModule, llvmContext);
     ASTVisitor::resolve(module);
     LLVMVerifyModule(*llvmModule);
+    runPasses(*llvmModule);
 }
 
 void IRGenerator::visit(const SharedPtr<ModuleNode> &module) {
@@ -29,28 +33,49 @@ void IRGenerator::visit(const SharedPtr<BuiltinTypeNode> &builtinType) {
 void IRGenerator::visit(const SharedPtr<VarDeclNode> &varDecl) {
     ASTVisitor::visit(varDecl);
     LLVMType *type = getType(varDecl->type);
-    // 全局变量
+    // 变量有初始值
+    bool hasInitVal = bool(varDecl->initVal);
+    // 区分全局变量和局部变量
     if (varDecl->scope->isTopLevel()) {
-        llvm::Constant *initConstant = nullptr;
-        if (dynPtrCast<LiteralExprNode>(varDecl->initVal)) {
-            // TODO: 此处没有考虑initVal为字符串的情况
-            initConstant = LLVMDynCast<LLVMConstantInt>(varDecl->initVal->code);
+        // 变量初始值为字面量
+        bool isLiteralInit = bool(dynPtrCast<LiteralExprNode>(varDecl->initVal));
+        // 是否为字符串类型变量
+        bool isStringVar = varDecl->type == BuiltinTypeNode::STRING_TYPE;
+        llvm::Constant *initializer;
+        if (isStringVar) {
+            initializer = llvm::ConstantPointerNull::getNullValue(type);
+        } else {
+            if (isLiteralInit) {
+                initializer = LLVMCast<LLVMConstantInt>(varDecl->initVal->code);
+            } else {
+                initializer = llvm::ConstantInt::get(type, 0);
+            }
         }
         auto *gVar = new LLVMGlobalVariable(
                 *llvmModule,
                 type,
-                varDecl->isConstant(),
+                false,
                 LLVMGlobalValue::ExternalLinkage,
-                initConstant,
+                initializer,
                 varDecl->name
         );
-        if (!initConstant) {
+        uint64_t alignment = 8;
+        if (varDecl->type == BuiltinTypeNode::BOOLEAN_TYPE) {
+            alignment = 1;
+        }
+#if LLVM_VERSION_MAJOR < 10
+        gVar->setAlignment(alignment);
+#else
+        gVar->setAlignment(llvm::MaybeAlign(alignment));
+#endif
+        // 如果为字符串或者有非字面量的初始值
+        if (isStringVar || (hasInitVal && !isLiteralInit)) {
             llvmIRBuilder.CreateStore(varDecl->initVal->code, gVar);
         }
         varDecl->code = gVar;
     } else {
         LLVMValue *alloca = llvmIRBuilder.CreateAlloca(type);
-        if (varDecl->initVal) {
+        if (hasInitVal) {
             llvmIRBuilder.CreateStore(varDecl->initVal->code, alloca);
         }
         varDecl->code = alloca;
@@ -112,9 +137,10 @@ void IRGenerator::visit(const SharedPtr<IntegerLiteralExprNode> &intLiteralExpr)
     );
 }
 
-// TODO: 字符串字面量
 void IRGenerator::visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) {
-    strLiteralExpr->code = llvmIRBuilder.CreateGlobalString(strLiteralExpr->literal);
+    llvm::Constant *literal = llvmIRBuilder.CreateGlobalString(strLiteralExpr->literal);
+    llvm::Value *argLiteral = llvmIRBuilder.CreatePointerCast(literal, llvmIRBuilder.getInt8PtrTy());
+    strLiteralExpr->code = llvmIRBuilder.CreateCall(Builtin::stringCreate, argLiteral);
 }
 
 void IRGenerator::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
@@ -337,4 +363,41 @@ void IRGenerator::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
     } else {
         llvmIRBuilder.CreateRetVoid();
     }
+}
+
+LLVMType *IRGenerator::getType(const SharedPtr<BuiltinTypeNode> &builtinType) {
+    LLVMType *type = llvmIRBuilder.getVoidTy();
+    if (builtinType == BuiltinTypeNode::BOOLEAN_TYPE) {
+        type = llvmIRBuilder.getInt1Ty();
+    } else if (builtinType == BuiltinTypeNode::INTEGER_TYPE) {
+        type = llvmIRBuilder.getInt64Ty();
+    } else if (builtinType == BuiltinTypeNode::STRING_TYPE) {
+        type = Builtin::stringPtrType;
+    }
+    return type;
+}
+
+void IRGenerator::emitBlock(LLVMBasicBlock *bb, bool isFinished) {
+    LLVMBasicBlock *curBB = llvmIRBuilder.GetInsertBlock();
+    emitBranch(bb);
+    if (isFinished && bb->use_empty()) {
+        delete bb;
+        return;
+    }
+    if (curBB && curBB->getParent()) {
+        curFn->getBasicBlockList().insertAfter(curBB->getIterator(), bb);
+    } else {
+        curFn->getBasicBlockList().push_back(bb);
+    }
+    llvmIRBuilder.SetInsertPoint(bb);
+}
+
+void IRGenerator::emitBranch(LLVMBasicBlock *targetBB) {
+    LLVMBasicBlock *curBB = llvmIRBuilder.GetInsertBlock();
+    if (!curBB || curBB->getTerminator()) {
+
+    } else {
+        llvmIRBuilder.CreateBr(targetBB);
+    }
+    llvmIRBuilder.ClearInsertionPoint();
 }

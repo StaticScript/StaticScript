@@ -24,6 +24,7 @@ jobs:
         compiler:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }
+      fail-fast: false
     steps:
       - name: Fetch Codebase
         uses: actions/checkout@v2
@@ -78,9 +79,10 @@ jobs:
 
   build_on_macos:
     name: Build on macOS
-    runs-on: macos-10.15
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ macos-10.15, macos-11.0 ]
         compiler:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }

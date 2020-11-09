@@ -2,6 +2,7 @@
 
 #include "StaticScriptLexer.h"
 #include "Sema/ASTVisitor.h"
+#include "CodeGen/Builtin.h"
 #include "Util/Alias.h"
 #include "Exception/CodeGenException.h"
 
@@ -60,19 +61,9 @@ public:
     }
 
 private:
-    LLVMType *getType(const SharedPtr<BuiltinTypeNode> &builtinType) {
-        LLVMType *type = llvmIRBuilder.getVoidTy();
-        if (builtinType == BuiltinTypeNode::BOOLEAN_TYPE) {
-            type = llvmIRBuilder.getInt1Ty();
-        } else if (builtinType == BuiltinTypeNode::INTEGER_TYPE) {
-            type = llvmIRBuilder.getInt64Ty();
-        } else {
-            // TODO: 字符串类型
-        }
-        return type;
-    }
+    LLVMType *getType(const SharedPtr<BuiltinTypeNode> &builtinType);
 
-    void setFuncInsertPoint(LLVMFunction *func) {
+    inline void setFuncInsertPoint(LLVMFunction *func) {
         LLVMBasicBlock *curBB = &(func->getBasicBlockList().back());
         llvmIRBuilder.SetInsertPoint(curBB);
     }
@@ -81,30 +72,9 @@ private:
         return LLVMBasicBlock::Create(llvmContext, name, parent, before);
     }
 
-    void emitBlock(LLVMBasicBlock *bb, bool isFinished = false) {
-        LLVMBasicBlock *curBB = llvmIRBuilder.GetInsertBlock();
-        emitBranch(bb);
-        if (isFinished && bb->use_empty()) {
-            delete bb;
-            return;
-        }
-        if (curBB && curBB->getParent()) {
-            curFn->getBasicBlockList().insertAfter(curBB->getIterator(), bb);
-        } else {
-            curFn->getBasicBlockList().push_back(bb);
-        }
-        llvmIRBuilder.SetInsertPoint(bb);
-    }
+    void emitBlock(LLVMBasicBlock *bb, bool isFinished = false);
 
-    void emitBranch(LLVMBasicBlock *targetBB) {
-        LLVMBasicBlock *curBB = llvmIRBuilder.GetInsertBlock();
-        if (!curBB || curBB->getTerminator()) {
-
-        } else {
-            llvmIRBuilder.CreateBr(targetBB);
-        }
-        llvmIRBuilder.ClearInsertionPoint();
-    }
+    void emitBranch(LLVMBasicBlock *targetBB);
 
     LLVMContext llvmContext;
     LLVMIRBuilder llvmIRBuilder;
