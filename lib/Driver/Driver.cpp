@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 
         llvmModule.setDataLayout(targetMachine->createDataLayout());
 
-        String outputFilename = llvm::sys::path::stem(codeFilename).str() + ".ll";
+        String outputFilename = llvm::sys::path::stem(codeFilename).str() + ".o";
 
         std::error_code ec;
         llvm::raw_fd_ostream dest(outputFilename, ec, llvm::sys::fs::OF_None);
@@ -73,9 +73,20 @@ int main(int argc, char *argv[]) {
             llvm::errs() << "Could not open file: " << ec.message();
         }
 
-        dest << llvmModule;
-//        llvm::WriteBitcodeToFile(llvmModule, dest);
+        llvm::legacy::PassManager pass;
+#if LLVM_VERSION_MAJOR < 10
+        auto fileType  = llvm::TargetMachine::CGFT_ObjectFile;
+#else
+        auto fileType = llvm::CGFT_ObjectFile;
+#endif
+        if (targetMachine->addPassesToEmitFile(pass, dest, nullptr, fileType)) {
+            llvm::errs() << "TargetMachine can't emit a file of this type";
+            return 1;
+        }
+        pass.run(llvmModule);
+//        dest << llvmModule;
         dest.flush();
+        return 0;
     } else {
         throw DriverException("至少需要一个参数");
     }

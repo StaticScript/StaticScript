@@ -63,6 +63,8 @@ public:
 /// 函数声明节点
 class FunctionDeclNode : public DeclNode {
 public:
+    static SharedPtrMap<String, FunctionDeclNode> getBuiltinFunctions();
+
     FunctionDeclNode(
             String name,
             const SharedPtrVector<ParmVarDeclNode> &params,

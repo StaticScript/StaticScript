@@ -1,1 +1,8 @@
 #cmakedefine PROJECT_BINARY_DIR "@PROJECT_BINARY_DIR@"
+#cmakedefine CMAKE_HOST_APPLE @CMAKE_HOST_APPLE@
+#cmakedefine CMAKE_HOST_UNIX @CMAKE_HOST_UNIX@
+#cmakedefine CMAKE_HOST_WIN32 @CMAKE_HOST_WIN32@
+
+#if defined(CMAKE_HOST_UNIX) && !defined(CMAKE_HOST_APPLE)
+    #define CMAKE_HOST_LINUX 1
+#endif

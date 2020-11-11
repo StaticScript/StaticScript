@@ -46,6 +46,21 @@ void ParmVarDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<ParmVarDeclNode>(shared_from_this()));
 }
 
+SharedPtrMap<String, FunctionDeclNode> FunctionDeclNode::getBuiltinFunctions() {
+    SharedPtrMap<String, FunctionDeclNode> functions;
+    SharedPtr<ParmVarDeclNode> integerArg = makeShared<ParmVarDeclNode>("number", BuiltinTypeNode::INTEGER_TYPE);
+    SharedPtr<ParmVarDeclNode> strArg = makeShared<ParmVarDeclNode>("str", BuiltinTypeNode::STRING_TYPE);
+    SharedPtrVector<ParmVarDeclNode> integerArgs{integerArg};
+    SharedPtrVector<ParmVarDeclNode> strArgs{strArg};
+    functions["ss_integer2string"] = makeShared<FunctionDeclNode>("ss_integer2string", integerArgs, BuiltinTypeNode::STRING_TYPE, nullptr);
+    functions["ss_string2integer"] = makeShared<FunctionDeclNode>("ss_string2integer", strArgs, BuiltinTypeNode::INTEGER_TYPE, nullptr);
+    functions["ss_print_integer"] = makeShared<FunctionDeclNode>("ss_print_integer", integerArgs, nullptr, nullptr);
+    functions["ss_println_integer"] = makeShared<FunctionDeclNode>("ss_println_integer", integerArgs, nullptr, nullptr);
+    functions["ss_print_string"] = makeShared<FunctionDeclNode>("ss_print_string", strArgs, nullptr, nullptr);
+    functions["ss_println_string"] = makeShared<FunctionDeclNode>("ss_println_string", strArgs, nullptr, nullptr);
+    return functions;
+}
+
 FunctionDeclNode::FunctionDeclNode(
         String name,
         const SharedPtrVector<ParmVarDeclNode> &params,

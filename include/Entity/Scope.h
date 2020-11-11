@@ -60,8 +60,10 @@ public:
 
     SharedPtr<FunctionDeclNode> resolveFunction(const String &name);
 
-protected:
+private:
     SharedPtrMap<String, FunctionDeclNode> functions;
+
+    SharedPtrMap<String, FunctionDeclNode> builtinFunctions = FunctionDeclNode::getBuiltinFunctions();
 };
 
 /// 局部作用域
@@ -81,6 +83,6 @@ public:
 
     SharedPtr<VarDeclNode> resolveVariable(const String &name) override;
 
-protected:
+private:
     SharedPtr<Scope> parent;
 };

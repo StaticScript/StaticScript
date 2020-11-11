@@ -3,11 +3,12 @@ const s = "string content";
 let f = true;
 
 function test() {
+    ss_print_string(s);
     return;
 }
 
 function func(a: number, b: number): number {
-    let s = "chenwengang";
+    let s = "StaticScript";
     let x = a + 1;
     let y = b - 1;
     if (x < y) {
@@ -25,3 +26,4 @@ function func(a: number, b: number): number {
 }
 
 func(1, 2);
+test();

@@ -6,7 +6,6 @@ IRGenerator::IRGenerator() : llvmIRBuilder(llvmContext) {}
 
 void IRGenerator::resolve(const SharedPtr<ModuleNode> &module) {
     llvmModule = makeShared<LLVMModule>(module->filename, llvmContext);
-    // 初始化外部bitcode
     Builtin::initialize(*llvmModule, llvmContext);
     ASTVisitor::resolve(module);
     LLVMVerifyModule(*llvmModule);
@@ -140,7 +139,7 @@ void IRGenerator::visit(const SharedPtr<IntegerLiteralExprNode> &intLiteralExpr)
 void IRGenerator::visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) {
     llvm::Constant *literal = llvmIRBuilder.CreateGlobalString(strLiteralExpr->literal);
     llvm::Value *argLiteral = llvmIRBuilder.CreatePointerCast(literal, llvmIRBuilder.getInt8PtrTy());
-    strLiteralExpr->code = llvmIRBuilder.CreateCall(Builtin::stringCreate, argLiteral);
+    strLiteralExpr->code = llvmIRBuilder.CreateCall(BuiltinString::createFunc, argLiteral);
 }
 
 void IRGenerator::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
@@ -182,6 +181,7 @@ void IRGenerator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     if (bopExpr->opCode >= 22 && bopExpr->opCode <= 31) {
         ASTVisitor::visit(bopExpr);
     }
+    const SharedPtr<BuiltinTypeNode> &leftType = bopExpr->lhs->inferType;
     switch (bopExpr->opCode) {
         case StaticScriptLexer::Assign: {
             bopExpr->rhs->accept(shared_from_this());
@@ -192,7 +192,12 @@ void IRGenerator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
             break;
         }
         case StaticScriptLexer::Plus: {
-            bopExpr->code = llvmIRBuilder.CreateNSWAdd(bopExpr->lhs->code, bopExpr->rhs->code);
+            if (leftType == BuiltinTypeNode::STRING_TYPE) {
+                Vector<LLVMValue *> argsV{bopExpr->lhs->code, bopExpr->rhs->code};
+                bopExpr->code = llvmIRBuilder.CreateCall(BuiltinString::concatFunc, argsV);
+            } else if (leftType == BuiltinTypeNode::INTEGER_TYPE) {
+                bopExpr->code = llvmIRBuilder.CreateNSWAdd(bopExpr->lhs->code, bopExpr->rhs->code);
+            }
             break;
         }
         case StaticScriptLexer::Minus: {
@@ -224,11 +229,23 @@ void IRGenerator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
             break;
         }
         case StaticScriptLexer::Equals: {
-            bopExpr->code = llvmIRBuilder.CreateICmpEQ(bopExpr->lhs->code, bopExpr->rhs->code);
+            if (leftType == BuiltinTypeNode::STRING_TYPE) {
+                Vector<LLVMValue *> argsV{bopExpr->lhs->code, bopExpr->rhs->code};
+                LLVMValue *relationship = llvmIRBuilder.CreateCall(BuiltinString::equalsFunc, argsV);
+                bopExpr->code = llvmIRBuilder.CreateICmpEQ(relationship, llvmIRBuilder.getInt32(0));
+            } else {
+                bopExpr->code = llvmIRBuilder.CreateICmpEQ(bopExpr->lhs->code, bopExpr->rhs->code);
+            }
             break;
         }
         case StaticScriptLexer::NotEquals: {
-            bopExpr->code = llvmIRBuilder.CreateICmpNE(bopExpr->lhs->code, bopExpr->rhs->code);
+            if (leftType == BuiltinTypeNode::STRING_TYPE) {
+                Vector<LLVMValue *> argsV{bopExpr->lhs->code, bopExpr->rhs->code};
+                LLVMValue *relationship = llvmIRBuilder.CreateCall(BuiltinString::equalsFunc, argsV);
+                bopExpr->code = llvmIRBuilder.CreateICmpNE(relationship, llvmIRBuilder.getInt32(0));
+            } else {
+                bopExpr->code = llvmIRBuilder.CreateICmpNE(bopExpr->lhs->code, bopExpr->rhs->code);
+            }
             break;
         }
         default: {
@@ -372,7 +389,7 @@ LLVMType *IRGenerator::getType(const SharedPtr<BuiltinTypeNode> &builtinType) {
     } else if (builtinType == BuiltinTypeNode::INTEGER_TYPE) {
         type = llvmIRBuilder.getInt64Ty();
     } else if (builtinType == BuiltinTypeNode::STRING_TYPE) {
-        type = Builtin::stringPtrType;
+        type = BuiltinString::type;
     }
     return type;
 }
