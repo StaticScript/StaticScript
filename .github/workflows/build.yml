@@ -64,7 +64,7 @@ jobs:
           thread_count=`sudo cat /proc/cpuinfo| grep "processor"| wc -l`
           sudo mkdir cmake-build-debug cmake-build-release
           cd cmake-build-debug
-          sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -DCMAKE_CXX_FLAGS_DEBUG="-g -ggdb" -G "Unix Makefiles" ..
+          sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
           sudo cmake --build . --target staticscript document -- -j $thread_count
           for file in ../examples/*
           do
