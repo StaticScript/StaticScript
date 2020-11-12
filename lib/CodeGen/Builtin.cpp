@@ -1,10 +1,19 @@
 #include "CodeGen/Builtin.h"
-#include <iostream>
+#include "Exception/CodeGenException.h"
 
 void BuiltinString::initialize(LLVMModule &module, LLVMContext &context) {
     llvm::SMDiagnostic error;
-    std::unique_ptr<LLVMModule> stringModule = llvm::parseIRFile(PROJECT_BINARY_DIR"/builtin/ss_string.bc", error, context);
-    llvm::Linker::linkModules(module, std::move(stringModule));
+    String stringBitcodeFilename = PROJECT_BINARY_DIR"/builtin/ss_string.bc";
+    if (!llvm::sys::fs::exists(stringBitcodeFilename)) {
+        throw CodeGenException("Not found " + stringBitcodeFilename);
+    }
+    std::unique_ptr<LLVMModule> stringModule = llvm::parseIRFile(stringBitcodeFilename, error, context);
+    if (!stringModule) {
+        throw CodeGenException("Parse bitcode file of the string module failed");
+    }
+    if (llvm::Linker::linkModules(module, std::move(stringModule))) {
+        throw CodeGenException("Link string module failed");
+    }
     llvm::StructType *strStructType = module.getTypeByName("struct.ss_string");
     type = strStructType->getPointerTo();
     createFunc = module.getFunction("ss_string_create");
@@ -23,8 +32,17 @@ void BuiltinString::initialize(LLVMModule &module, LLVMContext &context) {
 
 void BuiltinIO::initialize(LLVMModule &module, LLVMContext &context) {
     llvm::SMDiagnostic error;
-    std::unique_ptr<LLVMModule> ioModule = llvm::parseIRFile(PROJECT_BINARY_DIR"/builtin/ss_io.bc", error, context);
-    llvm::Linker::linkModules(module, std::move(ioModule));
+    String ioBitcodeFilename = PROJECT_BINARY_DIR"/builtin/ss_io.bc";
+    if (!llvm::sys::fs::exists(ioBitcodeFilename)) {
+        throw CodeGenException("Not found " + ioBitcodeFilename);
+    }
+    std::unique_ptr<LLVMModule> ioModule = llvm::parseIRFile(ioBitcodeFilename, error, context);
+    if (!ioModule) {
+        throw CodeGenException("Parse bitcode file of the io module failed");
+    }
+    if (llvm::Linker::linkModules(module, std::move(ioModule))) {
+        throw CodeGenException("Link io module failed");
+    }
     integer2stringFunc = module.getFunction("ss_integer2string");
     string2integerFunc = module.getFunction("ss_string2integer");
     printIntegerFunc = module.getFunction("ss_print_integer");

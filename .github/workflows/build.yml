@@ -24,7 +24,6 @@ jobs:
         compiler:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }
-      fail-fast: false
     steps:
       - name: Fetch Codebase
         uses: actions/checkout@v2
@@ -35,13 +34,14 @@ jobs:
           path: ${{ github.workspace }}/thirdparty
           key: ${{ matrix.os }}-${{ matrix.compiler.cc }}-antlr
       - name: Install Prerequirements
-        run: sudo apt-get install uuid-dev pkg-config doxygen graphviz
+        run: sudo apt-get -y install uuid-dev pkg-config doxygen graphviz llvm-10
       - name: Install Antlr4 and Antlr4 Runtime
         if: steps.cache-antlr.outputs.cache-hit != 'true'
         env:
           CC: ${{ matrix.compiler.cc }}
           CXX: ${{ matrix.compiler.cxx }}
         run: |
+          thread_count=`sudo cat /proc/cpuinfo| grep "processor"| wc -l`
           sudo mkdir -p thirdparty/antlr && cd thirdparty/antlr
           sudo wget https://www.antlr.org/download/antlr-4.8-complete.jar
           sudo wget -O ${{ runner.temp }}/antlr4-src.zip https://www.antlr.org/download/antlr4-cpp-runtime-4.8-source.zip
@@ -50,7 +50,7 @@ jobs:
           sudo mkdir build && cd build
           sudo mkdir -p ${{ github.workspace }}/thirdparty/antlr-runtime
           sudo cmake .. -DANTLR4_INSTALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/thirdparty/antlr-runtime
-          sudo cmake --build . --target install
+          sudo cmake --build . --target install  -- -j $thread_count
       - name: Move Antlr Runtime into /usr/local
         run: |
           cd ${{ github.workspace }}/thirdparty/antlr-runtime
@@ -61,20 +61,23 @@ jobs:
           CC: ${{ matrix.compiler.cc }}
           CXX: ${{ matrix.compiler.cxx }}
         run: |
+          thread_count=`sudo cat /proc/cpuinfo| grep "processor"| wc -l`
           sudo mkdir cmake-build-debug cmake-build-release
           cd cmake-build-debug
-          sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
-          sudo cmake --build . --target staticscript document
+          sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -DCMAKE_CXX_FLAGS_DEBUG="-g -ggdb" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $thread_count
           for file in ../examples/*
           do
-            sudo ./lib/staticscript $file
+            sudo ./lib/staticscript $file --emit-llvm -o ss-ir.ll
+            sudo ./lib/staticscript $file -o ss-obj.o
           done
           cd ../cmake-build-release
-          sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
-          sudo cmake --build . --target staticscript document
+          sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $thread_count
           for file in ../examples/*
           do
-            sudo ./lib/staticscript $file
+            sudo ./lib/staticscript $file --emit-llvm -o ss-ir.ll
+            sudo ./lib/staticscript $file -o ss-obj.o
           done
 
   build_on_macos:
@@ -96,18 +99,21 @@ jobs:
           CC: ${{ matrix.compiler.cc }}
           CXX: ${{ matrix.compiler.cxx }}
         run: |
+          thread_count=`sudo sysctl -n machdep.cpu.thread_count`
           sudo mkdir cmake-build-debug cmake-build-release
           cd cmake-build-debug
-          sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
-          sudo cmake --build . --target staticscript document
+          sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $thread_count
           for file in ../examples/*
           do
-            sudo ./lib/staticscript $file
+            sudo ./lib/staticscript $file --emit-llvm -o ss-ir.ll
+            sudo ./lib/staticscript $file -o ss-obj.o
           done
           cd ../cmake-build-release
-          sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "CodeBlocks - Unix Makefiles" ..
-          sudo cmake --build . --target staticscript document
+          sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $thread_count
           for file in ../examples/*
           do
-            sudo ./lib/staticscript $file
+            sudo ./lib/staticscript $file --emit-llvm -o ss-ir.ll
+            sudo ./lib/staticscript $file -o ss-obj.o
           done

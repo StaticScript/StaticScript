@@ -62,11 +62,7 @@ void IRGenerator::visit(const SharedPtr<VarDeclNode> &varDecl) {
         if (varDecl->type == BuiltinTypeNode::BOOLEAN_TYPE) {
             alignment = 1;
         }
-#if LLVM_VERSION_MAJOR < 10
-        gVar->setAlignment(alignment);
-#else
         gVar->setAlignment(llvm::MaybeAlign(alignment));
-#endif
         // 如果为字符串或者有非字面量的初始值
         if (isStringVar || (hasInitVal && !isLiteralInit)) {
             llvmIRBuilder.CreateStore(varDecl->initVal->code, gVar);
@@ -99,15 +95,12 @@ void IRGenerator::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
     LLVMBasicBlock *entryBlock = createBasicBlock("entry", func);
     llvmIRBuilder.SetInsertPoint(entryBlock);
 
-    {
-        size_t i = 0;
-        for (llvm::Argument &arg : func->args()) {
-            arg.setName(funcDecl->params[i]->name);
-            LLVMValue *paramAlloca = llvmIRBuilder.CreateAlloca(getType(funcDecl->params[i]->type));
-            llvmIRBuilder.CreateStore(&arg, paramAlloca);
-            funcDecl->params[i]->code = paramAlloca;
-            i += 1;
-        }
+    for (size_t i = 0; i < func->arg_size(); ++i) {
+        auto arg = func->getArg(i);
+        arg->setName(funcDecl->params[i]->name);
+        LLVMValue *paramAlloca = llvmIRBuilder.CreateAlloca(getType(funcDecl->params[i]->type));
+        llvmIRBuilder.CreateStore(arg, paramAlloca);
+        funcDecl->params[i]->code = paramAlloca;
     }
 
     funcDecl->body->accept(shared_from_this());
