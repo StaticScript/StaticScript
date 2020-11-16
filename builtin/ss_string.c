@@ -126,7 +126,7 @@ ss_string *KEEPALIVE ss_string_slice(ss_string *str, ssize_t from, ssize_t to) {
 
 long KEEPALIVE ss_string_equals(ss_string *str1, ss_string *str2) {
     size_t max_size = str1->size > str2->size ? str1->size : str2->size;
-    return strncmp(str1->buffer, str2->buffer, max_size) == 0;
+    return strncmp(str1->buffer, str2->buffer, max_size);
 }
 
 ssize_t KEEPALIVE ss_string_index_of_with_literal(ss_string *str, const char *literal) {

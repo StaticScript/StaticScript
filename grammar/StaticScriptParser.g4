@@ -79,10 +79,6 @@ functionBody
     : compoundStatement
     ;
 
-callExpression
-    : Identifier OpenParen argumentList? CloseParen
-    ;
-
 argumentList
     : expressionList
     ;
@@ -96,16 +92,27 @@ expressionStatement
     ;
 
 expression
-    : literal
-    | OpenParen expression CloseParen
-    | Identifier
-    | callExpression
-    | uop=Minus expression
-    | expression bop=(Multiply | Divide) expression
-    | expression bop=(Plus | Minus) expression
-    | expression bop=(LessThan | GreaterThan | LessThanEquals | GreaterThanEquals) expression
-    | expression bop=(Equals | NotEquals) expression
-    | <assoc=right> expression bop=Assign expression
+    : literal                                                                                           # LiteralExpr
+    | Identifier                                                                                        # IdentifierExpr
+    | OpenParen expression CloseParen                                                                   # ParenExpr
+    | callExpression                                                                                    # CallExpr
+    | expression uop=(PlusPlus | MinusMinus)                                                            # PostfixUnaryExpr
+    | <assoc=right> uop=(Not | BitNot | Plus | Minus | PlusPlus | MinusMinus) expression                # PrefixUnaryExpr
+    | expression bop=(Multiply | Divide | Modulus) expression                                           # BinaryExpr
+    | expression bop=(Plus | Minus) expression                                                          # BinaryExpr
+    | expression bop=(LeftShift | RightShift) expression                                                # BinaryExpr
+    | expression bop=(LessThan | GreaterThan | LessThanEquals | GreaterThanEquals) expression           # BinaryExpr
+    | expression bop=(Equals | NotEquals) expression                                                    # BinaryExpr
+    | expression bop=BitAnd expression                                                                  # BinaryExpr
+    | expression bop=BitXOr expression                                                                  # BinaryExpr
+    | expression bop=BitOr expression                                                                   # BinaryExpr
+    | expression bop=And expression                                                                     # BinaryExpr
+    | expression bop=Or expression                                                                      # BinaryExpr
+    | <assoc=right> expression bop=(Assign | PlusAssign | MinusAssign | MultiplyAssign | DivideAssign | ModulusAssign | LeftShiftAssign | RightShiftAssign | BitAndAssign | BitXorAssign | BitOrAssign | AndAssign | OrAssign) expression # BinaryExpr
+    ;
+
+callExpression
+    : Identifier OpenParen argumentList? CloseParen
     ;
 
 literal

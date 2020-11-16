@@ -49,82 +49,61 @@ void TypeChecker::visit(const SharedPtr<CallExprNode> &callExpr) {
 
 void TypeChecker::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
     ASTVisitor::visit(uopExpr);
-    switch (uopExpr->opCode) {
-        case StaticScriptLexer::Minus: {
-            if (uopExpr->subExpr->inferType != BuiltinTypeNode::INTEGER_TYPE) {
-                throw SemanticException("目前Minus运算符只允许对整数进行运算");
-            }
-            break;
+
+    unsigned int uop = uopExpr->opCode;
+    const SharedPtr<BuiltinTypeNode> &inferType = uopExpr->subExpr->inferType;
+
+    // 分别检查!运算符和其他运算符的算子类型
+    if (uop == StaticScriptLexer::Not) {
+        // !运算符的算子必须是布尔类型
+        if (inferType != BuiltinTypeNode::BOOLEAN_TYPE) {
+            throw SemanticException("!运算符只允许对布尔值进行运算");
         }
-        default: {
-            throw SemanticException("未知的一元运算符");
+    } else {
+        // 其他运算符的算子必须是整数类型
+        if (inferType != BuiltinTypeNode::INTEGER_TYPE) {
+            throw SemanticException("当前一元运算符只允许对整数进行运算");
         }
     }
-    uopExpr->inferType = uopExpr->subExpr->inferType;
+    uopExpr->inferType = inferType;
 }
 
 void TypeChecker::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     ASTVisitor::visit(bopExpr);
-    const SharedPtr<BuiltinTypeNode> &leftType = bopExpr->lhs->inferType;
-    const SharedPtr<BuiltinTypeNode> &rightType = bopExpr->rhs->inferType;
-    // 检查二元运算符的运算表达式是否符合类型要求
-    switch (bopExpr->opCode) {
-        case StaticScriptLexer::Minus:
-        case StaticScriptLexer::Multiply:
-        case StaticScriptLexer::Divide:
-        case StaticScriptLexer::LessThan:
-        case StaticScriptLexer::LessThanEquals:
-        case StaticScriptLexer::GreaterThan:
-        case StaticScriptLexer::GreaterThanEquals: {
-            if (leftType != BuiltinTypeNode::INTEGER_TYPE) {
-                throw SemanticException("二元运算符" + std::to_string(bopExpr->opCode) + "只支持整数类型");
-            }
-            if (rightType != BuiltinTypeNode::INTEGER_TYPE) {
-                throw SemanticException("二元运算符" + std::to_string(bopExpr->opCode) + "只支持整数类型");
-            }
-            break;
+
+    unsigned int bop = bopExpr->opCode;
+    const SharedPtr<BuiltinTypeNode> &leftInferType = bopExpr->lhs->inferType;
+    const SharedPtr<BuiltinTypeNode> &rightInferType = bopExpr->rhs->inferType;
+
+    // 所有的二元运算符只支持运算同类型的表达式
+    if (leftInferType != rightInferType) {
+        throw SemanticException("二元运算符" + std::to_string(bop) + "只支持运算同类型的表达式");
+    }
+
+    if (bop == StaticScriptLexer::Plus || bop == StaticScriptLexer::PlusAssign) {
+        if (leftInferType != BuiltinTypeNode::INTEGER_TYPE &&
+            leftInferType != BuiltinTypeNode::STRING_TYPE) {
+            throw SemanticException("加运算只支持整数类型和字符串类型");
         }
-        case StaticScriptLexer::Plus: {
-            if (leftType != rightType) {
-                throw SemanticException("二元运算符+只支持运算同类型的表达式");
-            }
-            if (leftType != BuiltinTypeNode::INTEGER_TYPE &&
-                leftType != BuiltinTypeNode::STRING_TYPE) {
-                throw SemanticException("+运算符只支持运算整数类型和字符串类型");
-            }
-            break;
+    } else if (bop >= StaticScriptLexer::Minus && bop <= StaticScriptLexer::GreaterThanEquals ||
+               bop >= StaticScriptLexer::MinusAssign && bop <= StaticScriptLexer::RightShiftAssign) {
+        if (leftInferType != BuiltinTypeNode::INTEGER_TYPE) {
+            throw SemanticException("二元运算符" + std::to_string(bop) + "只支持整数类型");
         }
-        case StaticScriptLexer::Assign:
-        case StaticScriptLexer::Equals:
-        case StaticScriptLexer::NotEquals: {
-            if (leftType != rightType) {
-                throw SemanticException("二元运算符" + std::to_string(bopExpr->opCode) + "只支持运算同类型的表达式");
-            }
-            break;
-        }
-        default: {
-            throw SemanticException("未知的二元运算符");
+    } else if (bop == StaticScriptLexer::And ||
+               bop == StaticScriptLexer::Or ||
+               bop == StaticScriptLexer::AndAssign ||
+               bop == StaticScriptLexer::OrAssign) {
+        if (leftInferType != BuiltinTypeNode::BOOLEAN_TYPE) {
+            throw SemanticException("二元运算符" + std::to_string(bop) + "只支持布尔类型");
         }
     }
+
     // 设置二元运算表达式的类型
-    switch (bopExpr->opCode) {
-        case StaticScriptLexer::LessThan:
-        case StaticScriptLexer::LessThanEquals:
-        case StaticScriptLexer::GreaterThan:
-        case StaticScriptLexer::GreaterThanEquals:
-        case StaticScriptLexer::Equals:
-        case StaticScriptLexer::NotEquals: {
-            bopExpr->inferType = BuiltinTypeNode::BOOLEAN_TYPE;
-            break;
-        }
-        case StaticScriptLexer::Plus:
-        case StaticScriptLexer::Minus:
-        case StaticScriptLexer::Multiply:
-        case StaticScriptLexer::Divide:
-        case StaticScriptLexer::Assign: {
-            bopExpr->inferType = leftType;
-            break;
-        }
+    if (bop >= StaticScriptLexer::LessThan && bop <= StaticScriptLexer::NotEquals) {
+        bopExpr->inferType = BuiltinTypeNode::BOOLEAN_TYPE;
+    } else {
+        bopExpr->inferType = leftInferType;
     }
 }
 

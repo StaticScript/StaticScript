@@ -28,18 +28,44 @@ Colon:                  ':';
 SemiColon:              ';';
 Comma:                  ',';
 
-// 操作符
-Assign:                 '=';
-Plus:                   '+';
-Minus:                  '-';
-Multiply:               '*';
-Divide:                 '/';
-LessThan:               '<';
-GreaterThan:            '>';
-LessThanEquals:         '<=';
-GreaterThanEquals:      '>=';
-Equals:                 '==';
-NotEquals:              '!=';
+// 一元操作符
+PlusPlus:               '++';   // number->number
+MinusMinus:             '--';   // number->number
+Not:                    '!';    // boolean->boolean
+BitNot:                 '~';    // number->number
+
+// 二元操作符
+Plus:                   '+';    // (number|string)->(number|string): Plus既是一元操作符也是二元操作符
+Minus:                  '-';    // number->number: Minus既是一元操作符也是二元操作符
+Multiply:               '*';    // number->number
+Divide:                 '/';    // number->number
+Modulus:                '%';    // number->number
+BitAnd:                 '&';    // number->number
+BitXOr:                 '^';    // number->number
+BitOr:                  '|';    // number->number
+LeftShift:              '<<';   // number->number
+RightShift:             '>>';   // number->number
+LessThan:               '<';    // number->boolean
+GreaterThan:            '>';    // number->boolean
+LessThanEquals:         '<=';   // number->boolean
+GreaterThanEquals:      '>=';   // number->boolean
+Equals:                 '==';   // (number|boolean|string)->boolean
+NotEquals:              '!=';   // (number|boolean|string)->boolean
+And:                    '&&';   // boolean->boolean
+Or:                     '||';   // boolean->boolean
+Assign:                 '=';    // (number|boolean|string)->(number|boolean|string)
+PlusAssign:             '+=';   // (number|string)->(number|string)
+MinusAssign:            '-=';   // number->number
+MultiplyAssign:         '*=';   // number->number
+DivideAssign:           '/=';   // number->number
+ModulusAssign:          '%=';   // number->number
+BitAndAssign:           '&=';   // number->number
+BitXorAssign:           '^=';   // number->number
+BitOrAssign:            '|=';   // number->number
+LeftShiftAssign:        '<<=';  // number->number
+RightShiftAssign:       '>>=';  // number->number
+AndAssign:              '&&=';  // boolean->boolean
+OrAssign:               '||=';  // boolean->boolean
 
 // 字面量
 BooleanLiteral:         'true' | 'false';

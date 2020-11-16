@@ -54,18 +54,24 @@ void SemanticValidator::visit(const SharedPtr<CallExprNode> &callExpr) {
 
 void SemanticValidator::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
     ASTVisitor::visit(uopExpr);
+    // 只能对变量进行自增自减
+    if (uopExpr->opCode == StaticScriptLexer::PlusPlus || uopExpr->opCode == StaticScriptLexer::MinusMinus) {
+        if (!dynPtrCast<IdentifierExprNode>(uopExpr->subExpr)) {
+            throw SemanticException("自增自减运算符只允许对变量进行运算");
+        }
+    }
 }
 
 void SemanticValidator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     ASTVisitor::visit(bopExpr);
-    if (bopExpr->opCode == StaticScriptLexer::Assign) {
+    if (bopExpr->opCode >= StaticScriptLexer::Assign && bopExpr->opCode <= StaticScriptLexer::OrAssign) {
         SharedPtr<IdentifierExprNode> varExpr = dynPtrCast<IdentifierExprNode>(bopExpr->lhs);
         if (varExpr) {
             if (varExpr->refVarDecl->isConstant()) {
                 throw SemanticException("不允许对常量赋值");
             }
         } else {
-            throw SemanticException("不允许对右值赋值");
+            throw SemanticException("只允许对变量赋值, 不允许对表达式赋值");
         }
     }
 }

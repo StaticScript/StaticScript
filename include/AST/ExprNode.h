@@ -113,6 +113,7 @@ public:
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     unsigned int opCode;
+    bool isPostfix = false;
     SharedPtr<ExprNode> subExpr = nullptr;
 };
 

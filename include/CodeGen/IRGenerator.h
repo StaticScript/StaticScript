@@ -14,8 +14,6 @@ public:
 
     void visit(const SharedPtr<ModuleNode> &module) override;
 
-    void visit(const SharedPtr<BuiltinTypeNode> &builtinType) override;
-
     void visit(const SharedPtr<VarDeclNode> &varDecl) override;
 
     void visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) override;

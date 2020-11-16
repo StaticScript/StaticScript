@@ -54,7 +54,21 @@ public:
 
     antlrcpp::Any visitExpressionStatement(StaticScriptParser::ExpressionStatementContext *ctx) override;
 
-    antlrcpp::Any visitExpression(StaticScriptParser::ExpressionContext *ctx) override;
+    antlrcpp::Any visitExpression(StaticScriptParser::ExpressionContext *ctx);
+
+    antlrcpp::Any visitLiteralExpr(StaticScriptParser::LiteralExprContext *ctx) override;
+
+    antlrcpp::Any visitIdentifierExpr(StaticScriptParser::IdentifierExprContext *ctx) override;
+
+    antlrcpp::Any visitParenExpr(StaticScriptParser::ParenExprContext *ctx) override;
+
+    antlrcpp::Any visitCallExpr(StaticScriptParser::CallExprContext *ctx) override;
+
+    antlrcpp::Any visitPostfixUnaryExpr(StaticScriptParser::PostfixUnaryExprContext *ctx) override;
+
+    antlrcpp::Any visitPrefixUnaryExpr(StaticScriptParser::PrefixUnaryExprContext *ctx) override;
+
+    antlrcpp::Any visitBinaryExpr(StaticScriptParser::BinaryExprContext *ctx) override;
 
     antlrcpp::Any visitLiteral(StaticScriptParser::LiteralContext *ctx) override;
 
