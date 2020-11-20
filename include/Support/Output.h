@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "Util/Alias.h"
+#include "Support/Alias.h"
 
 template<typename T>
 static inline void print(std::ostream &outputStream, T &&content) {

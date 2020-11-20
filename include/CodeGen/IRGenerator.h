@@ -3,8 +3,8 @@
 #include "StaticScriptLexer.h"
 #include "Sema/ASTVisitor.h"
 #include "CodeGen/Builtin.h"
-#include "Util/Alias.h"
-#include "Exception/CodeGenException.h"
+#include "Support/Alias.h"
+#include "Support/Exception.h"
 
 class IRGenerator : public ASTVisitor {
 public:

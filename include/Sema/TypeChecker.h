@@ -2,7 +2,7 @@
 
 #include "StaticScriptLexer.h"
 #include "Sema/ASTVisitor.h"
-#include "Exception/SemanticException.h"
+#include "Support/Exception.h"
 
 /// 类型检查器
 class TypeChecker : public ASTVisitor {

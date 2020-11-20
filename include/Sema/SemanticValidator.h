@@ -2,7 +2,7 @@
 
 #include "StaticScriptLexer.h"
 #include "Sema/ASTVisitor.h"
-#include "Exception/SemanticException.h"
+#include "Support/Exception.h"
 
 /// 语义合法性验证器
 class SemanticValidator : public ASTVisitor {

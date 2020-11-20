@@ -1,5 +1,6 @@
 #include <antlr4-runtime.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/InitLLVM.h>
 #include <llvm/Support/raw_ostream.h>
 #include "StaticScriptLexer.h"
 #include "StaticScriptParser.h"
@@ -9,15 +10,29 @@
 #include "Sema/TypeChecker.h"
 #include "Sema/SemanticValidator.h"
 #include "CodeGen/IRGenerator.h"
-#include "Exception/DriverException.h"
+#include "Optimization/Optimizer.h"
+#include "Support/LLVM.h"
+#include "Support/Exception.h"
 
 int drive(int argc, char **argv) {
+    llvm::InitLLVM X(argc, argv);
     llvm::cl::getRegisteredOptions().clear();
     llvm::cl::OptionCategory generalOptsCat("General Options");
     llvm::cl::OptionCategory genericOptsCat("Generic Options");
     llvm::cl::opt<String> inputFilename(llvm::cl::Positional, llvm::cl::desc("<input file>"));
-    llvm::cl::opt<String> outputFilename("o", llvm::cl::value_desc("output file"), llvm::cl::desc("Write output to <output file>"), llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<String> outputFilename("o", llvm::cl::value_desc("output file"), llvm::cl::desc("Write output to <output file>"),
+                                         llvm::cl::cat(generalOptsCat));
     llvm::cl::opt<bool> emitLLVM("emit-llvm", llvm::cl::desc("Generate the LLVM representation for input file"), llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<bool> optLevelO0("O0", llvm::cl::desc("Optimization level 0. Similar to clang -O0"),
+                                   llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<bool> optLevelO1("O1", llvm::cl::desc("Optimization level 1. Similar to clang -O1"), llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<bool> optLevelO2("O2", llvm::cl::init(true), llvm::cl::desc("Optimization level 2. Similar to clang -O2"),
+                                   llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<bool> optLevelOs("Os", llvm::cl::desc("Like -O2 with extra optimizations for size. Similar to clang -Os"),
+                                   llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<bool> optLevelOz("Oz", llvm::cl::desc("Like -Os but reduces code size further. Similar to clang -Oz"),
+                                   llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<bool> optLevelO3("O3", llvm::cl::desc("Optimization level 3. Similar to clang -O3"), llvm::cl::cat(generalOptsCat));
     llvm::cl::opt<bool> showHelp("help", llvm::cl::desc("Display available options"), llvm::cl::cat(genericOptsCat));
     llvm::cl::opt<bool> showHelpAlias("h", llvm::cl::desc("Alias for --help"), llvm::cl::cat(genericOptsCat));
     llvm::cl::opt<bool> showVersion("version", llvm::cl::desc("Display the version of this program"), llvm::cl::cat(genericOptsCat));
@@ -44,7 +59,24 @@ int drive(int argc, char **argv) {
         outputFilename.setValue(emitLLVM ? "ss-ir.ll" : "ss-out.o");
     }
 
-    if(!llvm::sys::fs::exists(inputFilename)) {
+    unsigned optLevel = 0;
+    unsigned sizeLevel = 0;
+
+    if (optLevelO3) {
+        optLevel = 3;
+    } else if (optLevelOz) {
+        optLevel = 2;
+        sizeLevel = 2;
+    } else if (optLevelOs) {
+        optLevel = 2;
+        sizeLevel = 1;
+    } else if (optLevelO2) {
+        optLevel = 2;
+    } else if (optLevelO1) {
+        optLevel = 1;
+    }
+
+    if (!llvm::sys::fs::exists(inputFilename)) {
         throw DriverException("Not found input file");
     }
     std::ifstream fin(inputFilename.data());
@@ -78,25 +110,21 @@ int drive(int argc, char **argv) {
 
     LLVMModule &llvmModule = generator->getLLVMModule();
 
-    llvm::InitializeNativeTarget();
-    llvm::InitializeNativeTargetAsmPrinter();
+    // 初始化LLVM相关
+    initLLVMTarget();
+    initLLVMPasses();
+    initLLVMCodeGen();
 
-    const String &targetTriple = llvm::sys::getDefaultTargetTriple();
-    llvmModule.setTargetTriple(targetTriple);
+    // 设置target triple
+    llvmModule.setTargetTriple(getTargetTriple());
 
-    String targetErrorMsg;
-    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(targetTriple, targetErrorMsg);
+    // 优化
+    SharedPtr<Optimizer> optimizer = makeShared<Optimizer>(llvmModule, optLevel, sizeLevel);
+    optimizer->optimize();
 
-    if (!target) {
-        throw DriverException(targetErrorMsg);
-    }
+    llvm::TargetMachine *targetMachine = getTargetMachine(optLevel);
 
-    String cpu = "generic";
-    String features;
-    llvm::TargetOptions opt;
-    auto rm = llvm::Optional<llvm::Reloc::Model>();
-    llvm::TargetMachine *targetMachine = target->createTargetMachine(targetTriple, cpu, features, opt, rm);
-
+    // 设置data layout
     llvmModule.setDataLayout(targetMachine->createDataLayout());
 
     std::error_code ec;
@@ -122,7 +150,8 @@ int drive(int argc, char **argv) {
     return 0;
 }
 
-int main(int argc, char *argv[]) {
+
+int main(int argc, char **argv) {
     try {
         return drive(argc, argv);
     } catch (const SemanticException &e) {

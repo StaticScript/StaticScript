@@ -2,7 +2,7 @@
 
 #include "Entity/Scope.h"
 #include "Sema/ASTVisitor.h"
-#include "Exception/SemanticException.h"
+#include "Support/Exception.h"
 
 /// 作用域扫描器
 class ScopeScanner final : public ASTVisitor {

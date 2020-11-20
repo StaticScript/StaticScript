@@ -2,7 +2,7 @@
 
 #include <llvm/Support/SourceMgr.h>
 #include "config.h"
-#include "Util/Alias.h"
+#include "Support/Alias.h"
 #include <llvm/Linker/Linker.h>
 
 

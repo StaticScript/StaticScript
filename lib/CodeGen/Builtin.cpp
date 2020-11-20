@@ -1,5 +1,5 @@
 #include "CodeGen/Builtin.h"
-#include "Exception/CodeGenException.h"
+#include "Support/Exception.h"
 
 void BuiltinString::initialize(LLVMModule &module, LLVMContext &context) {
     llvm::SMDiagnostic error;

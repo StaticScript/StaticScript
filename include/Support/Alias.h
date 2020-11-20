@@ -44,6 +44,9 @@ template<typename K, typename V>
 using Map = std::map<K, V>;
 
 template<typename T>
+using UniquePtr = std::unique_ptr<T>;
+
+template<typename T>
 using SharedPtr = std::shared_ptr<T>;
 
 template<typename T>
@@ -51,6 +54,11 @@ using SharedPtrVector = Vector<SharedPtr<T>>;
 
 template<typename K, typename V>
 using SharedPtrMap = Map<K, SharedPtr<V>>;
+
+template<typename T, typename ...Args>
+inline UniquePtr<T> makeUnique(Args &&...args) {
+    return std::make_unique<T>(std::forward<Args>(args)...);
+}
 
 template<typename T, typename ...Args>
 inline SharedPtr<T> makeShared(Args &&...args) {

@@ -5,14 +5,14 @@
 #include "ss_base.h"
 #include "ss_string.h"
 
-ss_string *KEEPALIVE ss_integer2string(long number);
+ss_string *ss_integer2string(long number);
 
-long KEEPALIVE ss_string2integer(ss_string *str);
+long ss_string2integer(ss_string *str);
 
-void KEEPALIVE ss_print_integer(long number);
+void ss_print_integer(long number);
 
-void KEEPALIVE ss_println_integer(long number);
+void ss_println_integer(long number);
 
-void KEEPALIVE ss_print_string(ss_string *str);
+void ss_print_string(ss_string *str);
 
-void KEEPALIVE ss_println_string(ss_string *str);
+void ss_println_string(ss_string *str);

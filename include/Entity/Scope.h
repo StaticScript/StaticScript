@@ -2,8 +2,8 @@
 
 #include <memory>
 #include "AST/DeclNode.h"
-#include "Util/Alias.h"
-#include "Util/Find.h"
+#include "Support/Alias.h"
+#include "Support/Find.h"
 
 class TopLevelScope;
 

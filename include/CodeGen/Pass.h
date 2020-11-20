@@ -5,7 +5,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
-#include "Util/Alias.h"
+#include "Support/Alias.h"
 
 /// 移除终结指令后面的指令
 struct EraseInstsAfterTerminatorPass : public llvm::FunctionPass {

@@ -25,5 +25,5 @@ function func(a: number, b: number): number {
     return x + y;
 }
 
-func(1, 2);
+ss_println_integer(func(1, 2));
 test();

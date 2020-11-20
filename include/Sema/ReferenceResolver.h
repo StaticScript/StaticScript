@@ -2,7 +2,7 @@
 
 #include "Entity/Scope.h"
 #include "Sema/ASTVisitor.h"
-#include "Exception/SemanticException.h"
+#include "Support/Exception.h"
 
 /// 引用消解器
 class ReferenceResolver final : public ASTVisitor {
