@@ -22,7 +22,7 @@ void ScopeScanner::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
     if (topLevelScope) {
         funcDecl->scope = topLevelScope;
     } else {
-        throw SemanticException("不允许函数嵌套");
+        reportSemanticError("Nested functions are not allowed");
     }
     // 函数参数作用域: 在外层作作用域与内层作用域之间的辅助作用域
     SharedPtr<LocalScope> paramScope = LocalScope::create(topLevelScope);
@@ -45,6 +45,11 @@ void ScopeScanner::visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr)
     strLiteralExpr->scope = getCurrentScope();
 }
 
+void ScopeScanner::visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr) {
+    arrayLiteralExpr->scope = getCurrentScope();
+    ASTVisitor::visit(arrayLiteralExpr);
+}
+
 void ScopeScanner::visit(const SharedPtr<IdentifierExprNode> &varExpr) {
     varExpr->scope = getCurrentScope();
 }
@@ -62,6 +67,11 @@ void ScopeScanner::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
 void ScopeScanner::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     bopExpr->scope = getCurrentScope();
     ASTVisitor::visit(bopExpr);
+}
+
+void ScopeScanner::visit(const SharedPtr<ArraySubscriptExprNode> &asExpr) {
+    asExpr->scope = getCurrentScope();
+    ASTVisitor::visit(asExpr);
 }
 
 void ScopeScanner::visit(const SharedPtr<ExprStmtNode> &exprStmt) {

@@ -1,10 +1,12 @@
 #pragma once
 
+#include <algorithm>
 #include "StaticScriptLexer.h"
 #include "Sema/ASTVisitor.h"
 #include "CodeGen/Builtin.h"
 #include "Support/Alias.h"
-#include "Support/Exception.h"
+#include "Support/Error.h"
+#include "Support/LLVM.h"
 
 class IRGenerator : public ASTVisitor {
 public:
@@ -26,6 +28,8 @@ public:
 
     void visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) override;
 
+    void visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr) override;
+
     void visit(const SharedPtr<IdentifierExprNode> &varExpr) override;
 
     void visit(const SharedPtr<CallExprNode> &callExpr) override;
@@ -33,6 +37,8 @@ public:
     void visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) override;
 
     void visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) override;
+
+    void visit(const SharedPtr<ArraySubscriptExprNode> &asExpr) override;
 
     void visit(const SharedPtr<ExprStmtNode> &exprStmt) override;
 
@@ -59,7 +65,9 @@ public:
     }
 
 private:
-    LLVMType *getType(const SharedPtr<BuiltinTypeNode> &builtinType);
+    LLVMType *getType(const SharedPtr<Type> &inputType);
+
+    void setArrayElement(const SharedPtr<ArraySubscriptExprNode> &asExpr, LLVMValue *valueCode);
 
     inline void setFuncInsertPoint(LLVMFunction *func) {
         LLVMBasicBlock *curBB = &(func->getBasicBlockList().back());
@@ -75,7 +83,7 @@ private:
     void emitBranch(LLVMBasicBlock *targetBB);
 
     LLVMContext llvmContext;
-    LLVMIRBuilder llvmIRBuilder;
+    llvm::IRBuilder<> llvmIRBuilder;
     SharedPtr<LLVMModule> llvmModule;
 
     LLVMFunction *mainFn = nullptr;

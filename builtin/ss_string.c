@@ -1,29 +1,5 @@
 #include "ss_string.h"
 
-size_t ss_string_get_capacity_with_size(size_t size) {
-    if (size == 0) {
-        return 16;
-    } else if (size < 16) {
-        return 32;
-    } else if (size < 32) {
-        return 48;
-    } else {
-        return size * 3 / 2;
-    }
-}
-
-ss_string *ss_string_create_with_capacity(size_t capacity) {
-    ss_string *str = (ss_string *) malloc(sizeof(ss_string));
-    if (!str) {
-        return NULL;
-    }
-    str->buffer = (char *) calloc(capacity, 1);
-    str->capacity = capacity;
-    str->size = 0;
-    memset(str->buffer, 0, capacity);
-    return str;
-}
-
 ss_string *ss_string_create(const char *literal) {
     size_t size = strlen(literal);
     size_t capacity = ss_string_get_capacity_with_size(size);
@@ -45,53 +21,29 @@ size_t ss_string_get_size(ss_string *str) {
     return str->size;
 }
 
-long ss_string_grow_with_capacity(ss_string *str, size_t new_capacity) {
-    char *new_buffer = (char *) calloc(new_capacity, 1);
-    if (!new_buffer) {
-        return -1;
-    }
-    memset(new_buffer, 0, new_capacity);
-    memcpy(new_buffer, str->buffer, str->size);
-    free(str->buffer);
-    str->buffer = new_buffer;
-    str->capacity = new_capacity;
-    return 0;
-}
-
-long ss_string_grow(ss_string *str) {
-    if (str->capacity < 32) {
-        str->capacity += 16;
-    } else {
-        str->capacity = str->capacity * 3 / 2;
-    }
-    return ss_string_grow_with_capacity(str, str->capacity);
-}
-
 long ss_string_append(ss_string *dest, ss_string *src) {
-    size_t src_size = strlen(src->buffer);
-    size_t needed_size = dest->size + src_size;
+    size_t needed_size = dest->size + src->size;
     size_t needed_capacity = ss_string_get_capacity_with_size(needed_size);
     if (dest->capacity < needed_capacity) {
         if (ss_string_grow_with_capacity(dest, needed_capacity) == -1) {
             return -1;
         }
     }
-    strncat(dest->buffer, src->buffer, src_size);
+    strncat(dest->buffer, src->buffer, src->size);
     dest->size = needed_size;
     return 0;
 }
 
 long ss_string_prepend(ss_string *dest, ss_string *src) {
-    size_t src_size = strlen(src->buffer);
-    size_t needed_size = dest->size + src_size;
+    size_t needed_size = dest->size + src->size;
     size_t needed_capacity = ss_string_get_capacity_with_size(needed_size);
     if (dest->capacity < needed_capacity) {
         if (ss_string_grow_with_capacity(dest, needed_capacity) == -1) {
             return -1;
         }
     }
-    memmove(dest->buffer + src_size, dest->buffer, src_size + 1);
-    memcpy(dest->buffer, src->buffer, src_size);
+    memmove(dest->buffer + src->size, dest->buffer, src->size + 1);
+    memcpy(dest->buffer, src->buffer, src->size);
     dest->size = needed_size;
     return 0;
 }
@@ -125,20 +77,18 @@ ss_string *ss_string_slice(ss_string *str, ssize_t from, ssize_t to) {
 }
 
 long ss_string_equals(ss_string *str1, ss_string *str2) {
-    size_t max_size = str1->size > str2->size ? str1->size : str2->size;
-    return strncmp(str1->buffer, str2->buffer, max_size);
+    if (str1->size != str2->size) {
+        return -1;
+    }
+    return strncmp(str1->buffer, str2->buffer, str1->size);
 }
 
-ssize_t ss_string_index_of_with_literal(ss_string *str, const char *literal) {
-    char *sub = strstr(str->buffer, literal);
+ssize_t ss_string_index_of(ss_string *str, ss_string *substr) {
+    char *sub = strstr(str->buffer, substr->buffer);
     if (!sub) {
         return -1;
     }
     return sub - str->buffer;
-}
-
-ssize_t ss_string_index_of(ss_string *str, ss_string *substr) {
-    return ss_string_index_of_with_literal(str, substr->buffer);
 }
 
 long ss_string_trim_left(ss_string *str) {

@@ -53,18 +53,27 @@ variableDeclarator
     : Identifier typeAnnotation? variableInitializer?
     ;
 
-typeAnnotation
-    : Colon builtinType
+variableInitializer
+    : Assign expression
     ;
 
-builtinType
+typeAnnotation
+    : Colon type
+    ;
+
+type
+    : arrayType
+    | atomicType
+    ;
+
+arrayType
+    : atomicType (OpenBracket CloseBracket)+
+    ;
+
+atomicType
     : Boolean
     | Number
     | String
-    ;
-
-variableInitializer
-    : Assign expression
     ;
 
 functionDeclaration
@@ -79,10 +88,6 @@ functionBody
     : compoundStatement
     ;
 
-argumentList
-    : expressionList
-    ;
-
 compoundStatement
     : OpenBrace statements? CloseBrace
     ;
@@ -92,9 +97,7 @@ expressionStatement
     ;
 
 expression
-    : literal                                                                                           # LiteralExpr
-    | Identifier                                                                                        # IdentifierExpr
-    | OpenParen expression CloseParen                                                                   # ParenExpr
+    : base=expression (OpenBracket index+=expression CloseBracket)+                                      # ArraySubscriptExpr
     | callExpression                                                                                    # CallExpr
     | expression uop=(PlusPlus | MinusMinus)                                                            # PostfixUnaryExpr
     | <assoc=right> uop=(Not | BitNot | Plus | Minus | PlusPlus | MinusMinus) expression                # PrefixUnaryExpr
@@ -109,16 +112,32 @@ expression
     | expression bop=And expression                                                                     # BinaryExpr
     | expression bop=Or expression                                                                      # BinaryExpr
     | <assoc=right> expression bop=(Assign | PlusAssign | MinusAssign | MultiplyAssign | DivideAssign | ModulusAssign | LeftShiftAssign | RightShiftAssign | BitAndAssign | BitXorAssign | BitOrAssign | AndAssign | OrAssign) expression # BinaryExpr
+    | Identifier                                                                                        # IdentifierExpr
+    | literal                                                                                           # LiteralExpr
+    | OpenParen expression CloseParen                                                                   # ParenExpr
     ;
 
 callExpression
     : Identifier OpenParen argumentList? CloseParen
     ;
 
+argumentList
+    : expressionList
+    ;
+
 literal
     : BooleanLiteral
     | IntegerLiteral
     | StringLiteral
+    | arrayLiteral
+    ;
+
+arrayLiteral
+    : OpenBracket expressionList? CloseBracket
+    ;
+
+expressionList
+    : expression (Comma expression)*
     ;
 
 selectionStatement
@@ -145,10 +164,6 @@ forStatement
 forInit
     : variableDeclarators
     | expressionList
-    ;
-
-expressionList
-    : expression (Comma expression)*
     ;
 
 jumpStatement

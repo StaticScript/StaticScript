@@ -1,11 +1,14 @@
 #pragma once
 
 #include <memory>
-#include "AST/TypeNode.h"
+#include "Entity/Type.h"
 #include "AST/DeclNode.h"
 #include "AST/StmtNode.h"
 #include "AST/ExprNode.h"
 #include "AST/ModuleNode.h"
+#include "Support/Alias.h"
+#include "Support/Error.h"
+#include "Support/LLVM.h"
 
 /// AST遍历器
 class ASTVisitor : public std::enable_shared_from_this<ASTVisitor> {
@@ -13,8 +16,6 @@ public:
     virtual void resolve(const SharedPtr<ModuleNode> &module);
 
     virtual void visit(const SharedPtr<ModuleNode> &module);
-
-    virtual void visit(const SharedPtr<BuiltinTypeNode> &builtinType);
 
     virtual void visit(const SharedPtr<VarDeclNode> &varDecl);
 
@@ -28,6 +29,8 @@ public:
 
     virtual void visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr);
 
+    virtual void visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr);
+
     virtual void visit(const SharedPtr<IdentifierExprNode> &varExpr);
 
     virtual void visit(const SharedPtr<CallExprNode> &callExpr);
@@ -35,6 +38,8 @@ public:
     virtual void visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr);
 
     virtual void visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr);
+
+    virtual void visit(const SharedPtr<ArraySubscriptExprNode> &asExpr);
 
     virtual void visit(const SharedPtr<ExprStmtNode> &exprStmt);
 
@@ -55,7 +60,10 @@ public:
     virtual void visit(const SharedPtr<BreakStmtNode> &breakStmt);
 
     virtual void visit(const SharedPtr<ReturnStmtNode> &returnStmt);
+};
 
+/// 带作用域的AST遍历器
+class ASTVisitorWithScope: public ASTVisitor {
 protected:
     /**
      * @brief 将作用域压栈

@@ -1,28 +1,39 @@
 #include <utility>
 #include "AST/ExprNode.h"
-#include "AST/DeclNode.h"
 #include "Sema/ASTVisitor.h"
 
-ExprNode::ExprNode(const SharedPtr<BuiltinTypeNode> &type) : inferType(type) {}
+ExprNode::ExprNode(const SharedPtr<Type> &type) : inferType(type) {}
 
-LiteralExprNode::LiteralExprNode(const SharedPtr<BuiltinTypeNode> &type) : ExprNode(type) {}
+LiteralExprNode::LiteralExprNode(const SharedPtr<Type> &type) : ExprNode(type) {}
 
-IntegerLiteralExprNode::IntegerLiteralExprNode(int literal) : literal(literal), LiteralExprNode(BuiltinTypeNode::INTEGER_TYPE) {}
+AtomicLiteralExprNode::AtomicLiteralExprNode(const SharedPtr<AtomicType> &type) : LiteralExprNode(type) {}
+
+IntegerLiteralExprNode::IntegerLiteralExprNode(long literal) : literal(literal), AtomicLiteralExprNode(AtomicType::INTEGER_TYPE) {}
 
 void IntegerLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<IntegerLiteralExprNode>(shared_from_this()));
 }
 
-BooleanLiteralExprNode::BooleanLiteralExprNode(bool literal) : literal(literal), LiteralExprNode(BuiltinTypeNode::BOOLEAN_TYPE) {}
+BooleanLiteralExprNode::BooleanLiteralExprNode(bool literal) : literal(literal), AtomicLiteralExprNode(AtomicType::BOOLEAN_TYPE) {}
 
 void BooleanLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<BooleanLiteralExprNode>(shared_from_this()));
 }
 
-StringLiteralExprNode::StringLiteralExprNode(String literal) : literal(std::move(literal)), LiteralExprNode(BuiltinTypeNode::STRING_TYPE) {}
+StringLiteralExprNode::StringLiteralExprNode() : AtomicLiteralExprNode(AtomicType::STRING_TYPE) {}
+
+StringLiteralExprNode::StringLiteralExprNode(String literal) : literal(std::move(literal)), AtomicLiteralExprNode(AtomicType::STRING_TYPE) {}
 
 void StringLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<StringLiteralExprNode>(shared_from_this()));
+}
+
+ArrayLiteralExprNode::ArrayLiteralExprNode() : LiteralExprNode(AtomicType::UNKNOWN_TYPE) {}
+
+ArrayLiteralExprNode::ArrayLiteralExprNode(const SharedPtr<Type> &type) : LiteralExprNode(type) {}
+
+void ArrayLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
+    visitor->visit(staticPtrCast<ArrayLiteralExprNode>(shared_from_this()));
 }
 
 IdentifierExprNode::IdentifierExprNode(String name) : name(std::move(name)) {}
@@ -70,6 +81,11 @@ void BinaryOperatorExprNode::bindChildrenInversely() {
     lhs->parent = rhs->parent = shared_from_this();
 }
 
+void ArraySubscriptExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
+    visitor->visit(staticPtrCast<ArraySubscriptExprNode>(shared_from_this()));
+}
 
-
-
+ArraySubscriptExprNode::ArraySubscriptExprNode(
+        const SharedPtr<ExprNode> &baseExpr,
+        const SharedPtrVector<ExprNode> &indexExprs
+) : baseExpr(baseExpr), indexExprs(indexExprs) {}

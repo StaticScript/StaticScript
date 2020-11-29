@@ -7,12 +7,12 @@ VarDeclNode::VarDeclNode() : modifier(VarModifier::Let) {}
 VarDeclNode::VarDeclNode(
         VarModifier modifier,
         String name,
-        const SharedPtr<BuiltinTypeNode> &type
+        const SharedPtr<Type> &type
 ) : modifier(modifier), name(std::move(name)), type(type) {}
 
 VarDeclNode::VarDeclNode(VarModifier modifier,
                          String name,
-                         const SharedPtr<BuiltinTypeNode> &type,
+                         const SharedPtr<Type> &type,
                          const SharedPtr<ExprNode> &initVal
 ) : modifier(modifier),
     name(std::move(name)),
@@ -25,9 +25,6 @@ void VarDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
 
 void VarDeclNode::bindChildrenInversely() {
     auto self = shared_from_this();
-    if (type) {
-        type->parent = self;
-    }
     if (initVal) {
         initVal->parent = self;
     }
@@ -39,7 +36,7 @@ bool VarDeclNode::isConstant() const {
 
 ParmVarDeclNode::ParmVarDeclNode(
         const String &name,
-        const SharedPtr<BuiltinTypeNode> &type
+        const SharedPtr<Type> &type
 ) : VarDeclNode(VarModifier::Param, name, type) {}
 
 void ParmVarDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
@@ -48,12 +45,12 @@ void ParmVarDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
 
 SharedPtrMap<String, FunctionDeclNode> FunctionDeclNode::getBuiltinFunctions() {
     SharedPtrMap<String, FunctionDeclNode> functions;
-    SharedPtr<ParmVarDeclNode> integerArg = makeShared<ParmVarDeclNode>("number", BuiltinTypeNode::INTEGER_TYPE);
-    SharedPtr<ParmVarDeclNode> strArg = makeShared<ParmVarDeclNode>("str", BuiltinTypeNode::STRING_TYPE);
+    SharedPtr<ParmVarDeclNode> integerArg = makeShared<ParmVarDeclNode>("number", AtomicType::INTEGER_TYPE);
+    SharedPtr<ParmVarDeclNode> strArg = makeShared<ParmVarDeclNode>("str", AtomicType::STRING_TYPE);
     SharedPtrVector<ParmVarDeclNode> integerArgs{integerArg};
     SharedPtrVector<ParmVarDeclNode> strArgs{strArg};
-    functions["ss_integer2string"] = makeShared<FunctionDeclNode>("ss_integer2string", integerArgs, BuiltinTypeNode::STRING_TYPE, nullptr);
-    functions["ss_string2integer"] = makeShared<FunctionDeclNode>("ss_string2integer", strArgs, BuiltinTypeNode::INTEGER_TYPE, nullptr);
+    functions["ss_integer2string"] = makeShared<FunctionDeclNode>("ss_integer2string", integerArgs, AtomicType::STRING_TYPE, nullptr);
+    functions["ss_string2integer"] = makeShared<FunctionDeclNode>("ss_string2integer", strArgs, AtomicType::INTEGER_TYPE, nullptr);
     functions["ss_print_integer"] = makeShared<FunctionDeclNode>("ss_print_integer", integerArgs, nullptr, nullptr);
     functions["ss_println_integer"] = makeShared<FunctionDeclNode>("ss_println_integer", integerArgs, nullptr, nullptr);
     functions["ss_print_string"] = makeShared<FunctionDeclNode>("ss_print_string", strArgs, nullptr, nullptr);
@@ -64,7 +61,7 @@ SharedPtrMap<String, FunctionDeclNode> FunctionDeclNode::getBuiltinFunctions() {
 FunctionDeclNode::FunctionDeclNode(
         String name,
         const SharedPtrVector<ParmVarDeclNode> &params,
-        const SharedPtr<BuiltinTypeNode> &returnType,
+        const SharedPtr<Type> &returnType,
         const SharedPtr<CompoundStmtNode> &body
 ) : name(std::move(name)),
     params(params),
@@ -79,9 +76,6 @@ void FunctionDeclNode::bindChildrenInversely() {
     auto self = shared_from_this();
     for (const SharedPtr<ParmVarDeclNode> &param: params) {
         param->parent = self;
-    }
-    if (returnType) {
-        returnType->parent = self;
     }
     body->parent = self;
 }

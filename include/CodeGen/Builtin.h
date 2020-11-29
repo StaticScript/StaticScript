@@ -1,21 +1,32 @@
 #pragma once
 
-#include <llvm/Support/SourceMgr.h>
-#include "config.h"
+#include "Config/Config.h"
 #include "Support/Alias.h"
-#include <llvm/Linker/Linker.h>
-
+#include "Support/Error.h"
+#include "Support/LLVM.h"
 
 class Builtin {
 public:
     static void initialize(LLVMModule &module, LLVMContext &context);
 };
 
+class BuiltinError {
+public:
+    static void linkModule(LLVMModule &module, LLVMContext &context);
+
+    static void getTypeAndFunction(LLVMModule &module);
+
+    static inline llvm::PointerType *type = nullptr;
+    static inline LLVMFunction *exitIfErrorFunc = nullptr;
+};
+
 class BuiltinString {
 public:
-    static void initialize(LLVMModule &module, LLVMContext &context);
+    static void linkModule(LLVMModule &module, LLVMContext &context);
 
-    static inline LLVMType *type = nullptr;
+    static void getTypeAndFunction(LLVMModule &module);
+
+    static inline llvm::PointerType *type = nullptr;
     static inline LLVMFunction *createFunc = nullptr;
     static inline LLVMFunction *deleteFunc = nullptr;
     static inline LLVMFunction *getSizeFunc = nullptr;
@@ -30,9 +41,48 @@ public:
     static inline LLVMFunction *trimFunc = nullptr;
 };
 
+class BuiltinArray {
+public:
+    static void linkModule(LLVMModule &module, LLVMContext &context);
+
+    static void getTypeAndFunction(LLVMModule &module);
+
+    static inline llvm::PointerType *type = nullptr;
+    static inline LLVMFunction *createIntegerArrayFunc = nullptr;
+    static inline LLVMFunction *createBooleanArrayFunc = nullptr;
+    static inline LLVMFunction *createStringArrayFunc = nullptr;
+    static inline LLVMFunction *createArrayArrayFunc = nullptr;
+    static inline LLVMFunction *createIntegerArrayWithLiteralFunc = nullptr;
+    static inline LLVMFunction *createBooleanArrayWithLiteralFunc = nullptr;
+    static inline LLVMFunction *createStringArrayWithLiteralFunc = nullptr;
+    static inline LLVMFunction *createArrayArrayWithLiteralFunc = nullptr;
+    static inline LLVMFunction *deleteFunc = nullptr;
+    static inline LLVMFunction *getSizeFunc = nullptr;
+    static inline LLVMFunction *isNDArrayFunc = nullptr;
+    static inline LLVMFunction *pushIntegerFunc = nullptr;
+    static inline LLVMFunction *pushBooleanFunc = nullptr;
+    static inline LLVMFunction *pushStringFunc = nullptr;
+    static inline LLVMFunction *pushArrayFunc = nullptr;
+    static inline LLVMFunction *popIntegerFunc = nullptr;
+    static inline LLVMFunction *popBooleanFunc = nullptr;
+    static inline LLVMFunction *popStringFunc = nullptr;
+    static inline LLVMFunction *popArrayFunc = nullptr;
+    static inline LLVMFunction *getIntegerFunc = nullptr;
+    static inline LLVMFunction *getBooleanFunc = nullptr;
+    static inline LLVMFunction *getStringFunc = nullptr;
+    static inline LLVMFunction *getArrayFunc = nullptr;
+    static inline LLVMFunction *setIntegerFunc = nullptr;
+    static inline LLVMFunction *setBooleanFunc = nullptr;
+    static inline LLVMFunction *setStringFunc = nullptr;
+    static inline LLVMFunction *setArrayFunc = nullptr;
+    static inline LLVMFunction *sliceFunc = nullptr;
+};
+
 class BuiltinIO {
 public:
-    static void initialize(LLVMModule &module, LLVMContext &context);
+    static void linkModule(LLVMModule &module, LLVMContext &context);
+
+    static void getTypeAndFunction(LLVMModule &module);
 
     static inline LLVMFunction *integer2stringFunc = nullptr;
     static inline LLVMFunction *string2integerFunc = nullptr;

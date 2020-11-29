@@ -22,6 +22,8 @@ Return:                 'return';
 // 分隔符
 OpenParen:              '(';
 CloseParen:             ')';
+OpenBracket:            '[';
+CloseBracket:           ']';
 OpenBrace:              '{';
 CloseBrace:             '}';
 Colon:                  ':';

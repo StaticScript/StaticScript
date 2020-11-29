@@ -1,15 +1,8 @@
 #pragma once
 
-#include <llvm/IR/LegacyPassManager.h>
-#include <llvm/Support/SourceMgr.h>
-#include <llvm/Analysis/TargetLibraryInfo.h>
-#include <llvm/Analysis/TargetTransformInfo.h>
-#include <llvm/Transforms/IPO.h>
-#include <llvm/Transforms/IPO/AlwaysInliner.h>
-#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include "Support/Alias.h"
 #include "Support/LLVM.h"
-#include "Support/Exception.h"
+#include "Support/Error.h"
 
 class Optimizer final {
 public:

@@ -112,30 +112,45 @@ antlrcpp::Any ASTBuilder::visitVariableDeclarator(StaticScriptParser::VariableDe
     return varDecl;
 }
 
-antlrcpp::Any ASTBuilder::visitTypeAnnotation(StaticScriptParser::TypeAnnotationContext *ctx) {
-    return visitBuiltinType(ctx->builtinType());
-}
-
-antlrcpp::Any ASTBuilder::visitBuiltinType(StaticScriptParser::BuiltinTypeContext *ctx) {
-    if (ctx->Boolean()) {
-        return BuiltinTypeNode::BOOLEAN_TYPE;
-    } else if (ctx->Number()) {
-        return BuiltinTypeNode::INTEGER_TYPE;
-    }
-    return BuiltinTypeNode::STRING_TYPE;
-}
-
 antlrcpp::Any ASTBuilder::visitVariableInitializer(StaticScriptParser::VariableInitializerContext *ctx) {
     return visitExpression(ctx->expression());
+}
+
+antlrcpp::Any ASTBuilder::visitTypeAnnotation(StaticScriptParser::TypeAnnotationContext *ctx) {
+    return visitType(ctx->type());
+}
+
+antlrcpp::Any ASTBuilder::visitType(StaticScriptParser::TypeContext *ctx) {
+    SharedPtr<Type> type;
+    if (ctx->arrayType()) {
+        type = visitArrayType(ctx->arrayType()).as<SharedPtr<ArrayType>>();
+    } else {
+        type = visitAtomicType(ctx->atomicType()).as<SharedPtr<AtomicType>>();
+    }
+    return type;
+}
+
+antlrcpp::Any ASTBuilder::visitArrayType(StaticScriptParser::ArrayTypeContext *ctx) {
+    const SharedPtr<AtomicType> &atomicType = visitAtomicType(ctx->atomicType());
+    size_t depth = ctx->OpenBracket().size();
+    return ArrayType::createNDArrayType(atomicType, depth);
+}
+
+antlrcpp::Any ASTBuilder::visitAtomicType(StaticScriptParser::AtomicTypeContext *ctx) {
+    if (ctx->Boolean()) {
+        return AtomicType::BOOLEAN_TYPE;
+    } else if (ctx->Number()) {
+        return AtomicType::INTEGER_TYPE;
+    }
+    return AtomicType::STRING_TYPE;
 }
 
 antlrcpp::Any ASTBuilder::visitFunctionDeclaration(StaticScriptParser::FunctionDeclarationContext *ctx) {
     String name = ctx->Identifier()->getText();
     SharedPtrVector<ParmVarDeclNode> params;
-    SharedPtr<BuiltinTypeNode> returnType;
+    SharedPtr<Type> returnType;
     if (ctx->parameterList()) {
-        antlrcpp::Any paramsAny = visitParameterList(ctx->parameterList());
-        params = paramsAny.as<SharedPtrVector<ParmVarDeclNode>>();
+        params = visitParameterList(ctx->parameterList()).as<SharedPtrVector<ParmVarDeclNode>>();
     }
     if (ctx->typeAnnotation()) {
         returnType = visitTypeAnnotation(ctx->typeAnnotation());
@@ -152,7 +167,7 @@ antlrcpp::Any ASTBuilder::visitParameterList(StaticScriptParser::ParameterListCo
     SharedPtrVector<ParmVarDeclNode> params;
     for (size_t i = 0; i < ctx->Identifier().size(); ++i) {
         String name = ctx->Identifier(i)->getText();
-        SharedPtr<BuiltinTypeNode> type = visitTypeAnnotation(ctx->typeAnnotation(i));
+        SharedPtr<Type> type = visitTypeAnnotation(ctx->typeAnnotation(i));
         SharedPtr<ParmVarDeclNode> param = makeShared<ParmVarDeclNode>(name, type);
         param->bindChildrenInversely();
         params.push_back(param);
@@ -162,22 +177,6 @@ antlrcpp::Any ASTBuilder::visitParameterList(StaticScriptParser::ParameterListCo
 
 antlrcpp::Any ASTBuilder::visitFunctionBody(StaticScriptParser::FunctionBodyContext *ctx) {
     return visitCompoundStatement(ctx->compoundStatement());
-}
-
-antlrcpp::Any ASTBuilder::visitCallExpression(StaticScriptParser::CallExpressionContext *ctx) {
-    String calleeName = ctx->Identifier()->getText();
-    SharedPtrVector<ExprNode> args;
-    if (ctx->argumentList()) {
-        antlrcpp::Any argsAny = visitArgumentList(ctx->argumentList());
-        args = argsAny.as<SharedPtrVector<ExprNode>>();
-    }
-    SharedPtr<CallExprNode> callExpr = makeShared<CallExprNode>(calleeName, args);
-    callExpr->bindChildrenInversely();
-    return callExpr;
-}
-
-antlrcpp::Any ASTBuilder::visitArgumentList(StaticScriptParser::ArgumentListContext *ctx) {
-    return visitExpressionList(ctx->expressionList());
 }
 
 antlrcpp::Any ASTBuilder::visitCompoundStatement(StaticScriptParser::CompoundStatementContext *ctx) {
@@ -201,15 +200,9 @@ antlrcpp::Any ASTBuilder::visitExpressionStatement(StaticScriptParser::Expressio
 antlrcpp::Any ASTBuilder::visitExpression(StaticScriptParser::ExpressionContext *ctx) {
     SharedPtr<ExprNode> expr;
     antlrcpp::Any exprAny;
-    if (auto literalExprCtx = dynamic_cast<StaticScriptParser::LiteralExprContext *>(ctx)) {
-        exprAny = visitLiteralExpr(literalExprCtx);
-        expr = exprAny.as<SharedPtr<LiteralExprNode>>();
-    } else if (auto idExprCtx = dynamic_cast<StaticScriptParser::IdentifierExprContext *>(ctx)) {
-        exprAny = visitIdentifierExpr(idExprCtx);
-        expr = exprAny.as<SharedPtr<IdentifierExprNode>>();
-    } else if (auto parenExprCtx = dynamic_cast<StaticScriptParser::ParenExprContext *>(ctx)) {
-        exprAny = visitParenExpr(parenExprCtx);
-        expr = exprAny.as<SharedPtr<ExprNode>>();
+    if (auto arraySubscriptExprCtx = dynamic_cast<StaticScriptParser::ArraySubscriptExprContext *>(ctx)) {
+        exprAny = visitArraySubscriptExpr(arraySubscriptExprCtx);
+        expr = exprAny.as<SharedPtr<ArraySubscriptExprNode>>();
     } else if (auto callExprCtx = dynamic_cast<StaticScriptParser::CallExprContext *>(ctx)) {
         exprAny = visitCallExpr(callExprCtx);
         expr = exprAny.as<SharedPtr<CallExprNode>>();
@@ -222,21 +215,27 @@ antlrcpp::Any ASTBuilder::visitExpression(StaticScriptParser::ExpressionContext 
     } else if (auto binaryExprCtx = dynamic_cast<StaticScriptParser::BinaryExprContext *>(ctx)) {
         exprAny = visitBinaryExpr(binaryExprCtx);
         expr = exprAny.as<SharedPtr<BinaryOperatorExprNode>>();
+    } else if (auto idExprCtx = dynamic_cast<StaticScriptParser::IdentifierExprContext *>(ctx)) {
+        exprAny = visitIdentifierExpr(idExprCtx);
+        expr = exprAny.as<SharedPtr<IdentifierExprNode>>();
+    } else if (auto literalExprCtx = dynamic_cast<StaticScriptParser::LiteralExprContext *>(ctx)) {
+        exprAny = visitLiteralExpr(literalExprCtx);
+        expr = exprAny.as<SharedPtr<LiteralExprNode>>();
+    } else if (auto parenExprCtx = dynamic_cast<StaticScriptParser::ParenExprContext *>(ctx)) {
+        exprAny = visitParenExpr(parenExprCtx);
+        expr = exprAny.as<SharedPtr<ExprNode>>();
     }
     expr->bindChildrenInversely();
     return expr;
 }
 
-antlrcpp::Any ASTBuilder::visitLiteralExpr(StaticScriptParser::LiteralExprContext *ctx) {
-    return visitLiteral(ctx->literal());
-}
-
-antlrcpp::Any ASTBuilder::visitIdentifierExpr(StaticScriptParser::IdentifierExprContext *ctx) {
-    return makeShared<IdentifierExprNode>(ctx->Identifier()->getText());
-}
-
-antlrcpp::Any ASTBuilder::visitParenExpr(StaticScriptParser::ParenExprContext *ctx) {
-    return visitExpression(ctx->expression());
+antlrcpp::Any ASTBuilder::visitArraySubscriptExpr(StaticScriptParser::ArraySubscriptExprContext *ctx) {
+    SharedPtr<ExprNode> baseExpr = visitExpression(ctx->base);
+    SharedPtrVector<ExprNode> indexExprs(ctx->index.size());
+    for (size_t i = 0; i < ctx->index.size(); ++i) {
+        indexExprs[i] = visitExpression(ctx->index[i]).as<SharedPtr<ExprNode>>();
+    }
+    return makeShared<ArraySubscriptExprNode>(baseExpr, indexExprs);
 }
 
 antlrcpp::Any ASTBuilder::visitCallExpr(StaticScriptParser::CallExprContext *ctx) {
@@ -245,7 +244,7 @@ antlrcpp::Any ASTBuilder::visitCallExpr(StaticScriptParser::CallExprContext *ctx
 
 antlrcpp::Any ASTBuilder::visitPostfixUnaryExpr(StaticScriptParser::PostfixUnaryExprContext *ctx) {
     SharedPtr<ExprNode> subExpr = visitExpression(ctx->expression());
-    SharedPtr<UnaryOperatorExprNode> expr= makeShared<UnaryOperatorExprNode>(ctx->uop->getType(), subExpr);
+    SharedPtr<UnaryOperatorExprNode> expr = makeShared<UnaryOperatorExprNode>(ctx->uop->getType(), subExpr);
     expr->isPostfix = true;
     return expr;
 }
@@ -261,6 +260,33 @@ antlrcpp::Any ASTBuilder::visitBinaryExpr(StaticScriptParser::BinaryExprContext 
     return makeShared<BinaryOperatorExprNode>(ctx->bop->getType(), lhs, rhs);
 }
 
+antlrcpp::Any ASTBuilder::visitIdentifierExpr(StaticScriptParser::IdentifierExprContext *ctx) {
+    return makeShared<IdentifierExprNode>(ctx->Identifier()->getText());
+}
+
+antlrcpp::Any ASTBuilder::visitLiteralExpr(StaticScriptParser::LiteralExprContext *ctx) {
+    return visitLiteral(ctx->literal());
+}
+
+antlrcpp::Any ASTBuilder::visitParenExpr(StaticScriptParser::ParenExprContext *ctx) {
+    return visitExpression(ctx->expression());
+}
+
+antlrcpp::Any ASTBuilder::visitCallExpression(StaticScriptParser::CallExpressionContext *ctx) {
+    String calleeName = ctx->Identifier()->getText();
+    SharedPtrVector<ExprNode> args;
+    if (ctx->argumentList()) {
+        args = visitArgumentList(ctx->argumentList()).as<SharedPtrVector<ExprNode>>();
+    }
+    SharedPtr<CallExprNode> callExpr = makeShared<CallExprNode>(calleeName, args);
+    callExpr->bindChildrenInversely();
+    return callExpr;
+}
+
+antlrcpp::Any ASTBuilder::visitArgumentList(StaticScriptParser::ArgumentListContext *ctx) {
+    return visitExpressionList(ctx->expressionList());
+}
+
 antlrcpp::Any ASTBuilder::visitLiteral(StaticScriptParser::LiteralContext *ctx) {
     SharedPtr<LiteralExprNode> literalExpr;
     if (ctx->BooleanLiteral()) {
@@ -269,12 +295,22 @@ antlrcpp::Any ASTBuilder::visitLiteral(StaticScriptParser::LiteralContext *ctx) 
     } else if (ctx->IntegerLiteral()) {
         int literal = std::stoi(ctx->IntegerLiteral()->getText());
         literalExpr = makeShared<IntegerLiteralExprNode>(literal);
-    } else {
+    } else if (ctx->StringLiteral()) {
         String literal = ctx->StringLiteral()->getText();
         literal = literal.substr(1, literal.size() - 2);
         literalExpr = makeShared<StringLiteralExprNode>(literal);
+    } else if (ctx->arrayLiteral()) {
+        literalExpr = visitArrayLiteral(ctx->arrayLiteral()).as<SharedPtr<ArrayLiteralExprNode>>();
     }
     return literalExpr;
+}
+
+antlrcpp::Any ASTBuilder::visitArrayLiteral(StaticScriptParser::ArrayLiteralContext *ctx) {
+    SharedPtr<ArrayLiteralExprNode> arrayLiteralExpr = makeShared<ArrayLiteralExprNode>();
+    if (ctx->expressionList()) {
+        arrayLiteralExpr->elements = visitExpressionList(ctx->expressionList()).as<SharedPtrVector<ExprNode>>();
+    }
+    return arrayLiteralExpr;
 }
 
 antlrcpp::Any ASTBuilder::visitSelectionStatement(StaticScriptParser::SelectionStatementContext *ctx) {

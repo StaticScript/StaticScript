@@ -1,13 +1,12 @@
 #pragma once
 
 #include <iostream>
-#include "StaticScriptParserBaseVisitor.h"
+#include "StaticScriptParserVisitor.h"
+#include "Entity/Type.h"
 #include "AST/DeclNode.h"
 #include "AST/StmtNode.h"
-#include "AST/TypeNode.h"
 #include "AST/ExprNode.h"
 #include "AST/ModuleNode.h"
-#include "Support/Alias.h"
 
 /// AST构建器
 class ASTBuilder final : public StaticScriptParserVisitor {
@@ -34,11 +33,15 @@ public:
 
     antlrcpp::Any visitVariableDeclarator(StaticScriptParser::VariableDeclaratorContext *ctx) override;
 
-    antlrcpp::Any visitTypeAnnotation(StaticScriptParser::TypeAnnotationContext *ctx) override;
-
     antlrcpp::Any visitVariableInitializer(StaticScriptParser::VariableInitializerContext *ctx) override;
 
-    antlrcpp::Any visitBuiltinType(StaticScriptParser::BuiltinTypeContext *ctx) override;
+    antlrcpp::Any visitTypeAnnotation(StaticScriptParser::TypeAnnotationContext *ctx) override;
+
+    antlrcpp::Any visitType(StaticScriptParser::TypeContext *ctx) override;
+
+    antlrcpp::Any visitArrayType(StaticScriptParser::ArrayTypeContext *ctx) override;
+
+    antlrcpp::Any visitAtomicType(StaticScriptParser::AtomicTypeContext *ctx) override;
 
     antlrcpp::Any visitFunctionDeclaration(StaticScriptParser::FunctionDeclarationContext *ctx) override;
 
@@ -46,21 +49,13 @@ public:
 
     antlrcpp::Any visitFunctionBody(StaticScriptParser::FunctionBodyContext *ctx) override;
 
-    antlrcpp::Any visitCallExpression(StaticScriptParser::CallExpressionContext *ctx) override;
-
-    antlrcpp::Any visitArgumentList(StaticScriptParser::ArgumentListContext *ctx) override;
-
     antlrcpp::Any visitCompoundStatement(StaticScriptParser::CompoundStatementContext *ctx) override;
 
     antlrcpp::Any visitExpressionStatement(StaticScriptParser::ExpressionStatementContext *ctx) override;
 
     antlrcpp::Any visitExpression(StaticScriptParser::ExpressionContext *ctx);
 
-    antlrcpp::Any visitLiteralExpr(StaticScriptParser::LiteralExprContext *ctx) override;
-
-    antlrcpp::Any visitIdentifierExpr(StaticScriptParser::IdentifierExprContext *ctx) override;
-
-    antlrcpp::Any visitParenExpr(StaticScriptParser::ParenExprContext *ctx) override;
+    antlrcpp::Any visitArraySubscriptExpr(StaticScriptParser::ArraySubscriptExprContext *ctx) override;
 
     antlrcpp::Any visitCallExpr(StaticScriptParser::CallExprContext *ctx) override;
 
@@ -70,7 +65,19 @@ public:
 
     antlrcpp::Any visitBinaryExpr(StaticScriptParser::BinaryExprContext *ctx) override;
 
+    antlrcpp::Any visitIdentifierExpr(StaticScriptParser::IdentifierExprContext *ctx) override;
+
+    antlrcpp::Any visitLiteralExpr(StaticScriptParser::LiteralExprContext *ctx) override;
+
+    antlrcpp::Any visitParenExpr(StaticScriptParser::ParenExprContext *ctx) override;
+
+    antlrcpp::Any visitCallExpression(StaticScriptParser::CallExpressionContext *ctx) override;
+
+    antlrcpp::Any visitArgumentList(StaticScriptParser::ArgumentListContext *ctx) override;
+
     antlrcpp::Any visitLiteral(StaticScriptParser::LiteralContext *ctx) override;
+
+    antlrcpp::Any visitArrayLiteral(StaticScriptParser::ArrayLiteralContext *ctx) override;
 
     antlrcpp::Any visitSelectionStatement(StaticScriptParser::SelectionStatementContext *ctx) override;
 

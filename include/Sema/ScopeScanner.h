@@ -2,10 +2,9 @@
 
 #include "Entity/Scope.h"
 #include "Sema/ASTVisitor.h"
-#include "Support/Exception.h"
 
 /// 作用域扫描器
-class ScopeScanner final : public ASTVisitor {
+class ScopeScanner final : public ASTVisitorWithScope {
 public:
     void visit(const SharedPtr<ModuleNode> &module) override;
 
@@ -21,6 +20,8 @@ public:
 
     void visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) override;
 
+    void visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr) override;
+
     void visit(const SharedPtr<IdentifierExprNode> &varExpr) override;
 
     void visit(const SharedPtr<CallExprNode> &callExpr) override;
@@ -28,6 +29,8 @@ public:
     void visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) override;
 
     void visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) override;
+
+    void visit(const SharedPtr<ArraySubscriptExprNode> &asExpr) override;
 
     void visit(const SharedPtr<ExprStmtNode> &exprStmt) override;
 

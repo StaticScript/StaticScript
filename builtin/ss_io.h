@@ -1,8 +1,7 @@
 #pragma once
 
-#include <stdlib.h>
 #include <stdio.h>
-#include "ss_base.h"
+#include <stdlib.h>
 #include "ss_string.h"
 
 ss_string *ss_integer2string(long number);

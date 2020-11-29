@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Support/Alias.h"
 
 template<typename K, typename V>

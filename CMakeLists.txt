@@ -4,6 +4,10 @@ project(StaticScript CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(DEBUG_MODE true)
+endif ()
+
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 0)
 set(PROJECT_VERSION_PATCH 1)
@@ -17,7 +21,7 @@ include(AddLLVM)
 
 include(AddDoxygen)
 
-configure_file(include/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
+configure_file(include/Config/Config.h.in ${PROJECT_BINARY_DIR}/include/Config/Config.h)
 
 include_directories(${PROJECT_BINARY_DIR}/include)
 

@@ -8,19 +8,20 @@ void IRGenerator::visit(const SharedPtr<VarDeclNode> &varDecl) {
     bool hasInitVal = bool(varDecl->initVal);
     // 区分全局变量和局部变量
     if (varDecl->scope->isTopLevel()) {
-        // 变量初始值为字面量
         bool isLiteralInit = bool(dynPtrCast<LiteralExprNode>(varDecl->initVal));
-        // 是否为字符串类型变量
-        bool isStringVar = varDecl->type == BuiltinTypeNode::STRING_TYPE;
+        bool isBoolean = varDecl->type->equals(AtomicType::BOOLEAN_TYPE);
+        bool isInteger = varDecl->type->equals(AtomicType::INTEGER_TYPE);
+        bool isStringVar = varDecl->type->equals(AtomicType::STRING_TYPE);
+        bool isArrayVar = varDecl->type->isArray();
         llvm::Constant *initializer;
-        if (isStringVar) {
+        if (isStringVar || isArrayVar) {
             initializer = llvm::ConstantPointerNull::getNullValue(type);
+        } else if (isLiteralInit) {
+            // 初始值为布尔和整数字面量
+            initializer = llvm::cast<LLVMConstantInt>(varDecl->initVal->code);
         } else {
-            if (isLiteralInit) {
-                initializer = LLVMCast<LLVMConstantInt>(varDecl->initVal->code);
-            } else {
-                initializer = llvm::ConstantInt::get(type, 0);
-            }
+            // 初始值为布尔和整数类型的表达式
+            initializer = llvm::ConstantInt::get(type, 0);
         }
         auto *gVar = new LLVMGlobalVariable(
                 *llvmModule,
@@ -31,12 +32,12 @@ void IRGenerator::visit(const SharedPtr<VarDeclNode> &varDecl) {
                 varDecl->name
         );
         uint64_t alignment = 8;
-        if (varDecl->type == BuiltinTypeNode::BOOLEAN_TYPE) {
+        if (isBoolean) {
             alignment = 1;
         }
         gVar->setAlignment(llvm::MaybeAlign(alignment));
-        // 如果为字符串或者有非字面量的初始值
-        if (isStringVar || (hasInitVal && !isLiteralInit)) {
+        // 在main函数中store字符串和数组的指针值或者非字面量的表达式值
+        if (isStringVar || isArrayVar || (hasInitVal && !isLiteralInit)) {
             llvmIRBuilder.CreateStore(varDecl->initVal->code, gVar);
         }
         varDecl->code = gVar;
@@ -84,5 +85,5 @@ void IRGenerator::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
             llvmIRBuilder.CreateRetVoid();
         }
     }
-    LLVMVerifyFunction(*func);
+    llvm::verifyFunction(*func);
 }

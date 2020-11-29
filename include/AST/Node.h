@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "Support/Alias.h"
+#include "Support/LLVM.h"
 
 class ASTVisitor;
 

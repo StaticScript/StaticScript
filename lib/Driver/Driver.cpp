@@ -1,7 +1,4 @@
 #include <antlr4-runtime.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/InitLLVM.h>
-#include <llvm/Support/raw_ostream.h>
 #include "StaticScriptLexer.h"
 #include "StaticScriptParser.h"
 #include "AST/ASTBuilder.h"
@@ -11,10 +8,11 @@
 #include "Sema/SemanticValidator.h"
 #include "CodeGen/IRGenerator.h"
 #include "Optimization/Optimizer.h"
+#include "Support/Alias.h"
 #include "Support/LLVM.h"
-#include "Support/Exception.h"
+#include "Support/Error.h"
 
-int drive(int argc, char **argv) {
+int main(int argc, char **argv) {
     llvm::InitLLVM X(argc, argv);
     llvm::cl::getRegisteredOptions().clear();
     llvm::cl::OptionCategory generalOptsCat("General Options");
@@ -77,12 +75,10 @@ int drive(int argc, char **argv) {
     }
 
     if (!llvm::sys::fs::exists(inputFilename)) {
-        throw DriverException("Not found input file");
+        reportDriverError("Not found input file");
     }
     std::ifstream fin(inputFilename.data());
-    if (!fin) {
-        throw DriverException("Open input file failed");
-    }
+    reportOnDriverError(!fin, "Open input file failed");
 
     antlr4::ANTLRInputStream inputStream(fin);
     StaticScriptLexer lexer(&inputStream);
@@ -130,9 +126,7 @@ int drive(int argc, char **argv) {
     std::error_code ec;
     llvm::raw_fd_ostream dest(outputFilename, ec, llvm::sys::fs::OF_None);
 
-    if (ec) {
-        throw DriverException("Could not create file: " + ec.message());
-    }
+    reportOnDriverError(bool(ec),"Could not create file: " + ec.message());
 
     if (emitLLVM) {
         dest << llvmModule;
@@ -140,7 +134,7 @@ int drive(int argc, char **argv) {
         llvm::legacy::PassManager pass;
         auto fileType = llvm::CGFT_ObjectFile;
         if (targetMachine->addPassesToEmitFile(pass, dest, nullptr, fileType)) {
-            throw DriverException("TargetMachine can't emit a object file");
+            reportDriverError("TargetMachine can't emit a object file");
         }
         pass.run(llvmModule);
     }
@@ -148,19 +142,4 @@ int drive(int argc, char **argv) {
     dest.close();
     fin.close();
     return 0;
-}
-
-
-int main(int argc, char **argv) {
-    try {
-        return drive(argc, argv);
-    } catch (const SemanticException &e) {
-        llvm::errs() << "[Semantic Exception] " << e.what() << '\n';
-    } catch (const CodeGenException &e) {
-        llvm::errs() << "[CodeGen Exception] " << e.what() << '\n';
-    } catch (const DriverException &e) {
-        llvm::errs() << "[Driver Exception] " << e.what() << '\n';
-    } catch (const std::exception &e) {
-        llvm::errs() << "[Unknown Exception] " << e.what() << '\n';
-    }
 }

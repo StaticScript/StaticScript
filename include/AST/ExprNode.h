@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Entity/Type.h"
 #include "AST/Node.h"
-#include "AST/TypeNode.h"
 #include "AST/StmtNode.h"
 
 class FunctionDeclNode;
@@ -11,28 +11,34 @@ class ExprNode : public Node {
 public:
     ExprNode() = default;
 
-    explicit ExprNode(const SharedPtr<BuiltinTypeNode> &type);
+    explicit ExprNode(const SharedPtr<Type> &type);
 
     ~ExprNode() override = default;
 
-    SharedPtr<BuiltinTypeNode> inferType = nullptr;
+    SharedPtr<Type> inferType = nullptr;
 
     // 当前表达式的ir
     LLVMValue *code = nullptr;
 };
 
 /// 字面量表达式节点
-class LiteralExprNode : public ExprNode {
+class LiteralExprNode: public ExprNode {
 public:
-    explicit LiteralExprNode(const SharedPtr<BuiltinTypeNode> &type);
-
     LiteralExprNode() = default;
 
-    ~LiteralExprNode() override = default;
+    explicit LiteralExprNode(const SharedPtr<Type> &type);
+};
+
+/// 原子字面量表达式节点
+class AtomicLiteralExprNode : public LiteralExprNode {
+public:
+    explicit AtomicLiteralExprNode(const SharedPtr<AtomicType> &type);
+
+    ~AtomicLiteralExprNode() override = default;
 };
 
 /// 布尔值字面量表达式节点
-class BooleanLiteralExprNode : public LiteralExprNode {
+class BooleanLiteralExprNode : public AtomicLiteralExprNode {
 public:
     explicit BooleanLiteralExprNode(bool literal);
 
@@ -44,29 +50,43 @@ public:
 };
 
 /// 整数字面量表达式节点
-class IntegerLiteralExprNode : public LiteralExprNode {
+class IntegerLiteralExprNode : public AtomicLiteralExprNode {
 public:
-    explicit IntegerLiteralExprNode(int literal);
+    explicit IntegerLiteralExprNode(long literal);
 
     ~IntegerLiteralExprNode() override = default;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
-    int literal;
+    long literal;
 };
 
 /// 字符串字面量表达式节点
-class StringLiteralExprNode : public LiteralExprNode {
+class StringLiteralExprNode : public AtomicLiteralExprNode {
 public:
-    explicit StringLiteralExprNode(String literal);
+    explicit StringLiteralExprNode();
 
-    StringLiteralExprNode() = default;
+    explicit StringLiteralExprNode(String literal);
 
     ~StringLiteralExprNode() override = default;
 
     void accept(const SharedPtr<ASTVisitor> &visitor) override;
 
     String literal;
+};
+
+/// 数组字面量表达式
+class ArrayLiteralExprNode: public LiteralExprNode {
+public:
+    explicit ArrayLiteralExprNode();
+
+    explicit ArrayLiteralExprNode(const SharedPtr<Type> &type);
+
+    ~ArrayLiteralExprNode() override = default;
+
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
+    SharedPtrVector<ExprNode> elements;
 };
 
 /// 标识符表达式节点
@@ -130,4 +150,17 @@ public:
 
     unsigned int opCode;
     SharedPtr<ExprNode> lhs = nullptr, rhs = nullptr;
+};
+
+/// 数组下标表达式
+class ArraySubscriptExprNode: public ExprNode {
+public:
+    ArraySubscriptExprNode(const SharedPtr<ExprNode> &baseExpr, const SharedPtrVector<ExprNode> &indexExprs);
+
+    ~ArraySubscriptExprNode() override = default;
+
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
+    SharedPtr<ExprNode> baseExpr = nullptr;
+    SharedPtrVector<ExprNode> indexExprs;
 };

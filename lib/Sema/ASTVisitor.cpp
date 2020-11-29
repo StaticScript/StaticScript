@@ -1,6 +1,6 @@
 #include "Sema/ASTVisitor.h"
 
-void ASTVisitor::resolve(const SharedPtr<ModuleNode> &module)  {
+void ASTVisitor::resolve(const SharedPtr<ModuleNode> &module) {
     module->accept(shared_from_this());
 }
 
@@ -10,10 +10,8 @@ void ASTVisitor::visit(const SharedPtr<ModuleNode> &module) {
     }
 }
 
-void ASTVisitor::visit(const SharedPtr<BuiltinTypeNode> &builtinType) {}
-
 void ASTVisitor::visit(const SharedPtr<VarDeclNode> &varDecl) {
-    if(varDecl->initVal) {
+    if (varDecl->initVal) {
         varDecl->initVal->accept(shared_from_this());
     }
 }
@@ -33,6 +31,12 @@ void ASTVisitor::visit(const SharedPtr<IntegerLiteralExprNode> &intLiteralExpr) 
 
 void ASTVisitor::visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) {}
 
+void ASTVisitor::visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr) {
+    for (const SharedPtr<ExprNode> &expr : arrayLiteralExpr->elements) {
+        expr->accept(shared_from_this());
+    }
+}
+
 void ASTVisitor::visit(const SharedPtr<IdentifierExprNode> &varExpr) {}
 
 void ASTVisitor::visit(const SharedPtr<CallExprNode> &callExpr) {
@@ -48,6 +52,13 @@ void ASTVisitor::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
 void ASTVisitor::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     bopExpr->lhs->accept(shared_from_this());
     bopExpr->rhs->accept(shared_from_this());
+}
+
+void ASTVisitor::visit(const SharedPtr<ArraySubscriptExprNode> &asExpr) {
+    asExpr->baseExpr->accept(shared_from_this());
+    for (const SharedPtr<ExprNode> &indexExpr:asExpr->indexExprs) {
+        indexExpr->accept(shared_from_this());
+    }
 }
 
 void ASTVisitor::visit(const SharedPtr<ExprStmtNode> &exprStmt) {

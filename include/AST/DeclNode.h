@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Entity/Type.h"
 #include "AST/Node.h"
-#include "AST/TypeNode.h"
 #include "AST/StmtNode.h"
 #include "AST/ExprNode.h"
 
@@ -23,13 +23,13 @@ public:
     VarDeclNode(
             VarModifier modifier,
             String name,
-            const SharedPtr<BuiltinTypeNode> &type
+            const SharedPtr<Type> &type
     );
 
     VarDeclNode(
             VarModifier modifier,
             String name,
-            const SharedPtr<BuiltinTypeNode> &type,
+            const SharedPtr<Type> &type,
             const SharedPtr<ExprNode> &initVal
     );
 
@@ -43,7 +43,7 @@ public:
 
     VarModifier modifier;
     String name;
-    SharedPtr<BuiltinTypeNode> type = nullptr;
+    SharedPtr<Type> type = nullptr;
     SharedPtr<ExprNode> initVal = nullptr;
 
     // 当前变量声明的alloca/load ir
@@ -53,7 +53,7 @@ public:
 /// 函数参数声明节点
 class ParmVarDeclNode : public VarDeclNode {
 public:
-    ParmVarDeclNode(const String &name, const SharedPtr<BuiltinTypeNode> &type);
+    ParmVarDeclNode(const String &name, const SharedPtr<Type> &type);
 
     ~ParmVarDeclNode() override = default;
 
@@ -68,7 +68,7 @@ public:
     FunctionDeclNode(
             String name,
             const SharedPtrVector<ParmVarDeclNode> &params,
-            const SharedPtr<BuiltinTypeNode> &returnType,
+            const SharedPtr<Type> &returnType,
             const SharedPtr<CompoundStmtNode> &body
     );
 
@@ -80,7 +80,7 @@ public:
 
     String name;
     SharedPtrVector<ParmVarDeclNode> params;
-    SharedPtr<BuiltinTypeNode> returnType = nullptr;
+    SharedPtr<Type> returnType = nullptr;
     SharedPtr<CompoundStmtNode> body = nullptr;
 
     SharedPtr<Scope> internalScope = nullptr;
