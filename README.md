@@ -4,18 +4,18 @@
 
 StaticScript is a statically typed and strongly typed programming language, syntactically like TypeScript.
 
-![Github Workflow Status](https://img.shields.io/github/workflow/status/StaticScript/StaticScript/Build?style=flat-square)
-![Platform](https://img.shields.io/badge/platform-linux--64%20%7C%20macos--64-brightgreen?style=flat-square)
-![License](https://img.shields.io/github/license/StaticScript/StaticScript?style=flat-square)
+![Github Workflow Status](https://img.shields.io/github/workflow/status/StaticScript/StaticScript/Build?style=for-the-badge)
+![Platform](https://img.shields.io/badge/platform-linux--64%20%7C%20macos--64-brightgreen?style=for-the-badge)
+![License](https://img.shields.io/github/license/StaticScript/StaticScript?style=for-the-badge)
 
-![GitHub Repo stars](https://img.shields.io/github/stars/StaticScript/StaticScript?style=flat-square)
-![GitHub forks](https://img.shields.io/github/forks/StaticScript/StaticScript?style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues-raw/StaticScript/StaticScript?style=flat-square)
-![GitHub pull requests](https://img.shields.io/github/issues-pr-raw/StaticScript/StaticScript?style=flat-square)
+![GitHub Repo stars](https://img.shields.io/github/stars/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
+![GitHub forks](https://img.shields.io/github/forks/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
+![GitHub issues](https://img.shields.io/github/issues-raw/StaticScript/StaticScript?style=for-the-badge)
+![GitHub pull requests](https://img.shields.io/github/issues-pr-raw/StaticScript/StaticScript?style=for-the-badge)
 
-![GitHub Repository Size](https://img.shields.io/github/repo-size/StaticScript/StaticScript?style=flat-square)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/StaticScript/StaticScript?style=flat-square)
-![GitHub top language](https://img.shields.io/github/languages/top/StaticScript/StaticScript?style=flat-square)
+![GitHub Repository Size](https://img.shields.io/github/repo-size/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
+![GitHub top language](https://img.shields.io/github/languages/top/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
 
 English | [简体中文](./README-zh_CN.md)
 
