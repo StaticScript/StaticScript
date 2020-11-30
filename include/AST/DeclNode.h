@@ -22,6 +22,11 @@ public:
 
     VarDeclNode(
             VarModifier modifier,
+            const SharedPtr<Type> &type
+    );
+
+    VarDeclNode(
+            VarModifier modifier,
             String name,
             const SharedPtr<Type> &type
     );
@@ -53,6 +58,8 @@ public:
 /// 函数参数声明节点
 class ParmVarDeclNode : public VarDeclNode {
 public:
+    explicit ParmVarDeclNode(const SharedPtr<Type> &type);
+
     ParmVarDeclNode(const String &name, const SharedPtr<Type> &type);
 
     ~ParmVarDeclNode() override = default;
@@ -64,6 +71,17 @@ public:
 class FunctionDeclNode : public DeclNode {
 public:
     static SharedPtrMap<String, FunctionDeclNode> getBuiltinFunctions();
+
+    FunctionDeclNode(
+            String name,
+            const SharedPtrVector<ParmVarDeclNode> &params
+    );
+
+    FunctionDeclNode(
+            String name,
+            const SharedPtrVector<ParmVarDeclNode> &params,
+            const SharedPtr<Type> &returnType
+    );
 
     FunctionDeclNode(
             String name,

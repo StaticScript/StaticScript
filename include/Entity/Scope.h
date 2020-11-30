@@ -63,7 +63,7 @@ public:
 private:
     SharedPtrMap<String, FunctionDeclNode> functions;
 
-    SharedPtrMap<String, FunctionDeclNode> builtinFunctions = FunctionDeclNode::getBuiltinFunctions();
+    SharedPtrMap<String, FunctionDeclNode> libFunctions = FunctionDeclNode::getBuiltinFunctions();
 };
 
 /// 局部作用域

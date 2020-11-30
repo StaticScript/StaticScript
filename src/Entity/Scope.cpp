@@ -39,7 +39,7 @@ SharedPtr<VarDeclNode> TopLevelScope::resolveVariable(const String &name) {
 SharedPtr<FunctionDeclNode> TopLevelScope::resolveFunction(const String &name) {
     SharedPtr<FunctionDeclNode> function = mapFind(functions, name);
     if (!function) {
-        return mapFind(builtinFunctions, name);
+        return mapFind(libFunctions, name);
     }
     return function;
 }

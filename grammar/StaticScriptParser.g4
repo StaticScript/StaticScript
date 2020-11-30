@@ -97,7 +97,7 @@ expressionStatement
     ;
 
 expression
-    : base=expression (OpenBracket index+=expression CloseBracket)+                                      # ArraySubscriptExpr
+    : base=expression (OpenBracket index+=expression CloseBracket)+                                     # ArraySubscriptExpr
     | callExpression                                                                                    # CallExpr
     | expression uop=(PlusPlus | MinusMinus)                                                            # PostfixUnaryExpr
     | <assoc=right> uop=(Not | BitNot | Plus | Minus | PlusPlus | MinusMinus) expression                # PrefixUnaryExpr

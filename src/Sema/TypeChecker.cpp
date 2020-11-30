@@ -71,7 +71,7 @@ void TypeChecker::visit(const SharedPtr<CallExprNode> &callExpr) {
         reportTypeError("The number of arguments did not match when calling '" + callExpr->calleeName + "' function");
     }
     for (size_t i = 0; i < argsSize; ++i) {
-        if (callExpr->args[i]->inferType != callExpr->refFuncDecl->params[i]->type) {
+        if (!callExpr->args[i]->inferType->equals(callExpr->refFuncDecl->params[i]->type)) {
             reportTypeError(
                     "The type of the " +
                     std::to_string(i + 1) +
@@ -112,7 +112,7 @@ void TypeChecker::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     const SharedPtr<Type> &rightInferType = bopExpr->rhs->inferType;
 
     // 所有的二元运算符只支持运算同类型的表达式
-    if (leftInferType != rightInferType) {
+    if (!leftInferType->equals(rightInferType)) {
         reportTypeError("Binary operator '" + std::to_string(bop) + "' only supports expressions of the same type");
     }
 

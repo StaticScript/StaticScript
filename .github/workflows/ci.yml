@@ -1,0 +1,176 @@
+name: Continuous Integration
+
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+      - 'README-zh_CN.md'
+      - 'ROADMAP-zh_CN.md'
+      - 'LICENSE'
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'README-zh_CN.md'
+      - 'ROADMAP-zh_CN.md'
+      - 'LICENSE'
+
+jobs:
+  build_on_linux:
+    name: Build on Linux
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-18.04, ubuntu-20.04 ]
+        compiler:
+          - { cc: gcc, cxx: g++ }
+          - { cc: clang, cxx: clang++ }
+    steps:
+      - name: Fetch Codebase
+        uses: actions/checkout@v2
+      - name: Cache Antlr4 and Antlr4 Runtime
+        id: cache-antlr
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/thirdparty
+          key: ${{ matrix.os }}-${{ matrix.compiler.cc }}-antlr
+      - name: Install Prerequirements
+        run: |
+          sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          sudo apt-get -y install uuid-dev pkg-config doxygen graphviz
+      - name: Install Antlr4 and Antlr4 Runtime
+        if: steps.cache-antlr.outputs.cache-hit != 'true'
+        env:
+          CC: ${{ matrix.compiler.cc }}
+          CXX: ${{ matrix.compiler.cxx }}
+        run: |
+          echo "THREAD_COUNT=$(sudo cat /proc/cpuinfo| grep "processor"| wc -l)" >> $GITHUB_ENV
+          sudo mkdir -p thirdparty/antlr && cd thirdparty/antlr
+          sudo wget https://www.antlr.org/download/antlr-4.8-complete.jar
+          sudo wget -O ${{ runner.temp }}/antlr4-src.zip https://www.antlr.org/download/antlr4-cpp-runtime-4.8-source.zip
+          cd ${{ runner.temp }}
+          sudo unzip antlr4-src.zip
+          sudo mkdir build && cd build
+          sudo mkdir -p ${{ github.workspace }}/thirdparty/antlr-runtime
+          sudo cmake .. -DANTLR4_INSTALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/thirdparty/antlr-runtime
+          sudo cmake --build . --target install  -- -j $THREAD_COUNT
+      - name: Move Antlr Runtime into /usr/local
+        run: |
+          cd ${{ github.workspace }}/thirdparty/antlr-runtime
+          sudo cp -r include/* /usr/local/include/
+          sudo cp -r lib/* /usr/local/lib/
+      - name: CMake Build
+        env:
+          CC: ${{ matrix.compiler.cc }}
+          CXX: ${{ matrix.compiler.cxx }}
+        run: |
+          sudo mkdir cmake-build-debug cmake-build-release
+          cd cmake-build-debug
+          sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $THREAD_COUNT
+          cd ../cmake-build-release
+          sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $THREAD_COUNT
+      - name: Upload Debug Executable File
+        uses: actions/upload-artifact@v2
+        with:
+          name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-debug
+          path: |
+            cmake-build-debug/staticscript
+            cmake-build-debug/lib/*.bc
+      - name: Upload Release Executable File
+        uses: actions/upload-artifact@v2
+        with:
+          name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-release
+          path: |
+            cmake-build-release/staticscript
+            cmake-build-release/lib/*.bc
+
+  build_on_macos:
+    name: Build on macOS
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-10.15, macos-11.0 ]
+        compiler:
+          - { cc: gcc, cxx: g++ }
+          - { cc: clang, cxx: clang++ }
+    steps:
+      - name: Install Prerequirements
+        run: brew install antlr antlr4-cpp-runtime doxygen graphviz
+      - name: Fetch Codebase
+        uses: actions/checkout@v2
+      - name: CMake Build
+        env:
+          CC: ${{ matrix.compiler.cc }}
+          CXX: ${{ matrix.compiler.cxx }}
+        run: |
+          echo "THREAD_COUNT=$(sudo sysctl -n machdep.cpu.thread_count)" >> $GITHUB_ENV
+          sudo mkdir cmake-build-debug cmake-build-release
+          cd cmake-build-debug
+          sudo cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $THREAD_COUNT
+          cd ../cmake-build-release
+          sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $THREAD_COUNT
+      - name: Upload Debug Executable File
+        uses: actions/upload-artifact@v2
+        with:
+          name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-debug
+          path: |
+            cmake-build-debug/staticscript
+            cmake-build-debug/lib/*.bc
+      - name: Upload Release Executable File
+        uses: actions/upload-artifact@v2
+        with:
+          name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-release
+          path: |
+            cmake-build-release/staticscript
+            cmake-build-release/lib/*.bc
+
+  test:
+    name: Test
+    needs: [ build_on_linux, build_on_macos ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-18.04, ubuntu-20.04, macos-10.15, macos-11.0 ]
+        compiler:
+          - { cc: gcc, cxx: g++ }
+          - { cc: clang, cxx: clang++ }
+    steps:
+      - name: Fetch Codebase
+        uses: actions/checkout@v2
+      - name: Download Debug Executable File
+        uses: actions/download-artifact@v2
+        with:
+          name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-debug
+          path: executables/debug
+      - name: Download Release Executable File
+        uses: actions/download-artifact@v2
+        with:
+          name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-release
+          path: executables/release
+      - name: Test Exmaple Code on Debug Compiler
+        working-directory: executables/debug
+        run: |
+          chmod +x ./staticscript
+          for file in ${{ github.workspace }}/tests/*.ss
+          do
+            base=$(basename $file)
+            sudo ./staticscript $file -L lib --emit-llvm -o $base.ll
+            sudo ./staticscript $file -L lib -o $base.o
+            sudo clang $base.o -lm -o $base.exe
+            sudo ./$base.exe
+          done
+      - name: Test Exmaple Code on Release Compiler
+        working-directory: executables/release
+        run: |
+          chmod +x ./staticscript
+          for file in ${{ github.workspace }}/tests/*.ss
+          do
+            base=$(basename $file)
+            sudo ./staticscript $file -L lib --emit-llvm -o $base.ll
+            sudo ./staticscript $file -L lib -o $base.o
+            sudo clang $base.o -lm -o $base.exe
+            sudo ./$base.exe
+          done

@@ -21,6 +21,7 @@ int main(int argc, char **argv) {
     llvm::cl::opt<String> outputFilename("o", llvm::cl::value_desc("output file"), llvm::cl::desc("Write output to <output file>"),
                                          llvm::cl::cat(generalOptsCat));
     llvm::cl::opt<bool> emitLLVM("emit-llvm", llvm::cl::desc("Generate the LLVM representation for input file"), llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<String> libDir("L", llvm::cl::desc("Specify lib library directory"));
     llvm::cl::opt<bool> optLevelO0("O0", llvm::cl::desc("Optimization level 0. Similar to clang -O0"),
                                    llvm::cl::cat(generalOptsCat));
     llvm::cl::opt<bool> optLevelO1("O1", llvm::cl::desc("Optimization level 1. Similar to clang -O1"), llvm::cl::cat(generalOptsCat));
@@ -102,7 +103,7 @@ int main(int argc, char **argv) {
     validator->resolve(module);
     // 中间代码生成
     SharedPtr<IRGenerator> generator = makeShared<IRGenerator>();
-    generator->resolve(module);
+    generator->resolve(module, libDir);
 
     LLVMModule &llvmModule = generator->getLLVMModule();
 

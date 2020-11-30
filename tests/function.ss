@@ -22,6 +22,6 @@ function lessThan(a: number, b: number): boolean {
 
 nop();
 nopRet();
-add(1, 2);
-max(1, 2);
-lessThan(1, 2);
+ss_assert(add(1, 2) == 3);
+ss_assert(max(1, 2) == 2);
+ss_assert(lessThan(1, 2));

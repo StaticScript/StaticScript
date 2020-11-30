@@ -1,6 +1,29 @@
 #include "CodeGen/Builtin.h"
 
-void Builtin::initialize(LLVMModule &module, LLVMContext &context) {
+void Builtin::initialize(LLVMModule &module, LLVMContext &context, const llvm::Twine &libDirArg) {
+    llvm::SmallString<256> libPath;
+    if (!libDirArg.str().empty()) {
+        libDirArg.toVector(libPath);
+        if (!llvm::sys::path::is_absolute(libPath)) {
+            if (llvm::sys::fs::make_absolute(libPath)) {
+                reportLinkError("Parse the specified library directory failed");
+            }
+        }
+        if (!llvm::sys::fs::exists(libPath)) {
+            reportLinkError("The specified library directory does not exist");
+        }
+        if (!llvm::sys::fs::is_directory(libPath)) {
+            reportLinkError("The specified library directory is not a directory");
+        }
+        libDir = libPath.str();
+    } else {
+        llvm::sys::fs::current_path(libPath);
+        llvm::sys::path::append(libPath, "lib");
+        if (llvm::sys::fs::exists(libPath) && llvm::sys::fs::is_directory(libPath)) {
+            libDir = libPath.str();
+        }
+    }
+
     BuiltinError::linkModule(module, context);
     BuiltinString::linkModule(module, context);
     BuiltinArray::linkModule(module, context);
@@ -14,7 +37,7 @@ void Builtin::initialize(LLVMModule &module, LLVMContext &context) {
 
 #define BUILTIN_LINK_MODULE(moduleName) \
     llvm::SMDiagnostic error; \
-    String bitcodeFilename = PROJECT_BINARY_DIR"/builtin/ss_"#moduleName".bc"; \
+    String bitcodeFilename = Builtin::libDir + "/ss_"#moduleName".bc"; \
     bool bitcodeExist = llvm::sys::fs::exists(bitcodeFilename); \
     reportOnLinkError(!bitcodeExist, "Not found " + bitcodeFilename); \
     std::unique_ptr<LLVMModule> bitcodeModule = llvm::parseIRFile(bitcodeFilename, error, context); \
@@ -30,6 +53,7 @@ void BuiltinError::getTypeAndFunction(LLVMModule &module) {
     llvm::StructType *errStructType = module.getTypeByName("struct.ss_error");
     type = errStructType->getPointerTo();
     exitIfErrorFunc = module.getFunction("ss_exit_if_error");
+    assertFunc = module.getFunction("ss_assert");
 }
 
 void BuiltinString::linkModule(LLVMModule &module, LLVMContext &context) {

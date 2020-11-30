@@ -1,21 +1,17 @@
-add_subdirectory(Entity)
-add_subdirectory(AST)
-add_subdirectory(Sema)
-add_subdirectory(CodeGen)
-add_subdirectory(Optimization)
-add_subdirectory(Driver)
+set(BUILTIN_LIB_SOURCES ss_error.c ss_string.c ss_array.c ss_io.c)
+set(BUILTIN_LIB_BITCODES ss_error.bc ss_string.bc ss_array.bc ss_io.bc)
 
-add_executable(
-        staticscript
-        $<TARGET_OBJECTS:parser>
-        $<TARGET_OBJECTS:entity>
-        $<TARGET_OBJECTS:ast>
-        $<TARGET_OBJECTS:sema>
-        $<TARGET_OBJECTS:codegen>
-        $<TARGET_OBJECTS:optimization>
-        $<TARGET_OBJECTS:driver>
+add_custom_command(
+        OUTPUT ${BUILTIN_LIB_BITCODES}
+        COMMAND clang -c -emit-llvm ${PROJECT_SOURCE_DIR}/lib/ss_error.c -std=c99 -O2 -o ss_error.bc
+        COMMAND clang -c -emit-llvm ${PROJECT_SOURCE_DIR}/lib/ss_string.c -std=c99 -O2 -o ss_string.bc
+        COMMAND clang -c -emit-llvm ${PROJECT_SOURCE_DIR}/lib/ss_array.c -std=c99 -O2 -o ss_array.bc
+        COMMAND clang -c -emit-llvm ${PROJECT_SOURCE_DIR}/lib/ss_io.c -std=c99 -O2 -o ss_io.bc
+        COMMAND sudo mkdir -p /usr/local/staticscript/lib && sudo cp ss_*.bc /usr/local/staticscript/lib
+        DEPENDS ${BUILTIN_LIB_SOURCES}
 )
 
-add_dependencies(staticscript antlr4_static)
-
-target_link_libraries(staticscript PRIVATE antlr4_static ${llvm_libs})
+add_custom_target(
+        lib
+        DEPENDS ${BUILTIN_LIB_BITCODES}
+)

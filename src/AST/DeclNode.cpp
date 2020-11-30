@@ -6,6 +6,11 @@ VarDeclNode::VarDeclNode() : modifier(VarModifier::Let) {}
 
 VarDeclNode::VarDeclNode(
         VarModifier modifier,
+        const SharedPtr<Type> &type
+) : modifier(modifier), type(type) {}
+
+VarDeclNode::VarDeclNode(
+        VarModifier modifier,
         String name,
         const SharedPtr<Type> &type
 ) : modifier(modifier), name(std::move(name)), type(type) {}
@@ -35,6 +40,10 @@ bool VarDeclNode::isConstant() const {
 }
 
 ParmVarDeclNode::ParmVarDeclNode(
+        const SharedPtr<Type> &type
+) : VarDeclNode(VarModifier::Param, type) {}
+
+ParmVarDeclNode::ParmVarDeclNode(
         const String &name,
         const SharedPtr<Type> &type
 ) : VarDeclNode(VarModifier::Param, name, type) {}
@@ -45,18 +54,35 @@ void ParmVarDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
 
 SharedPtrMap<String, FunctionDeclNode> FunctionDeclNode::getBuiltinFunctions() {
     SharedPtrMap<String, FunctionDeclNode> functions;
-    SharedPtr<ParmVarDeclNode> integerArg = makeShared<ParmVarDeclNode>("number", AtomicType::INTEGER_TYPE);
-    SharedPtr<ParmVarDeclNode> strArg = makeShared<ParmVarDeclNode>("str", AtomicType::STRING_TYPE);
+    SharedPtr<ParmVarDeclNode> booleanArg = makeShared<ParmVarDeclNode>(AtomicType::BOOLEAN_TYPE);
+    SharedPtr<ParmVarDeclNode> integerArg = makeShared<ParmVarDeclNode>(AtomicType::INTEGER_TYPE);
+    SharedPtr<ParmVarDeclNode> strArg = makeShared<ParmVarDeclNode>(AtomicType::STRING_TYPE);
+    SharedPtrVector<ParmVarDeclNode> booleanArgs{booleanArg};
     SharedPtrVector<ParmVarDeclNode> integerArgs{integerArg};
     SharedPtrVector<ParmVarDeclNode> strArgs{strArg};
-    functions["ss_integer2string"] = makeShared<FunctionDeclNode>("ss_integer2string", integerArgs, AtomicType::STRING_TYPE, nullptr);
-    functions["ss_string2integer"] = makeShared<FunctionDeclNode>("ss_string2integer", strArgs, AtomicType::INTEGER_TYPE, nullptr);
-    functions["ss_print_integer"] = makeShared<FunctionDeclNode>("ss_print_integer", integerArgs, nullptr, nullptr);
-    functions["ss_println_integer"] = makeShared<FunctionDeclNode>("ss_println_integer", integerArgs, nullptr, nullptr);
-    functions["ss_print_string"] = makeShared<FunctionDeclNode>("ss_print_string", strArgs, nullptr, nullptr);
-    functions["ss_println_string"] = makeShared<FunctionDeclNode>("ss_println_string", strArgs, nullptr, nullptr);
+    functions["ss_integer2string"] = makeShared<FunctionDeclNode>("ss_integer2string", integerArgs, AtomicType::STRING_TYPE);
+    functions["ss_string2integer"] = makeShared<FunctionDeclNode>("ss_string2integer", strArgs, AtomicType::INTEGER_TYPE);
+    functions["ss_print_integer"] = makeShared<FunctionDeclNode>("ss_print_integer", integerArgs);
+    functions["ss_println_integer"] = makeShared<FunctionDeclNode>("ss_println_integer", integerArgs);
+    functions["ss_print_string"] = makeShared<FunctionDeclNode>("ss_print_string", strArgs);
+    functions["ss_println_string"] = makeShared<FunctionDeclNode>("ss_println_string", strArgs);
+    functions["ss_assert"] = makeShared<FunctionDeclNode>("ss_assert", booleanArgs);
     return functions;
 }
+
+FunctionDeclNode::FunctionDeclNode(
+        String name,
+        const SharedPtrVector<ParmVarDeclNode> &params
+) : name(std::move(name)),
+    params(params) {}
+
+FunctionDeclNode::FunctionDeclNode(
+        String name,
+        const SharedPtrVector<ParmVarDeclNode> &params,
+        const SharedPtr<Type> &returnType
+) : name(std::move(name)),
+    params(params),
+    returnType(returnType) {}
 
 FunctionDeclNode::FunctionDeclNode(
         String name,

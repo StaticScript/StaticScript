@@ -9,3 +9,10 @@ void ss_exit_if_error(ss_error *error) {
         ss_error_delete(error);
     }
 }
+
+void ss_assert(bool condition) {
+    if (!condition) {
+        printf("\033[0;31m""assert failed\n""\033[0m");
+        abort();
+    }
+}

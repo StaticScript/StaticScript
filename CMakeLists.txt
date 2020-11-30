@@ -27,6 +27,21 @@ include_directories(${PROJECT_BINARY_DIR}/include)
 
 include_directories(include)
 
-add_subdirectory(builtin)
-
 add_subdirectory(lib)
+
+add_subdirectory(src)
+
+add_executable(
+        staticscript
+        $<TARGET_OBJECTS:parser>
+        $<TARGET_OBJECTS:entity>
+        $<TARGET_OBJECTS:ast>
+        $<TARGET_OBJECTS:sema>
+        $<TARGET_OBJECTS:codegen>
+        $<TARGET_OBJECTS:optimization>
+        $<TARGET_OBJECTS:driver>
+)
+
+add_dependencies(staticscript antlr4_static)
+
+target_link_libraries(staticscript PRIVATE antlr4_static ${llvm_libs})

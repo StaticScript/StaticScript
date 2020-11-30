@@ -7,7 +7,9 @@
 
 class Builtin {
 public:
-    static void initialize(LLVMModule &module, LLVMContext &context);
+    static void initialize(LLVMModule &module, LLVMContext &context, const llvm::Twine &libDirArg);
+
+    static inline String libDir = STATICSCRIPT_LIB_DIR; // NOLINT
 };
 
 class BuiltinError {
@@ -18,6 +20,7 @@ public:
 
     static inline llvm::PointerType *type = nullptr;
     static inline LLVMFunction *exitIfErrorFunc = nullptr;
+    static inline LLVMFunction *assertFunc = nullptr;
 };
 
 class BuiltinString {

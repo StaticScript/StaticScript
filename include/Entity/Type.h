@@ -19,6 +19,10 @@ public:
 
     [[nodiscard]] virtual bool isUnknown() const = 0;
 
+    bool operator==(const Type &rhs) = delete;
+
+    bool operator!=(const Type &rhs) = delete;
+
     [[nodiscard]] bool equals(const SharedPtr<Type> &rhs) const;
 };
 

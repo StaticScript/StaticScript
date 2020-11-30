@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct {
     int code;
@@ -47,3 +48,5 @@ static void ss_error_delete(ss_error *error) {
 }
 
 void ss_exit_if_error(ss_error *error);
+
+void ss_assert(bool condition);

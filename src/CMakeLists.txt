@@ -1,0 +1,6 @@
+add_subdirectory(Entity)
+add_subdirectory(AST)
+add_subdirectory(Sema)
+add_subdirectory(CodeGen)
+add_subdirectory(Optimization)
+add_subdirectory(Driver)

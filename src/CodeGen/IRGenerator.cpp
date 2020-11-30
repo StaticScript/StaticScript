@@ -3,9 +3,9 @@
 
 IRGenerator::IRGenerator() : llvmIRBuilder(llvmContext) {}
 
-void IRGenerator::resolve(const SharedPtr<ModuleNode> &module) {
+void IRGenerator::resolve(const SharedPtr<ModuleNode> &module, const llvm::Twine &libDir) {
     llvmModule = makeShared<LLVMModule>(module->filename, llvmContext);
-    Builtin::initialize(*llvmModule, llvmContext);
+    Builtin::initialize(*llvmModule, llvmContext, libDir);
     ASTVisitor::resolve(module);
     llvm::verifyModule(*llvmModule);
     runPasses(*llvmModule);

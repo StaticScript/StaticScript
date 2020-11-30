@@ -5,3 +5,5 @@ if (x < y) {
 } else {
     y = y + 1;
 }
+ss_assert(x == 1);
+ss_assert(y == 1);

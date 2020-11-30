@@ -8,11 +8,11 @@
 #include "Support/Error.h"
 #include "Support/LLVM.h"
 
-class IRGenerator : public ASTVisitor {
+class IRGenerator final: public ASTVisitor {
 public:
     explicit IRGenerator();
 
-    void resolve(const SharedPtr<ModuleNode> &module) override;
+    void resolve(const SharedPtr<ModuleNode> &module, const llvm::Twine &libDir);
 
     void visit(const SharedPtr<ModuleNode> &module) override;
 
