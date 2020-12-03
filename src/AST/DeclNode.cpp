@@ -54,16 +54,22 @@ void ParmVarDeclNode::accept(const SharedPtr<ASTVisitor> &visitor) {
 
 SharedPtrMap<String, FunctionDeclNode> FunctionDeclNode::getBuiltinFunctions() {
     SharedPtrMap<String, FunctionDeclNode> functions;
-    SharedPtr<ParmVarDeclNode> booleanArg = makeShared<ParmVarDeclNode>(AtomicType::BOOLEAN_TYPE);
-    SharedPtr<ParmVarDeclNode> integerArg = makeShared<ParmVarDeclNode>(AtomicType::INTEGER_TYPE);
-    SharedPtr<ParmVarDeclNode> strArg = makeShared<ParmVarDeclNode>(AtomicType::STRING_TYPE);
+    SharedPtr<ParmVarDeclNode> booleanArg = makeShared<ParmVarDeclNode>(BasicType::BOOLEAN_TYPE);
+    SharedPtr<ParmVarDeclNode> integerArg = makeShared<ParmVarDeclNode>(BasicType::INTEGER_TYPE);
+    SharedPtr<ParmVarDeclNode> floatArg = makeShared<ParmVarDeclNode>(BasicType::FLOAT_TYPE);
+    SharedPtr<ParmVarDeclNode> strArg = makeShared<ParmVarDeclNode>(BasicType::STRING_TYPE);
     SharedPtrVector<ParmVarDeclNode> booleanArgs{booleanArg};
     SharedPtrVector<ParmVarDeclNode> integerArgs{integerArg};
+    SharedPtrVector<ParmVarDeclNode> floatArgs{floatArg};
     SharedPtrVector<ParmVarDeclNode> strArgs{strArg};
-    functions["ss_integer2string"] = makeShared<FunctionDeclNode>("ss_integer2string", integerArgs, AtomicType::STRING_TYPE);
-    functions["ss_string2integer"] = makeShared<FunctionDeclNode>("ss_string2integer", strArgs, AtomicType::INTEGER_TYPE);
+    functions["ss_integer2string"] = makeShared<FunctionDeclNode>("ss_integer2string", integerArgs, BasicType::STRING_TYPE);
+    functions["ss_string2integer"] = makeShared<FunctionDeclNode>("ss_string2integer", strArgs, BasicType::INTEGER_TYPE);
+    functions["ss_float2string"] = makeShared<FunctionDeclNode>("ss_float2string", floatArgs, BasicType::STRING_TYPE);
+    functions["ss_string2float"] = makeShared<FunctionDeclNode>("ss_string2float", strArgs, BasicType::FLOAT_TYPE);
     functions["ss_print_integer"] = makeShared<FunctionDeclNode>("ss_print_integer", integerArgs);
     functions["ss_println_integer"] = makeShared<FunctionDeclNode>("ss_println_integer", integerArgs);
+    functions["ss_print_float"] = makeShared<FunctionDeclNode>("ss_print_float", floatArgs);
+    functions["ss_println_float"] = makeShared<FunctionDeclNode>("ss_println_float", floatArgs);
     functions["ss_print_string"] = makeShared<FunctionDeclNode>("ss_print_string", strArgs);
     functions["ss_println_string"] = makeShared<FunctionDeclNode>("ss_println_string", strArgs);
     functions["ss_assert"] = makeShared<FunctionDeclNode>("ss_assert", booleanArgs);

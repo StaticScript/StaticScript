@@ -27,6 +27,8 @@ public:
 
     virtual void visit(const SharedPtr<IntegerLiteralExprNode> &intLiteralExpr);
 
+    virtual void visit(const SharedPtr<FloatLiteralExprNode> &floatLiteralExpr);
+
     virtual void visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr);
 
     virtual void visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr);

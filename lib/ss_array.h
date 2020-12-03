@@ -51,6 +51,8 @@ static ss_array *ss_array_create(size_t capacity, size_t element_size, ss_error 
 
 ss_array *ss_array_create_integer_array(ss_error **error);
 
+ss_array *ss_array_create_float_array(ss_error **error);
+
 ss_array *ss_array_create_boolean_array(ss_error **error);
 
 ss_array *ss_array_create_string_array(ss_error **error);
@@ -69,6 +71,8 @@ ss_array *ss_array_create_array_array(ss_error **error);
     return arr;
 
 ss_array *ss_array_create_integer_array_with_literal(long literal_list[], size_t size, ss_error **error);
+
+ss_array *ss_array_create_float_array_with_literal(double literal_list[], size_t size, ss_error **error);
 
 ss_array *ss_array_create_boolean_array_with_literal(bool literal_list[], size_t size, ss_error **error);
 
@@ -97,6 +101,8 @@ bool ss_array_is_nd_array(ss_array *arr, ss_error **error);
 
 void ss_array_push_integer(ss_array *arr, long new_element, ss_error **error);
 
+void ss_array_push_float(ss_array *arr, double new_element, ss_error **error);
+
 void ss_array_push_boolean(ss_array *arr, bool new_element, ss_error **error);
 
 void ss_array_push_string(ss_array *arr, ss_string *new_element, ss_error **error);
@@ -114,6 +120,8 @@ void ss_array_push_array(ss_array *arr, ss_array *new_element, ss_error **error)
     return buffer[--arr->size];
 
 long ss_array_pop_integer(ss_array *arr, ss_error **error);
+
+double ss_array_pop_float(ss_array *arr, ss_error **error);
 
 bool ss_array_pop_boolean(ss_array *arr, ss_error **error);
 
@@ -133,6 +141,8 @@ ss_array *ss_array_pop_array(ss_array *arr, ss_error **error);
 
 long ss_array_get_integer(ss_array *arr, size_t index, ss_error **error);
 
+double ss_array_get_float(ss_array *arr, size_t index, ss_error **error);
+
 bool ss_array_get_boolean(ss_array *arr, size_t index, ss_error **error);
 
 ss_string *ss_array_get_string(ss_array *arr, size_t index, ss_error **error);
@@ -150,6 +160,8 @@ ss_array *ss_array_get_array(ss_array *arr, size_t index, ss_error **error);
     buffer[index] = element;
 
 void ss_array_set_integer(ss_array *arr, size_t index, long element, ss_error **error);
+
+void ss_array_set_float(ss_array *arr, size_t index, double element, ss_error **error);
 
 void ss_array_set_boolean(ss_array *arr, size_t index, bool element, ss_error **error);
 

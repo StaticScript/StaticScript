@@ -121,8 +121,18 @@ void IRGenerator::visit(const SharedPtr<BreakStmtNode> &breakStmt) {
 // TODO: 处理函数中间的return语句
 void IRGenerator::visit(const SharedPtr<ReturnStmtNode> &returnStmt) {
     ASTVisitor::visit(returnStmt);
+    const auto &returnExpr = returnStmt->returnExpr;
+    const auto &returnType = returnStmt->refFuncDecl->returnType;
     if (returnStmt->returnExpr) {
-        llvmIRBuilder.CreateRet(returnStmt->returnExpr->code);
+        if (returnExpr->type->isInteger() && returnType->isFloat()) {
+            // 将整型返回值转为浮点型
+            returnExpr->code = integer2float(returnExpr->code);
+        } else if (returnExpr->type->isFloat() && returnType->isInteger()) {
+            // 将浮点返回值转为整型
+            returnExpr->code = float2integer(returnExpr->code);
+        }
+
+        llvmIRBuilder.CreateRet(returnExpr->code);
     } else {
         llvmIRBuilder.CreateRetVoid();
     }

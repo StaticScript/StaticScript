@@ -52,3 +52,11 @@ ss_assert(arr[1][2][0] == 206);
 ss_assert(arr[1][2][1] == 207);
 ss_assert(arr[1][2][2] == 208);
 ss_assert(arr[1][2][3] == 209);
+
+
+let floatArr: number[][] = [[1, 2.3], [1.2, 5]];
+
+ss_assert(floatArr[0][0] == 1);
+ss_assert(floatArr[0][1] == 2.3);
+ss_assert(floatArr[1][0] == 1.2);
+ss_assert(floatArr[1][1] == 5);

@@ -41,6 +41,10 @@ void ScopeScanner::visit(const SharedPtr<IntegerLiteralExprNode> &intLiteralExpr
     intLiteralExpr->scope = getCurrentScope();
 }
 
+void ScopeScanner::visit(const SharedPtr<FloatLiteralExprNode> &floatLiteralExpr) {
+    floatLiteralExpr->scope = getCurrentScope();
+}
+
 void ScopeScanner::visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) {
     strLiteralExpr->scope = getCurrentScope();
 }

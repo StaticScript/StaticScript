@@ -1,5 +1,7 @@
 #include "AST/ASTBuilder.h"
 
+// TODO: bindChildrenInversely
+
 ASTBuilder::ASTBuilder(String filename) : filename(std::move(filename)) {}
 
 antlrcpp::Any ASTBuilder::visitModule(StaticScriptParser::ModuleContext *ctx) {
@@ -125,24 +127,26 @@ antlrcpp::Any ASTBuilder::visitType(StaticScriptParser::TypeContext *ctx) {
     if (ctx->arrayType()) {
         type = visitArrayType(ctx->arrayType()).as<SharedPtr<ArrayType>>();
     } else {
-        type = visitAtomicType(ctx->atomicType()).as<SharedPtr<AtomicType>>();
+        type = visitBasicType(ctx->basicType()).as<SharedPtr<BasicType>>();
     }
     return type;
 }
 
 antlrcpp::Any ASTBuilder::visitArrayType(StaticScriptParser::ArrayTypeContext *ctx) {
-    const SharedPtr<AtomicType> &atomicType = visitAtomicType(ctx->atomicType());
+    const SharedPtr<BasicType> &basicType = visitBasicType(ctx->basicType());
     size_t depth = ctx->OpenBracket().size();
-    return ArrayType::createNDArrayType(atomicType, depth);
+    return ArrayType::createNDArrayType(basicType, depth);
 }
 
-antlrcpp::Any ASTBuilder::visitAtomicType(StaticScriptParser::AtomicTypeContext *ctx) {
+antlrcpp::Any ASTBuilder::visitBasicType(StaticScriptParser::BasicTypeContext *ctx) {
     if (ctx->Boolean()) {
-        return AtomicType::BOOLEAN_TYPE;
+        return BasicType::BOOLEAN_TYPE;
+    } else if (ctx->Integer()) {
+        return BasicType::INTEGER_TYPE;
     } else if (ctx->Number()) {
-        return AtomicType::INTEGER_TYPE;
+        return BasicType::FLOAT_TYPE;
     }
-    return AtomicType::STRING_TYPE;
+    return BasicType::STRING_TYPE;
 }
 
 antlrcpp::Any ASTBuilder::visitFunctionDeclaration(StaticScriptParser::FunctionDeclarationContext *ctx) {
@@ -292,15 +296,36 @@ antlrcpp::Any ASTBuilder::visitLiteral(StaticScriptParser::LiteralContext *ctx) 
     if (ctx->BooleanLiteral()) {
         bool literal = ctx->BooleanLiteral()->getText() == "true";
         literalExpr = makeShared<BooleanLiteralExprNode>(literal);
-    } else if (ctx->IntegerLiteral()) {
-        int literal = std::stoi(ctx->IntegerLiteral()->getText());
-        literalExpr = makeShared<IntegerLiteralExprNode>(literal);
     } else if (ctx->StringLiteral()) {
         String literal = ctx->StringLiteral()->getText();
         literal = literal.substr(1, literal.size() - 2);
         literalExpr = makeShared<StringLiteralExprNode>(literal);
     } else if (ctx->arrayLiteral()) {
         literalExpr = visitArrayLiteral(ctx->arrayLiteral()).as<SharedPtr<ArrayLiteralExprNode>>();
+    } else if (ctx->FloatLiteral()) {
+        double literal = std::stod(ctx->FloatLiteral()->getText());
+        literalExpr = makeShared<FloatLiteralExprNode>(literal);
+    } else {
+        int base = 10;
+        String literalStr;
+        if (ctx->DecimalIntegerLiteral()) {
+            base = 10;
+            literalStr = ctx->DecimalIntegerLiteral()->getText();
+        } else if (ctx->HexIntegerLiteral()) {
+            base = 16;
+            literalStr = ctx->HexIntegerLiteral()->getText();
+            literalStr = literalStr.substr(2, literalStr.size() - 2);
+        } else if (ctx->OctalIntegerLiteral()) {
+            base = 8;
+            literalStr = ctx->OctalIntegerLiteral()->getText();
+            literalStr = literalStr.substr(2, literalStr.size() - 2);
+        } else if (ctx->BinaryIntegerLiteral()) {
+            base = 2;
+            literalStr = ctx->BinaryIntegerLiteral()->getText();
+            literalStr = literalStr.substr(2, literalStr.size() - 2);
+        }
+        long literal = std::stol(literalStr, nullptr, base);
+        literalExpr = makeShared<IntegerLiteralExprNode>(literal);
     }
     return literalExpr;
 }

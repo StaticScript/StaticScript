@@ -35,7 +35,9 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.compiler.cc }}-antlr
       - name: Install Prerequirements
         run: |
-          sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          sudo wget https://apt.llvm.org/llvm.sh
+          sudo chmod +x llvm.sh
+          sudo ./llvm.sh 11
           sudo apt-get -y install uuid-dev pkg-config doxygen graphviz
       - name: Install Antlr4 and Antlr4 Runtime
         if: steps.cache-antlr.outputs.cache-hit != 'true'

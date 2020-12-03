@@ -7,7 +7,6 @@ add_custom_command(
         COMMAND clang -c -emit-llvm ${PROJECT_SOURCE_DIR}/lib/ss_string.c -std=c99 -O2 -o ss_string.bc
         COMMAND clang -c -emit-llvm ${PROJECT_SOURCE_DIR}/lib/ss_array.c -std=c99 -O2 -o ss_array.bc
         COMMAND clang -c -emit-llvm ${PROJECT_SOURCE_DIR}/lib/ss_io.c -std=c99 -O2 -o ss_io.bc
-        COMMAND sudo mkdir -p /usr/local/staticscript/lib && sudo cp ss_*.bc /usr/local/staticscript/lib
         DEPENDS ${BUILTIN_LIB_SOURCES}
 )
 

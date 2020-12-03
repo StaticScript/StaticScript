@@ -18,6 +18,8 @@ public:
 
     void visit(const SharedPtr<IntegerLiteralExprNode> &intLiteralExpr) override;
 
+    void visit(const SharedPtr<FloatLiteralExprNode> &floatLiteralExpr) override;
+
     void visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) override;
 
     void visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr) override;

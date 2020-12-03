@@ -26,11 +26,13 @@ void IRGenerator::visit(const SharedPtr<ModuleNode> &module) {
 LLVMType *IRGenerator::getType(const SharedPtr<Type> &inputType) {
     LLVMType *type = llvmIRBuilder.getVoidTy();
     if (inputType) {
-        if (inputType->equals(AtomicType::BOOLEAN_TYPE)) {
+        if (inputType->isBoolean()) {
             type = llvmIRBuilder.getInt1Ty();
-        } else if (inputType->equals(AtomicType::INTEGER_TYPE)) {
+        } else if (inputType->isInteger()) {
             type = llvmIRBuilder.getInt64Ty();
-        } else if (inputType->equals(AtomicType::STRING_TYPE)) {
+        } else if (inputType->isFloat()) {
+            type = llvmIRBuilder.getDoubleTy();
+        } else if (inputType->isString()) {
             type = BuiltinString::type;
         } else if (inputType->isArray()) {
             type = BuiltinArray::type;
@@ -66,22 +68,24 @@ void IRGenerator::emitBranch(LLVMBasicBlock *targetBB) {
 
 void IRGenerator::setArrayElement(const SharedPtr<ArraySubscriptExprNode> &asExpr, LLVMValue *valueCode) {
     size_t indexExprsSize = asExpr->indexExprs.size();
-    SharedPtr<Type> iterType = asExpr->baseExpr->inferType;
+    SharedPtr<Type> iterType = asExpr->baseExpr->type;
     LLVMValue *iterBaseCode = asExpr->baseExpr->code;
     LLVMValue *errorAlloca = llvmIRBuilder.CreateAlloca(BuiltinError::type);
     llvmIRBuilder.CreateStore(llvm::ConstantPointerNull::get(BuiltinError::type), errorAlloca);
     for (size_t i = 0; i < indexExprsSize; ++i) {
         LLVMFunction *accessFunc = nullptr;
-        bool accessByGet = i < indexExprsSize - 1;
-        const SharedPtr<Type> &iterEleType = staticPtrCast<ArrayType>(iterType)->getElementType();
-        if (iterEleType->equals(AtomicType::BOOLEAN_TYPE)) {
-            accessFunc = accessByGet ? BuiltinArray::getBooleanFunc : BuiltinArray::setBooleanFunc;
-        } else if (iterEleType->equals(AtomicType::INTEGER_TYPE)) {
-            accessFunc = accessByGet ? BuiltinArray::getIntegerFunc : BuiltinArray::setIntegerFunc;
-        } else if (iterEleType->equals(AtomicType::STRING_TYPE)) {
-            accessFunc = accessByGet ? BuiltinArray::getStringFunc : BuiltinArray::setStringFunc;
+        bool accessBySet = i == indexExprsSize - 1;
+        const SharedPtr<Type> &iterEleType = iterType->asArray()->getElementType();
+        if (iterEleType->isBoolean()) {
+            accessFunc = accessBySet ? BuiltinArray::setBooleanFunc : BuiltinArray::getBooleanFunc;
+        } else if (iterEleType->isInteger()) {
+            accessFunc = accessBySet ? BuiltinArray::setIntegerFunc : BuiltinArray::getIntegerFunc;
+        } else if (iterEleType->isFloat()) {
+            accessFunc = accessBySet ? BuiltinArray::setFloatFunc : BuiltinArray::getFloatFunc;
+        } else if (iterEleType->isString()) {
+            accessFunc = accessBySet ? BuiltinArray::setStringFunc : BuiltinArray::getStringFunc;
         } else if (iterEleType->isArray()) {
-            accessFunc = accessByGet ? BuiltinArray::getArrayFunc : BuiltinArray::setArrayFunc;
+            accessFunc = accessBySet ? BuiltinArray::setArrayFunc : BuiltinArray::getArrayFunc;
         }
         iterType = iterEleType;
         Vector<LLVMValue *> accessArgs{
@@ -89,7 +93,9 @@ void IRGenerator::setArrayElement(const SharedPtr<ArraySubscriptExprNode> &asExp
                 asExpr->indexExprs[i]->code,
                 errorAlloca
         };
-        if (!accessByGet) {
+        // 准备给多维数组最内层的元素赋值
+        if (accessBySet) {
+            // getFunc和setFunc参数不同, setFunc的第三个参数是需要赋的值
             accessArgs.insert(accessArgs.begin() + 2, valueCode);
         }
         iterBaseCode = llvmIRBuilder.CreateCall(accessFunc, accessArgs);

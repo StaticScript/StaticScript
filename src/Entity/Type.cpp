@@ -6,12 +6,12 @@ bool Type::equals(const SharedPtr<Type> &rhs) const {
         return false;
     }
     // 如果比较的两类型不属于同类, 直接返回false
-    if (isAtomic() && rhs->isArray() || isArray() && rhs->isAtomic()) {
+    if (isBasic() && rhs->isArray() || isArray() && rhs->isBasic()) {
         return false;
     }
-    if (SharedPtr<AtomicType> atomicType = dynPtrCast<AtomicType>(rhs)) {
-        const auto *type = dynamic_cast<const AtomicType *>(this);
-        return type->equals(atomicType);
+    if (SharedPtr<BasicType> basicType = dynPtrCast<BasicType>(rhs)) {
+        const auto *type = dynamic_cast<const BasicType *>(this);
+        return type->equals(basicType);
     } else {
         SharedPtr<ArrayType> arrayType = dynPtrCast<ArrayType>(rhs);
         const auto *type = dynamic_cast<const ArrayType *>(this);
@@ -19,31 +19,105 @@ bool Type::equals(const SharedPtr<Type> &rhs) const {
     }
 }
 
-AtomicType::AtomicType(AtomicTypeKind kind) : kind(kind) {}
-
-bool AtomicType::isAtomic() const {
-    return true;
-}
-
-bool AtomicType::isArray() const {
+// 相同类型(包括相等类型和数字类型)
+bool Type::sameAs(const SharedPtr<Type> &rhs) const {
+    // 右操作子为空直接返回false
+    if (!rhs) {
+        return false;
+    }
+    // 相等的类型是兼容的
+    if (equals(rhs)) {
+        return true;
+    }
+    // 整数和浮点数是兼容的
+    if (isNumber() && rhs->isNumber()) {
+        return true;
+    }
     return false;
 }
 
-bool AtomicType::isUnknown() const {
-    return kind == AtomicTypeKind::Unknown;
+// 左操作子: 形式上的类型(左值的类型(变量声明类型), 函数形参类型)
+// 右操作子: 实际的类型(右值的类型(变量赋值类型), 函数实参类型)
+// 兼容是有方向的, 左操作子兼容右操作子并不一定代表右操作子兼容左操作子
+bool Type::compatible(const SharedPtr<Type> &rhs) const {
+    // 右操作子为空直接返回false
+    if (!rhs) {
+        return false;
+    }
+    // 同类的类型是兼容的
+    if (equals(rhs) || sameAs(rhs)) {
+        return true;
+    }
+    if (isArray() && rhs->isArray()) {
+        const auto &arrayType = asArray();
+        const auto &rhsArrayType = rhs->asArray();
+        // 左右操作子都是数组, 且右操作子为空树组, 左操作子深度不小于右操作子深度, 左操作子兼容右操作子(反之不成立)
+        if (rhs->isUnknown() && arrayType->getDepth() >= rhsArrayType->getDepth()) {
+            return true;
+        }
+        const auto &basicType = arrayType->getBasicElementType();
+        const auto &rhsBasicType = rhsArrayType->getBasicElementType();
+        // 内层元素都是数字的多维数组相互兼容
+        if (basicType->isNumber() && rhsBasicType->isNumber() && arrayType->getDepth() == rhsArrayType->getDepth()) {
+            return true;
+        }
+    } else if (isArray() && rhs->isBasic()) {
+        // 左操作子为数组, 右操作子为unknown基础类型, 左操作子兼容右操作子(反之不成立)
+        if (rhs->isUnknown()) {
+            return true;
+        }
+    }
+    return false;
 }
 
-AtomicTypeKind AtomicType::getKind() const {
+BasicType::BasicType(BasicTypeKind kind) : kind(kind) {}
+
+bool BasicType::isBasic() const {
+    return true;
+}
+
+bool BasicType::isBoolean() const {
+    return kind == BasicTypeKind::Boolean;
+}
+
+bool BasicType::isInteger() const {
+    return kind == BasicTypeKind::Integer;
+}
+
+bool BasicType::isFloat() const {
+    return kind == BasicTypeKind::Float;
+}
+
+bool BasicType::isNumber() const {
+    return kind == BasicTypeKind::Integer || kind == BasicTypeKind::Float;
+}
+
+bool BasicType::isString() const {
+    return kind == BasicTypeKind::String;
+}
+
+bool BasicType::isUnknown() const {
+    return kind == BasicTypeKind::Unknown;
+}
+
+bool BasicType::isArray() const {
+    return false;
+}
+
+SharedPtr<ArrayType> BasicType::asArray() const {
+    return nullptr;
+}
+
+BasicTypeKind BasicType::getKind() const {
     return kind;
 }
 
-bool AtomicType::equals(const SharedPtr<AtomicType> &rhs) const {
+bool BasicType::equals(const SharedPtr<BasicType> &rhs) const {
     return kind == rhs->kind;
 }
 
-SharedPtr<ArrayType> ArrayType::createNDArrayType(const SharedPtr<AtomicType> &atomicType, size_t depth) {
-    reportOnTypeError(depth == 0, "Dimension of multidimensional array must be positive");
-    SharedPtr<Type> type = atomicType;
+SharedPtr<ArrayType> ArrayType::createNDArrayType(const SharedPtr<BasicType> &basicType, size_t depth) {
+    SharedPtr<Type> type = basicType;
     for (size_t i = 0; i < depth; ++i) {
         type = makeShared<ArrayType>(type);
     }
@@ -52,28 +126,59 @@ SharedPtr<ArrayType> ArrayType::createNDArrayType(const SharedPtr<AtomicType> &a
 
 ArrayType::ArrayType(const SharedPtr<Type> &elementType) : elementType(elementType) {
     if (elementType->isArray()) {
-        depth = staticPtrCast<ArrayType>(elementType)->depth + 1;
+        depth = elementType->asArray()->depth + 1;
     }
 }
 
-bool ArrayType::isAtomic() const {
+bool ArrayType::isBasic() const {
     return false;
+}
+
+bool ArrayType::isBoolean() const {
+    return false;
+}
+
+bool ArrayType::isInteger() const {
+    return false;
+}
+
+bool ArrayType::isFloat() const {
+    return false;
+}
+
+bool ArrayType::isNumber() const {
+    return false;
+}
+
+bool ArrayType::isString() const {
+    return false;
+}
+
+bool ArrayType::isUnknown() const {
+    return getBasicElementType()->isUnknown();
 }
 
 bool ArrayType::isArray() const {
     return true;
 }
 
-bool ArrayType::isUnknown() const {
-    return elementType->isUnknown();
+SharedPtr<ArrayType> ArrayType::asArray() const {
+    return constPtrCast<ArrayType>(staticPtrCast<const ArrayType>(shared_from_this()));
 }
 
 const SharedPtr<Type> &ArrayType::getElementType() const {
     return elementType;
 }
 
-void ArrayType::setElementType(const SharedPtr<Type> &eleType) {
-    elementType = eleType;
+SharedPtr<Type> ArrayType::getBasicElementType() const {
+    if (elementType->isBasic()) {
+        return elementType;
+    }
+    SharedPtr<Type> iterType = elementType;
+    while (iterType->isArray()) {
+        iterType = iterType->asArray()->elementType;
+    }
+    return iterType;
 }
 
 bool ArrayType::equals(const SharedPtr<ArrayType> &rhs) const {

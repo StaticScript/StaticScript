@@ -41,7 +41,7 @@ public:
 
     antlrcpp::Any visitArrayType(StaticScriptParser::ArrayTypeContext *ctx) override;
 
-    antlrcpp::Any visitAtomicType(StaticScriptParser::AtomicTypeContext *ctx) override;
+    antlrcpp::Any visitBasicType(StaticScriptParser::BasicTypeContext *ctx) override;
 
     antlrcpp::Any visitFunctionDeclaration(StaticScriptParser::FunctionDeclarationContext *ctx) override;
 

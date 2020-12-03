@@ -4,24 +4,36 @@
 void IRGenerator::visit(const SharedPtr<VarDeclNode> &varDecl) {
     ASTVisitor::visit(varDecl);
     LLVMType *type = getType(varDecl->type);
-    // 变量有初始值
-    bool hasInitVal = bool(varDecl->initVal);
+    LLVMValue *varInitCode = varDecl->initVal->code;
     // 区分全局变量和局部变量
     if (varDecl->scope->isTopLevel()) {
         bool isLiteralInit = bool(dynPtrCast<LiteralExprNode>(varDecl->initVal));
-        bool isBoolean = varDecl->type->equals(AtomicType::BOOLEAN_TYPE);
-        bool isInteger = varDecl->type->equals(AtomicType::INTEGER_TYPE);
-        bool isStringVar = varDecl->type->equals(AtomicType::STRING_TYPE);
-        bool isArrayVar = varDecl->type->isArray();
+        bool declBoolean = varDecl->type->isBoolean();
+        bool declFloat = varDecl->type->isFloat();
+        bool initFloat = varDecl->initVal->type->isFloat();
+        bool declString = varDecl->type->isString();
+        bool declArray = varDecl->type->isArray();
         llvm::Constant *initializer;
-        if (isStringVar || isArrayVar) {
+        if (declString || declArray) {
             initializer = llvm::ConstantPointerNull::getNullValue(type);
         } else if (isLiteralInit) {
-            // 初始值为布尔和整数字面量
-            initializer = llvm::cast<LLVMConstantInt>(varDecl->initVal->code);
+            if (declFloat && initFloat) {
+                initializer = llvm::cast<llvm::ConstantFP>(varInitCode);
+            } else if (declFloat && !initFloat) {
+                initializer = llvm::cast<llvm::ConstantFP>(integer2float(varInitCode));
+            } else if (!declFloat && initFloat) {
+                initializer = llvm::cast<LLVMConstantInt>(float2integer(varInitCode));
+            } else {
+                initializer = llvm::cast<LLVMConstantInt>(varInitCode);
+            }
         } else {
-            // 初始值为布尔和整数类型的表达式
-            initializer = llvm::ConstantInt::get(type, 0);
+            if (declFloat) {
+                // 初始值为浮点表达式
+                initializer = llvm::ConstantFP::get(type, 0.0);
+            } else {
+                // 初始值为布尔和整数表达式
+                initializer = llvm::ConstantInt::get(type, 0);
+            }
         }
         auto *gVar = new LLVMGlobalVariable(
                 *llvmModule,
@@ -32,20 +44,25 @@ void IRGenerator::visit(const SharedPtr<VarDeclNode> &varDecl) {
                 varDecl->name
         );
         uint64_t alignment = 8;
-        if (isBoolean) {
+        if (declBoolean) {
             alignment = 1;
         }
         gVar->setAlignment(llvm::MaybeAlign(alignment));
         // 在main函数中store字符串和数组的指针值或者非字面量的表达式值
-        if (isStringVar || isArrayVar || (hasInitVal && !isLiteralInit)) {
-            llvmIRBuilder.CreateStore(varDecl->initVal->code, gVar);
+        if (declString || declArray) {
+            llvmIRBuilder.CreateStore(varInitCode, gVar);
+        } else if (!isLiteralInit) {
+            if (declFloat && !initFloat) {
+                varInitCode = integer2float(varInitCode);
+            } else if (!declFloat && initFloat) {
+                varInitCode = float2integer(varInitCode);
+            }
+            llvmIRBuilder.CreateStore(varInitCode, gVar);
         }
         varDecl->code = gVar;
     } else {
         LLVMValue *alloca = llvmIRBuilder.CreateAlloca(type);
-        if (hasInitVal) {
-            llvmIRBuilder.CreateStore(varDecl->initVal->code, alloca);
-        }
+        llvmIRBuilder.CreateStore(varInitCode, alloca);
         varDecl->code = alloca;
     }
 }
@@ -57,7 +74,7 @@ void IRGenerator::visit(const SharedPtr<ParmVarDeclNode> &paramVarDecl) {
 
 void IRGenerator::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
     Vector<LLVMType *> argsType;
-    for (const SharedPtr<ParmVarDeclNode> &param: funcDecl->params) {
+    for (const auto &param: funcDecl->params) {
         argsType.push_back(getType(param->type));
     }
     LLVMType *returnType = getType(funcDecl->returnType);

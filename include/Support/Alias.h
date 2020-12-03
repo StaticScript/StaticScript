@@ -48,3 +48,9 @@ template<typename T, typename P>
 inline SharedPtr<T> dynPtrCast(const SharedPtr<P> &ptr) {
     return std::dynamic_pointer_cast<T>(ptr);
 }
+
+
+template<typename T, typename P>
+inline SharedPtr<T> constPtrCast(const SharedPtr<P> &ptr) {
+    return std::const_pointer_cast<T>(ptr);
+}

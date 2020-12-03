@@ -2,33 +2,37 @@
 #include "AST/ExprNode.h"
 #include "Sema/ASTVisitor.h"
 
-ExprNode::ExprNode(const SharedPtr<Type> &type) : inferType(type) {}
+ExprNode::ExprNode(const SharedPtr<Type> &type) : type(type) {}
 
 LiteralExprNode::LiteralExprNode(const SharedPtr<Type> &type) : ExprNode(type) {}
 
-AtomicLiteralExprNode::AtomicLiteralExprNode(const SharedPtr<AtomicType> &type) : LiteralExprNode(type) {}
-
-IntegerLiteralExprNode::IntegerLiteralExprNode(long literal) : literal(literal), AtomicLiteralExprNode(AtomicType::INTEGER_TYPE) {}
-
-void IntegerLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
-    visitor->visit(staticPtrCast<IntegerLiteralExprNode>(shared_from_this()));
-}
-
-BooleanLiteralExprNode::BooleanLiteralExprNode(bool literal) : literal(literal), AtomicLiteralExprNode(AtomicType::BOOLEAN_TYPE) {}
+BooleanLiteralExprNode::BooleanLiteralExprNode(bool literal) : literal(literal), LiteralExprNode(BasicType::BOOLEAN_TYPE) {}
 
 void BooleanLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<BooleanLiteralExprNode>(shared_from_this()));
 }
 
-StringLiteralExprNode::StringLiteralExprNode() : AtomicLiteralExprNode(AtomicType::STRING_TYPE) {}
+IntegerLiteralExprNode::IntegerLiteralExprNode(long literal) : literal(literal), LiteralExprNode(BasicType::INTEGER_TYPE) {}
 
-StringLiteralExprNode::StringLiteralExprNode(String literal) : literal(std::move(literal)), AtomicLiteralExprNode(AtomicType::STRING_TYPE) {}
+void IntegerLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
+    visitor->visit(staticPtrCast<IntegerLiteralExprNode>(shared_from_this()));
+}
+
+FloatLiteralExprNode::FloatLiteralExprNode(double literal) : literal(literal), LiteralExprNode(BasicType::FLOAT_TYPE) {}
+
+void FloatLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
+    visitor->visit(staticPtrCast<FloatLiteralExprNode>(shared_from_this()));
+}
+
+StringLiteralExprNode::StringLiteralExprNode() : LiteralExprNode(BasicType::STRING_TYPE) {}
+
+StringLiteralExprNode::StringLiteralExprNode(String literal) : literal(std::move(literal)), LiteralExprNode(BasicType::STRING_TYPE) {}
 
 void StringLiteralExprNode::accept(const SharedPtr<ASTVisitor> &visitor) {
     visitor->visit(staticPtrCast<StringLiteralExprNode>(shared_from_this()));
 }
 
-ArrayLiteralExprNode::ArrayLiteralExprNode() : LiteralExprNode(AtomicType::UNKNOWN_TYPE) {}
+ArrayLiteralExprNode::ArrayLiteralExprNode() : LiteralExprNode(BasicType::UNKNOWN_TYPE) {}
 
 ArrayLiteralExprNode::ArrayLiteralExprNode(const SharedPtr<Type> &type) : LiteralExprNode(type) {}
 

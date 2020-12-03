@@ -4,6 +4,10 @@ ss_array *ss_array_create_integer_array(ss_error **error) {
     return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(long), error);
 }
 
+ss_array *ss_array_create_float_array(ss_error **error) {
+    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(double), error);
+}
+
 ss_array *ss_array_create_boolean_array(ss_error **error) {
     return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(bool), error);
 }
@@ -23,6 +27,10 @@ ss_array *ss_array_create_array_array(ss_error **error) {
 
 ss_array *ss_array_create_integer_array_with_literal(long literal_list[], size_t size, ss_error **error) {
     ss_array_create_array_with_literal(long, false)
+}
+
+ss_array *ss_array_create_float_array_with_literal(double literal_list[], size_t size, ss_error **error) {
+    ss_array_create_array_with_literal(double, false)
 }
 
 ss_array *ss_array_create_boolean_array_with_literal(bool literal_list[], size_t size, ss_error **error) {
@@ -67,6 +75,11 @@ void ss_array_push_integer(ss_array *arr, long new_element, ss_error **error) {
     ss_array_push(long)
 }
 
+void ss_array_push_float(ss_array *arr, double new_element, ss_error **error) {
+    ss_array_push_detect()
+    ss_array_push(double)
+}
+
 void ss_array_push_boolean(ss_array *arr, bool new_element, ss_error **error) {
     ss_array_push_detect()
     ss_array_push(bool)
@@ -85,6 +98,11 @@ void ss_array_push_array(ss_array *arr, ss_array *new_element, ss_error **error)
 long ss_array_pop_integer(ss_array *arr, ss_error **error) {
     ss_array_pop_detect(0)
     ss_array_pop(long)
+}
+
+double ss_array_pop_float(ss_array *arr, ss_error **error) {
+    ss_array_pop_detect(0)
+    ss_array_pop(double)
 }
 
 bool ss_array_pop_boolean(ss_array *arr, ss_error **error) {
@@ -107,6 +125,11 @@ long ss_array_get_integer(ss_array *arr, size_t index, ss_error **error) {
     ss_array_get(long)
 }
 
+double ss_array_get_float(ss_array *arr, size_t index, ss_error **error) {
+    ss_array_get_detect(0)
+    ss_array_get(double)
+}
+
 bool ss_array_get_boolean(ss_array *arr, size_t index, ss_error **error) {
     ss_array_get_detect(false)
     ss_array_get(bool)
@@ -125,6 +148,11 @@ ss_array *ss_array_get_array(ss_array *arr, size_t index, ss_error **error) {
 void ss_array_set_integer(ss_array *arr, size_t index, long element, ss_error **error) {
     ss_array_set_detect()
     ss_array_set(long)
+}
+
+void ss_array_set_float(ss_array *arr, size_t index, double element, ss_error **error) {
+    ss_array_set_detect()
+    ss_array_set(double)
 }
 
 void ss_array_set_boolean(ss_array *arr, size_t index, bool element, ss_error **error) {

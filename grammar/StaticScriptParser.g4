@@ -63,15 +63,16 @@ typeAnnotation
 
 type
     : arrayType
-    | atomicType
+    | basicType
     ;
 
 arrayType
-    : atomicType (OpenBracket CloseBracket)+
+    : basicType (OpenBracket CloseBracket)+
     ;
 
-atomicType
+basicType
     : Boolean
+    | Integer
     | Number
     | String
     ;
@@ -103,7 +104,7 @@ expression
     | <assoc=right> uop=(Not | BitNot | Plus | Minus | PlusPlus | MinusMinus) expression                # PrefixUnaryExpr
     | expression bop=(Multiply | Divide | Modulus) expression                                           # BinaryExpr
     | expression bop=(Plus | Minus) expression                                                          # BinaryExpr
-    | expression bop=(LeftShift | RightShift) expression                                                # BinaryExpr
+    | expression bop=(ShiftLeft | ArithmeticShiftRight | LogicalShiftRight) expression                                                # BinaryExpr
     | expression bop=(LessThan | GreaterThan | LessThanEquals | GreaterThanEquals) expression           # BinaryExpr
     | expression bop=(Equals | NotEquals) expression                                                    # BinaryExpr
     | expression bop=BitAnd expression                                                                  # BinaryExpr
@@ -111,7 +112,7 @@ expression
     | expression bop=BitOr expression                                                                   # BinaryExpr
     | expression bop=And expression                                                                     # BinaryExpr
     | expression bop=Or expression                                                                      # BinaryExpr
-    | <assoc=right> expression bop=(Assign | PlusAssign | MinusAssign | MultiplyAssign | DivideAssign | ModulusAssign | LeftShiftAssign | RightShiftAssign | BitAndAssign | BitXorAssign | BitOrAssign | AndAssign | OrAssign) expression # BinaryExpr
+    | <assoc=right> expression bop=(Assign | PlusAssign | MinusAssign | MultiplyAssign | DivideAssign | ModulusAssign | ShiftLeftAssign | ArithmeticShiftRightAssign | LogicalShiftRightAssign | BitAndAssign | BitXorAssign | BitOrAssign | AndAssign | OrAssign) expression # BinaryExpr
     | Identifier                                                                                        # IdentifierExpr
     | literal                                                                                           # LiteralExpr
     | OpenParen expression CloseParen                                                                   # ParenExpr
@@ -127,7 +128,11 @@ argumentList
 
 literal
     : BooleanLiteral
-    | IntegerLiteral
+    | DecimalIntegerLiteral
+    | HexIntegerLiteral
+    | OctalIntegerLiteral
+    | BinaryIntegerLiteral
+    | FloatLiteral
     | StringLiteral
     | arrayLiteral
     ;

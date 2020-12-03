@@ -8,7 +8,7 @@
 #include "Support/Error.h"
 #include "Support/LLVM.h"
 
-class IRGenerator final: public ASTVisitor {
+class IRGenerator final : public ASTVisitor {
 public:
     explicit IRGenerator();
 
@@ -25,6 +25,8 @@ public:
     void visit(const SharedPtr<BooleanLiteralExprNode> &boolLiteralExpr) override;
 
     void visit(const SharedPtr<IntegerLiteralExprNode> &intLiteralExpr) override;
+
+    void visit(const SharedPtr<FloatLiteralExprNode> &floatLiteralExpr) override;
 
     void visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) override;
 
@@ -68,6 +70,14 @@ private:
     LLVMType *getType(const SharedPtr<Type> &inputType);
 
     void setArrayElement(const SharedPtr<ArraySubscriptExprNode> &asExpr, LLVMValue *valueCode);
+
+    inline LLVMValue *float2integer(LLVMValue *val) {
+        return llvmIRBuilder.CreateFPToSI(val, llvmIRBuilder.getInt64Ty());
+    }
+
+    inline LLVMValue *integer2float(LLVMValue *val) {
+        return llvmIRBuilder.CreateSIToFP(val, llvmIRBuilder.getDoubleTy());
+    }
 
     inline void setFuncInsertPoint(LLVMFunction *func) {
         LLVMBasicBlock *curBB = &(func->getBasicBlockList().back());

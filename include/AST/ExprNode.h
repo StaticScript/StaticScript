@@ -15,30 +15,22 @@ public:
 
     ~ExprNode() override = default;
 
-    SharedPtr<Type> inferType = nullptr;
+    SharedPtr<Type> type = nullptr;
 
     // 当前表达式的ir
     LLVMValue *code = nullptr;
 };
 
 /// 字面量表达式节点
-class LiteralExprNode: public ExprNode {
+class LiteralExprNode : public ExprNode {
 public:
     LiteralExprNode() = default;
 
     explicit LiteralExprNode(const SharedPtr<Type> &type);
 };
 
-/// 原子字面量表达式节点
-class AtomicLiteralExprNode : public LiteralExprNode {
-public:
-    explicit AtomicLiteralExprNode(const SharedPtr<AtomicType> &type);
-
-    ~AtomicLiteralExprNode() override = default;
-};
-
 /// 布尔值字面量表达式节点
-class BooleanLiteralExprNode : public AtomicLiteralExprNode {
+class BooleanLiteralExprNode : public LiteralExprNode {
 public:
     explicit BooleanLiteralExprNode(bool literal);
 
@@ -50,7 +42,7 @@ public:
 };
 
 /// 整数字面量表达式节点
-class IntegerLiteralExprNode : public AtomicLiteralExprNode {
+class IntegerLiteralExprNode : public LiteralExprNode {
 public:
     explicit IntegerLiteralExprNode(long literal);
 
@@ -61,8 +53,20 @@ public:
     long literal;
 };
 
+/// 浮点数字面量表达式节点
+class FloatLiteralExprNode : public LiteralExprNode {
+public:
+    explicit FloatLiteralExprNode(double literal);
+
+    ~FloatLiteralExprNode() override = default;
+
+    void accept(const SharedPtr<ASTVisitor> &visitor) override;
+
+    double literal;
+};
+
 /// 字符串字面量表达式节点
-class StringLiteralExprNode : public AtomicLiteralExprNode {
+class StringLiteralExprNode : public LiteralExprNode {
 public:
     explicit StringLiteralExprNode();
 
@@ -76,7 +80,7 @@ public:
 };
 
 /// 数组字面量表达式
-class ArrayLiteralExprNode: public LiteralExprNode {
+class ArrayLiteralExprNode : public LiteralExprNode {
 public:
     explicit ArrayLiteralExprNode();
 
@@ -153,7 +157,7 @@ public:
 };
 
 /// 数组下标表达式
-class ArraySubscriptExprNode: public ExprNode {
+class ArraySubscriptExprNode : public ExprNode {
 public:
     ArraySubscriptExprNode(const SharedPtr<ExprNode> &baseExpr, const SharedPtrVector<ExprNode> &indexExprs);
 
@@ -164,3 +168,10 @@ public:
     SharedPtr<ExprNode> baseExpr = nullptr;
     SharedPtrVector<ExprNode> indexExprs;
 };
+
+//class ArithmeticExprNode;
+//class BitwiseExprNode;
+//class ComparisonExprNode;
+//class LogicalExprNode;
+//class AssignmentExprNode;
+//class StringOperationExprNode;

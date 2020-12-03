@@ -29,6 +29,8 @@ void ASTVisitor::visit(const SharedPtr<BooleanLiteralExprNode> &boolLiteralExpr)
 
 void ASTVisitor::visit(const SharedPtr<IntegerLiteralExprNode> &intLiteralExpr) {}
 
+void ASTVisitor::visit(const SharedPtr<FloatLiteralExprNode> &floatLiteralExpr) {}
+
 void ASTVisitor::visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) {}
 
 void ASTVisitor::visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr) {
