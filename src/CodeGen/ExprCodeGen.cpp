@@ -252,7 +252,7 @@ void IRGenerator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
 
     SharedPtr<Type> type = leftType;
 
-    if (leftType->isInteger() && rightType->isFloat()) {
+    if (leftType->isInteger() && rightType->isFloat() && bopCode != StaticScriptLexer::Assign) {
         type = rightType;
         lhsCode = integer2float(lhsCode);
     } else if (leftType->isFloat() && rightType->isInteger()) {
@@ -409,10 +409,21 @@ void IRGenerator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     }
     if (bopCode >= StaticScriptLexer::Assign && bopCode <= StaticScriptLexer::OrAssign) {
         // 在语义阶段保证lhs类型为IdentifierExprNode或者ArraySubscriptExprNode
-        // 按左值处理
+
+        // 简单赋值时直接把targetCode设置为rhsCode
         if (bopCode == StaticScriptLexer::Assign) {
             targetCode = rhsCode;
         }
+
+        // 赋值/算术类型复合赋值时整型与浮点型的转换机制
+        if (bopCode >= StaticScriptLexer::Assign && bopCode <= StaticScriptLexer::ModulusAssign) {
+            if (leftType->isInteger() && rightType->isFloat()) {
+                targetCode = float2integer(targetCode);
+            } else if (leftType->isFloat() && rightType->isInteger()) {
+                targetCode = integer2float(targetCode);
+            }
+        }
+
         if (const auto &leftVarExpr = dynPtrCast<IdentifierExprNode>(bopExpr->lhs)) {
             llvmIRBuilder.CreateStore(targetCode, leftVarExpr->refVarDecl->code);
         } else if (const auto &leftAsExpr = dynPtrCast<ArraySubscriptExprNode>(bopExpr->lhs)) {
