@@ -66,6 +66,7 @@ void IRGenerator::emitBranch(LLVMBasicBlock *targetBB) {
     llvmIRBuilder.ClearInsertionPoint();
 }
 
+// 设置数组元素的值, 务必确保baseExpr已经被visit过
 void IRGenerator::setArrayElement(const SharedPtr<ArraySubscriptExprNode> &asExpr, LLVMValue *valueCode) {
     size_t indexExprsSize = asExpr->indexExprs.size();
     SharedPtr<Type> iterType = asExpr->baseExpr->type;

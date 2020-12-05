@@ -33,11 +33,11 @@ void ss_println_integer(long number) {
 }
 
 void ss_print_float(double number) {
-    printf("%lf", number);
+    printf("%f", number);
 }
 
 void ss_println_float(double number) {
-    printf("%lf\n", number);
+    printf("%f\n", number);
 }
 
 void ss_print_string(ss_string *str) {

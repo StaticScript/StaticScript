@@ -76,6 +76,7 @@ void IRGenerator::visit(const SharedPtr<StringLiteralExprNode> &strLiteralExpr) 
     Vector<LLVMValue *> createArgs{literalListPtr, elementSizeCode, errorAlloca}; \
     arrayLiteralExpr->code = llvmIRBuilder.CreateCall(BuiltinArray::create##UpperCaseType##ArrayWithLiteralFunc, createArgs); \
 
+
 void IRGenerator::visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr) {
     const SharedPtr<Type> &elementType = arrayLiteralExpr->type->asArray()->getElementType();
 
@@ -119,7 +120,12 @@ void IRGenerator::visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr)
         } else if (elementType->isInteger()) {
             Vector<long> literalVector(elementSize);
             for (size_t i = 0; i < elementSize; ++i) {
-                literalVector[i] = staticPtrCast<IntegerLiteralExprNode>(arrayLiteralExpr->elements[i])->literal;
+                const SharedPtr<ExprNode> &element = arrayLiteralExpr->elements[i];
+                if (const auto &floatElement = dynPtrCast<FloatLiteralExprNode>(element)) {
+                    literalVector[i] = floatElement->literal;
+                } else if (const auto &intElement = dynPtrCast<IntegerLiteralExprNode>(element)) {
+                    literalVector[i] = intElement->literal;
+                }
             }
             GenerateBasicArray(long, Integer, Int64)
         } else if (elementType->isFloat()) {
@@ -235,10 +241,8 @@ void IRGenerator::visit(const SharedPtr<UnaryOperatorExprNode> &uopExpr) {
 
 void IRGenerator::visit(const SharedPtr<BinaryOperatorExprNode> &bopExpr) {
     unsigned int bopCode = bopExpr->opCode;
-
-    // 平凡赋值: lhs是左值, rhs是右值
-    // 复合赋值: lhs是左值也是右值, rhs是右值; `lhs op= rhs` 相当于 `lhs = lhs op rhs`
-    if (bopCode == StaticScriptLexer::Assign) {
+    // 变量被赋值时只需要visit lhs
+    if (bopCode == StaticScriptLexer::Assign && dynPtrCast<IdentifierExprNode>(bopExpr->lhs)) {
         bopExpr->rhs->accept(shared_from_this());
     } else {
         ASTVisitor::visit(bopExpr);

@@ -5,24 +5,28 @@ void IRGenerator::visit(const SharedPtr<VarDeclNode> &varDecl) {
     ASTVisitor::visit(varDecl);
     LLVMType *type = getType(varDecl->type);
     LLVMValue *varInitCode = varDecl->initVal->code;
+
+    bool isLiteralInit = bool(dynPtrCast<LiteralExprNode>(varDecl->initVal));
+    bool declBoolean = varDecl->type->isBoolean();
+    bool declFloat = varDecl->type->isFloat();
+    bool initFloat = varDecl->initVal->type->isFloat();
+    bool declString = varDecl->type->isString();
+    bool declArray = varDecl->type->isArray();
+
+    if (declFloat && !initFloat) {
+        varInitCode = integer2float(varInitCode);
+    } else if (!declFloat && initFloat) {
+        varInitCode = float2integer(varInitCode);
+    }
+
     // 区分全局变量和局部变量
     if (varDecl->scope->isTopLevel()) {
-        bool isLiteralInit = bool(dynPtrCast<LiteralExprNode>(varDecl->initVal));
-        bool declBoolean = varDecl->type->isBoolean();
-        bool declFloat = varDecl->type->isFloat();
-        bool initFloat = varDecl->initVal->type->isFloat();
-        bool declString = varDecl->type->isString();
-        bool declArray = varDecl->type->isArray();
         llvm::Constant *initializer;
         if (declString || declArray) {
             initializer = llvm::ConstantPointerNull::getNullValue(type);
         } else if (isLiteralInit) {
-            if (declFloat && initFloat) {
+            if (declFloat) {
                 initializer = llvm::cast<llvm::ConstantFP>(varInitCode);
-            } else if (declFloat && !initFloat) {
-                initializer = llvm::cast<llvm::ConstantFP>(integer2float(varInitCode));
-            } else if (!declFloat && initFloat) {
-                initializer = llvm::cast<LLVMConstantInt>(float2integer(varInitCode));
             } else {
                 initializer = llvm::cast<LLVMConstantInt>(varInitCode);
             }
@@ -49,14 +53,8 @@ void IRGenerator::visit(const SharedPtr<VarDeclNode> &varDecl) {
         }
         gVar->setAlignment(llvm::MaybeAlign(alignment));
         // 在main函数中store字符串和数组的指针值或者非字面量的表达式值
-        if (declString || declArray) {
-            llvmIRBuilder.CreateStore(varInitCode, gVar);
-        } else if (!isLiteralInit) {
-            if (declFloat && !initFloat) {
-                varInitCode = integer2float(varInitCode);
-            } else if (!declFloat && initFloat) {
-                varInitCode = float2integer(varInitCode);
-            }
+        // 全局变量初始值为字面量时不需要在store varInitCode
+        if (declString || declArray || !isLiteralInit) {
             llvmIRBuilder.CreateStore(varInitCode, gVar);
         }
         varDecl->code = gVar;
@@ -103,4 +101,5 @@ void IRGenerator::visit(const SharedPtr<FunctionDeclNode> &funcDecl) {
         }
     }
     llvm::verifyFunction(*func);
+    curFn = mainFn;
 }
