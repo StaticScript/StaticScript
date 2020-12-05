@@ -60,3 +60,14 @@ ss_assert(floatArr[0][0] == 1);
 ss_assert(floatArr[0][1] == 2.3);
 ss_assert(floatArr[1][0] == 1.2);
 ss_assert(floatArr[1][1] == 5);
+
+for(let i = 0; i < 2; i++) {
+    for(let j = 0; j < 2; j++) {
+        floatArr[i][j] += 8;
+    }
+}
+
+ss_assert(floatArr[0][0] == 9);
+ss_assert(floatArr[0][1] == 10.3);
+ss_assert(floatArr[1][0] == 9.2);
+ss_assert(floatArr[1][1] == 13);

@@ -6,7 +6,7 @@ options {
 }
 
 module
-    : statements?
+    : statements? EOF
     ;
 
 statements

@@ -69,10 +69,12 @@ int main(int argc, char **argv) {
     } else if (optLevelOs) {
         optLevel = 2;
         sizeLevel = 1;
-    } else if (optLevelO2) {
-        optLevel = 2;
     } else if (optLevelO1) {
         optLevel = 1;
+    } else if (optLevelO0) {
+        optLevel = 0;
+    } else {
+        optLevel = 2;
     }
 
     if (!llvm::sys::fs::exists(inputFilename)) {
