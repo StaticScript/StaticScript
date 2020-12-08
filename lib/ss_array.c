@@ -1,48 +1,47 @@
 #include "ss_array.h"
 
 ss_array *ss_array_create_integer_array(ss_error **error) {
-    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(long), error);
+    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(long), IntegerType, error);
 }
 
 ss_array *ss_array_create_float_array(ss_error **error) {
-    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(double), error);
+    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(double), FloatType, error);
 }
 
 ss_array *ss_array_create_boolean_array(ss_error **error) {
-    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(bool), error);
+    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(bool), BooleanType, error);
 }
 
 ss_array *ss_array_create_string_array(ss_error **error) {
-    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(ss_string *), error);
+    return ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(ss_string *), StringType, error);
 }
 
 ss_array *ss_array_create_array_array(ss_error **error) {
-    ss_array *arr = ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(ss_array *), error);
+    ss_array *arr = ss_array_create(SS_ARRAY_INIT_CAPACITY, sizeof(ss_array *), ArrayType, error);
     if (!arr) {
         return NULL;
     }
-    arr->is_nd = true;
     return arr;
 }
 
 ss_array *ss_array_create_integer_array_with_literal(long literal_list[], size_t size, ss_error **error) {
-    ss_array_create_array_with_literal(long, false)
+    ss_array_create_array_with_literal(long, IntegerType)
 }
 
 ss_array *ss_array_create_float_array_with_literal(double literal_list[], size_t size, ss_error **error) {
-    ss_array_create_array_with_literal(double, false)
+    ss_array_create_array_with_literal(double, FloatType)
 }
 
 ss_array *ss_array_create_boolean_array_with_literal(bool literal_list[], size_t size, ss_error **error) {
-    ss_array_create_array_with_literal(bool, false)
+    ss_array_create_array_with_literal(bool, BooleanType)
 }
 
 ss_array *ss_array_create_string_array_with_literal(ss_string *literal_list[], size_t size, ss_error **error) {
-    ss_array_create_array_with_literal(ss_string *, false)
+    ss_array_create_array_with_literal(ss_string *, StringType)
 }
 
 ss_array *ss_array_create_array_array_with_literal(ss_array *literal_list[], size_t size, ss_error **error) {
-    ss_array_create_array_with_literal(ss_array *, true)
+    ss_array_create_array_with_literal(ss_array *, ArrayType)
 }
 
 void ss_array_delete(ss_array *arr) {
@@ -67,7 +66,15 @@ bool ss_array_is_nd_array(ss_array *arr, ss_error **error) {
         *error = ss_error_create(NULL_ARRAY_PTR_CODE, NULL_ARRAY_PTR_DESC);
         return false;
     }
-    return arr->is_nd;
+    return arr->element_type == ArrayType;
+}
+
+bool ss_array_is_float_array(ss_array *arr, ss_error **error) {
+    if (!arr) {
+        *error = ss_error_create(NULL_ARRAY_PTR_CODE, NULL_ARRAY_PTR_DESC);
+        return false;
+    }
+    return arr->element_type == FloatType;
 }
 
 void ss_array_push_integer(ss_array *arr, long new_element, ss_error **error) {
@@ -184,7 +191,7 @@ ss_array *ss_array_slice(ss_array *arr, ssize_t from, ssize_t to, ss_error **err
     }
     size_t slice_size = to - from;
     size_t new_capacity = ss_array_get_capacity_with_size(slice_size);
-    ss_array *new_arr = ss_array_create(new_capacity, arr->element_size, error);
+    ss_array *new_arr = ss_array_create(new_capacity, arr->element_size, arr->element_type, error);
     if (!new_arr) {
         return NULL;
     }

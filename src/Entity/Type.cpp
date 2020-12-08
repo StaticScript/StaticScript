@@ -19,7 +19,10 @@ bool Type::equals(const SharedPtr<Type> &rhs) const {
     }
 }
 
-// 相同类型(包括相等类型和数字类型)
+// 相同类型
+// 1. 相等的类型是相同类型
+// 2. 基础整型和基础浮点型是相同类型
+// 3. 数组与空数组是相同类型
 bool Type::sameAs(const SharedPtr<Type> &rhs) const {
     // 右操作子为空直接返回false
     if (!rhs) {
@@ -29,9 +32,16 @@ bool Type::sameAs(const SharedPtr<Type> &rhs) const {
     if (equals(rhs)) {
         return true;
     }
-    // 整数和浮点数是兼容的
+    // 整数和浮点数是同类的
     if (isNumber() && rhs->isNumber()) {
         return true;
+    }
+    if (isArray() && rhs->isUnknown()) {
+        // 1. 左操作子为数组, 右操作子为unknown基础类型, 左操作子兼容右操作子(反之不成立)
+        // 2. 左右操作子都是数组, 且右操作子为空树组, 左操作子深度不小于右操作子深度, 左操作子兼容右操作子(反之不成立)
+        if (rhs->isBasic() || rhs->isArray() && asArray()->getDepth() >= rhs->asArray()->getDepth()) {
+            return true;
+        }
     }
     return false;
 }
@@ -39,7 +49,7 @@ bool Type::sameAs(const SharedPtr<Type> &rhs) const {
 // 左操作子: 形式上的类型(左值的类型(变量声明类型), 函数形参类型)
 // 右操作子: 实际的类型(右值的类型(变量赋值类型), 函数实参类型)
 // 兼容是有方向的, 左操作子兼容右操作子并不一定代表右操作子兼容左操作子
-bool Type::compatible(const SharedPtr<Type> &rhs) const {
+bool Type::compatibleWith(const SharedPtr<Type> &rhs) const {
     // 右操作子为空直接返回false
     if (!rhs) {
         return false;
@@ -48,22 +58,8 @@ bool Type::compatible(const SharedPtr<Type> &rhs) const {
     if (equals(rhs) || sameAs(rhs)) {
         return true;
     }
-    if (isArray() && rhs->isArray()) {
-        const auto &arrayType = asArray();
-        const auto &rhsArrayType = rhs->asArray();
-        // 左右操作子都是数组, 且右操作子为空树组, 左操作子深度不小于右操作子深度, 左操作子兼容右操作子(反之不成立)
-        if (rhs->isUnknown() && arrayType->getDepth() >= rhsArrayType->getDepth()) {
-            return true;
-        }
-        const auto &basicType = arrayType->getBasicElementType();
-        const auto &rhsBasicType = rhsArrayType->getBasicElementType();
-        // 内层元素都是数字的多维数组相互兼容
-        if (basicType->isNumber() && rhsBasicType->isNumber() && arrayType->getDepth() == rhsArrayType->getDepth()) {
-            return true;
-        }
-    } else if (isArray() && rhs->isBasic()) {
-        // 左操作子为数组, 右操作子为unknown基础类型, 左操作子兼容右操作子(反之不成立)
-        if (rhs->isUnknown()) {
+    if (isNumberArray() && rhs->isNumberArray()) {
+        if (asArray()->getDepth() == rhs->asArray()->getDepth()) {
             return true;
         }
     }
@@ -114,6 +110,10 @@ BasicTypeKind BasicType::getKind() const {
 
 bool BasicType::equals(const SharedPtr<BasicType> &rhs) const {
     return kind == rhs->kind;
+}
+
+bool BasicType::isNumberArray() const {
+    return false;
 }
 
 SharedPtr<ArrayType> ArrayType::createNDArrayType(const SharedPtr<BasicType> &basicType, size_t depth) {
@@ -187,4 +187,11 @@ bool ArrayType::equals(const SharedPtr<ArrayType> &rhs) const {
 
 size_t ArrayType::getDepth() const {
     return depth;
+}
+
+bool ArrayType::isNumberArray() const {
+    if (getBasicElementType()->isNumber()) {
+        return true;
+    }
+    return false;
 }

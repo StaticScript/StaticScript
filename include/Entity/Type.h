@@ -32,20 +32,22 @@ public:
 
     [[nodiscard]] virtual bool isArray() const = 0;
 
+    [[nodiscard]] virtual bool isNumberArray() const = 0;
+
     [[nodiscard]] virtual SharedPtr<ArrayType> asArray() const = 0;
 
     bool operator==(const Type &rhs) = delete;
 
     bool operator!=(const Type &rhs) = delete;
 
-    /// 判断类型是否相等[无方向](note: equals < sameAs < compatible)
+    /// 判断类型是否相等[无方向](note: equals < sameAs < compatibleWith)
     [[nodiscard]] bool equals(const SharedPtr<Type> &rhs) const;
 
-    /// 判断类型是否相同[无方向](note: equals < sameAs < compatible)
+    /// 判断类型是否相同[无方向](note: equals < sameAs < compatibleWith)
     [[nodiscard]] bool sameAs(const SharedPtr<Type> &rhs) const;
 
-    /// 判断类型是否兼容[有方向](note: equals < sameAs < compatible)
-    [[nodiscard]] bool compatible(const SharedPtr<Type> &rhs) const;
+    /// 判断类型是否兼容[有方向](note: equals < sameAs < compatibleWith)
+    [[nodiscard]] bool compatibleWith(const SharedPtr<Type> &rhs) const;
 };
 
 /// 基础类型节点
@@ -72,6 +74,8 @@ public:
     [[nodiscard]] bool isUnknown() const override;
 
     [[nodiscard]] bool isArray() const override;
+
+    [[nodiscard]] bool isNumberArray() const override;
 
     [[nodiscard]] SharedPtr<ArrayType> asArray() const override;
 
@@ -118,6 +122,8 @@ public:
     [[nodiscard]] bool isUnknown() const override;
 
     [[nodiscard]] bool isArray() const override;
+
+    [[nodiscard]] bool isNumberArray() const override;
 
     [[nodiscard]] SharedPtr<ArrayType> asArray() const override;
 

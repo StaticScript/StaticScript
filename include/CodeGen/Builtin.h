@@ -64,6 +64,7 @@ public:
     static inline LLVMFunction *deleteFunc = nullptr;
     static inline LLVMFunction *getSizeFunc = nullptr;
     static inline LLVMFunction *isNDArrayFunc = nullptr;
+    static inline LLVMFunction *isFloatArrayFunc = nullptr;
     static inline LLVMFunction *pushIntegerFunc = nullptr;
     static inline LLVMFunction *pushFloatFunc = nullptr;
     static inline LLVMFunction *pushBooleanFunc = nullptr;

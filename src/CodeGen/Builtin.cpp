@@ -102,6 +102,7 @@ void BuiltinArray::getTypeAndFunction(LLVMModule &module) {
     deleteFunc = module.getFunction("ss_array_delete");
     getSizeFunc = module.getFunction("ss_array_get_size");
     isNDArrayFunc = module.getFunction("ss_array_is_nd_array");
+    isFloatArrayFunc = module.getFunction("ss_array_is_float_array");
     pushIntegerFunc = module.getFunction("ss_array_push_integer");
     pushFloatFunc = module.getFunction("ss_array_push_float");
     pushBooleanFunc = module.getFunction("ss_array_push_boolean");

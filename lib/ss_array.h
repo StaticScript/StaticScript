@@ -8,12 +8,20 @@
 
 #define SS_ARRAY_INIT_CAPACITY 8
 
+enum ElementType {
+    BooleanType = 1,
+    IntegerType = 3,
+    FloatType = 5,
+    StringType = 7,
+    ArrayType = 9
+};
+
 typedef struct {
     void *buffer;
     size_t size;
     size_t capacity;
     size_t element_size;
-    bool is_nd;
+    enum ElementType element_type;
 } ss_array;
 
 static size_t ss_array_get_capacity_with_size(size_t size) {
@@ -31,7 +39,7 @@ static void ss_array_grow(ss_array *arr, ss_error **error) {
     arr->capacity = new_capacity;
 }
 
-static ss_array *ss_array_create(size_t capacity, size_t element_size, ss_error **error) {
+static ss_array *ss_array_create(size_t capacity, size_t element_size, enum ElementType element_type, ss_error **error) {
     ss_array *arr = (ss_array *) malloc(sizeof(ss_array));
     if (!arr) {
         *error = ss_error_create(MALLOC_FAILED_CODE, MALLOC_FAILED_DESC);
@@ -45,7 +53,7 @@ static ss_array *ss_array_create(size_t capacity, size_t element_size, ss_error 
     arr->size = 0;
     arr->capacity = capacity;
     arr->element_size = element_size;
-    arr->is_nd = false;
+    arr->element_type = element_type;
     return arr;
 }
 
@@ -59,15 +67,14 @@ ss_array *ss_array_create_string_array(ss_error **error);
 
 ss_array *ss_array_create_array_array(ss_error **error);
 
-#define ss_array_create_array_with_literal(type, nd_status) \
+#define ss_array_create_array_with_literal(type, element_type) \
     size_t capacity = ss_array_get_capacity_with_size(size); \
-    ss_array *arr = ss_array_create(capacity, sizeof(type), error); \
+    ss_array *arr = ss_array_create(capacity, sizeof(type), element_type, error); \
     if (!arr) { \
         return NULL; \
     } \
     memcpy(arr->buffer, literal_list, arr->element_size * size); \
     arr->size = size; \
-    arr->is_nd = nd_status; \
     return arr;
 
 ss_array *ss_array_create_integer_array_with_literal(long literal_list[], size_t size, ss_error **error);
@@ -85,6 +92,8 @@ void ss_array_delete(ss_array *arr);
 size_t ss_array_get_size(ss_array *arr, ss_error **error);
 
 bool ss_array_is_nd_array(ss_array *arr, ss_error **error);
+
+bool ss_array_is_float_array(ss_array *arr, ss_error **error);
 
 #define ss_array_push_detect() \
     if (arr->size + 1 >= arr->capacity) { \

@@ -6,9 +6,10 @@ void TypeChecker::visit(const SharedPtr<VarDeclNode> &varDecl) {
     SharedPtr<ExprNode> &varInitVal = varDecl->initVal;
     if (varInitVal) {
         varInitVal->accept(shared_from_this());
+        const auto &initArrayLiteral = dynPtrCast<ArrayLiteralExprNode>(varInitVal);
         const SharedPtr<Type> &initValType = varInitVal->type;
         if (varDeclType) {
-            if (!varDeclType->compatible(initValType)) {
+            if (!(varDeclType->sameAs(initValType) || initArrayLiteral && varDeclType->compatibleWith(initValType))) {
                 reportTypeError("The variable declaration type does not match the initial value type: " + varDecl->name);
             }
         } else if (!initValType) {
@@ -21,11 +22,9 @@ void TypeChecker::visit(const SharedPtr<VarDeclNode> &varDecl) {
             }
             varDeclType = initValType;
         }
-        if (varDeclType->isArray()) {
-            // 把显式的声明类型递归赋回给初始值的类型
-            const auto &initArrayLiteral = staticPtrCast<ArrayLiteralExprNode>(varInitVal);
-            const auto &varArrayType = staticPtrCast<ArrayType>(varDeclType);
-            assignTypeForArrayLiteral(initArrayLiteral, varArrayType);
+        // 根据显式类型或推导类型规化数组元素类型
+        if (initArrayLiteral) {
+            assignTypeForArrayLiteral(initArrayLiteral, varDeclType->asArray());
         }
     } else {
         reportOnTypeError(!varDeclType, "Variable has no type specified: " + varDecl->name);
@@ -77,7 +76,7 @@ void TypeChecker::visit(const SharedPtr<CallExprNode> &callExpr) {
         reportTypeError("The number of arguments did not match when calling '" + callExpr->calleeName + "' function");
     }
     for (size_t i = 0; i < argsSize; ++i) {
-        if (!params[i]->type->compatible(args[i]->type)) {
+        if (!params[i]->type->sameAs(args[i]->type)) {
             reportTypeError(
                     "The type of the " +
                     std::to_string(i + 1) +
@@ -201,8 +200,11 @@ void TypeChecker::visit(const SharedPtr<ArrayLiteralExprNode> &arrayLiteralExpr)
         if (primaryElement != arrayLiteralExpr->elements.end()) {
             primaryElementType = (*primaryElement)->type;
             for (const SharedPtr<ExprNode> &element : arrayLiteralExpr->elements) {
-                if (!primaryElementType->compatible(element->type)) {
-                    reportTypeError("Inconsistent array element type");
+                if (!primaryElementType->compatibleWith(element->type)) {
+                    // 数字型数组视为一致的元素类型
+                    if (!(primaryElementType->isNumberArray() && element->type->isNumberArray())) {
+                        reportTypeError("Inconsistent array element type");
+                    }
                 } else if (element->type->isFloat()) {
                     // 如果数组中有一个元素为浮点型, 那么所有的元素都设置为浮点型
                     primaryElementType = BasicType::FLOAT_TYPE;
