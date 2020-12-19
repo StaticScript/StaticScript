@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <antlr4-runtime.h>
 #include "StaticScriptLexer.h"
 #include "StaticScriptParser.h"
@@ -21,6 +22,7 @@ int main(int argc, char **argv) {
     llvm::cl::opt<String> outputFilename("o", llvm::cl::value_desc("output file"), llvm::cl::desc("Write output to <output file>"),
                                          llvm::cl::cat(generalOptsCat));
     llvm::cl::opt<bool> emitLLVM("emit-llvm", llvm::cl::desc("Generate the LLVM representation for input file"), llvm::cl::cat(generalOptsCat));
+    llvm::cl::opt<bool> noLink("c", llvm::cl::desc("Generate the target object file"), llvm::cl::cat(generalOptsCat));
     llvm::cl::opt<String> libDir("L", llvm::cl::desc("Specify lib library directory"));
     llvm::cl::opt<bool> optLevelO0("O0", llvm::cl::desc("Optimization level 0. Similar to clang -O0"),
                                    llvm::cl::cat(generalOptsCat));
@@ -54,8 +56,18 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    llvm::StringRef inputBasename = llvm::sys::path::stem(inputFilename);
+
+    String outputIRFilename;
+    String outputObjFilename;
+    String outputExeFilename;
+
     if (outputFilename.empty()) {
-        outputFilename.setValue(emitLLVM ? "ss-ir.ll" : "ss-out.o");
+        outputIRFilename = llvm::formatv("{0}-ir.ll", inputBasename);
+        outputObjFilename = llvm::formatv("{0}-out.o", inputBasename);
+        outputExeFilename = llvm::formatv("{0}-out.exe", inputBasename);
+    } else {
+        outputIRFilename = outputObjFilename = outputExeFilename = outputFilename;
     }
 
     unsigned optLevel = 0;
@@ -126,10 +138,10 @@ int main(int argc, char **argv) {
     // 设置data layout
     llvmModule.setDataLayout(targetMachine->createDataLayout());
 
-    std::error_code ec;
-    llvm::raw_fd_ostream dest(outputFilename, ec, llvm::sys::fs::OF_None);
 
-    reportOnDriverError(bool(ec),"Could not create file: " + ec.message());
+    std::error_code ec;
+    llvm::raw_fd_ostream dest(emitLLVM ? outputIRFilename : outputObjFilename, ec, llvm::sys::fs::OF_None);
+    reportOnDriverError(bool(ec), "Could not create file: " + ec.message());
 
     if (emitLLVM) {
         dest << llvmModule;
@@ -144,5 +156,14 @@ int main(int argc, char **argv) {
     dest.flush();
     dest.close();
     fin.close();
+
+    if (!emitLLVM && !noLink) {
+        String linkCmd = llvm::formatv("clang {0} -lm -O2 -o {1}", outputObjFilename, outputExeFilename);
+        system(linkCmd.data());
+        if (outputFilename.empty()) {
+            String rmCmd = llvm::formatv("rm -f {0}", outputObjFilename);
+            system(rmCmd.data());
+        }
+    }
     return 0;
 }

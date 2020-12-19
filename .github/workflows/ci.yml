@@ -157,7 +157,8 @@ jobs:
           do
             base=$(basename $file)
             sudo ./staticscript $file -L lib --emit-llvm -o $base.ll
-            sudo ./staticscript $file -L lib -o $base.o
+            sudo ./staticscript $file -L lib -c -o $base.o
+            sudo ./staticscript $file -L lib -o $base.exe
             sudo clang $base.o -lm -o $base.exe
             sudo ./$base.exe
           done
@@ -169,7 +170,8 @@ jobs:
           do
             base=$(basename $file)
             sudo ./staticscript $file -L lib --emit-llvm -o $base.ll
-            sudo ./staticscript $file -L lib -o $base.o
+            sudo ./staticscript $file -L lib -c -o $base.o
+            sudo ./staticscript $file -L lib -o $base.exe
             sudo clang $base.o -lm -o $base.exe
             sudo ./$base.exe
           done
