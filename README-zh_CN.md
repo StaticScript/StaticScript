@@ -2,7 +2,7 @@
 
 <div align="center">
 
-StaticScript是一门类TypeScript的静态强类型编程语言
+StaticScript是一门类TypeScript的静态编译型语言
 
 ![Github Workflow Status](https://img.shields.io/github/workflow/status/StaticScript/StaticScript/Build?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-linux--64%20%7C%20macos--64-brightgreen?style=flat-square)
@@ -60,7 +60,7 @@ sudo /bin/bash install-macos.sh
 
 ## 使用
 
-首先你编写像下面这样一个合法的StaticScript代码文件
+首先编写像下面这样一个合法的StaticScript代码文件
 ```typescript
 // test.ss
 

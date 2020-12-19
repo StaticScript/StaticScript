@@ -2,7 +2,7 @@
 
 <div align="center">
 
-StaticScript is a statically typed and strongly typed programming language, syntactically like TypeScript.
+StaticScript is a statically typed programming language, syntactically like TypeScript.
 
 ![Github Workflow Status](https://img.shields.io/github/workflow/status/StaticScript/StaticScript/Build?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-linux--64%20%7C%20macos--64-brightgreen?style=flat-square)
