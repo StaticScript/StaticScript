@@ -1,0 +1,130 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build_on_ubuntu_before_release:
+    name: Build on Ubuntu Before Release
+    runs-on: ubuntu-20.04
+    env:
+      CC: clang
+      CXX: clang++
+    steps:
+      - name: Fetch Codebase
+        uses: actions/checkout@v2
+      - name: Cache Antlr4 and Antlr4 Runtime
+        id: cache-antlr
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/thirdparty
+          key: ubuntu-20.04-clang-antlr4.9
+      - name: Install Prerequirements
+        run: |
+          sudo wget https://apt.llvm.org/llvm.sh
+          sudo chmod +x llvm.sh
+          sudo ./llvm.sh 11
+          sudo apt-get -y install uuid-dev pkg-config doxygen graphviz
+      - name: Install Antlr4 and Antlr4 Runtime
+        if: steps.cache-antlr.outputs.cache-hit != 'true'
+        run: |
+          sudo mkdir -p thirdparty/antlr && cd thirdparty/antlr
+          sudo wget https://www.antlr.org/download/antlr-4.9-complete.jar
+          sudo wget -O ${{ runner.temp }}/antlr4-src.zip https://www.antlr.org/download/antlr4-cpp-runtime-4.9-source.zip
+          cd ${{ runner.temp }}
+          sudo unzip antlr4-src.zip
+          sudo mkdir build && cd build
+          sudo mkdir -p ${{ github.workspace }}/thirdparty/antlr-runtime
+          sudo cmake .. -DANTLR4_INSTALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/thirdparty/antlr-runtime
+          sudo cmake --build . --target install  -- -j 2
+      - name: Move Antlr Runtime into /usr/local
+        run: |
+          cd ${{ github.workspace }}/thirdparty/antlr-runtime
+          sudo cp -r include/* /usr/local/include/
+          sudo cp -r lib/* /usr/local/lib/
+      - name: CMake Build
+        run: |
+          echo "THREAD_COUNT=$(sudo cat /proc/cpuinfo| grep "processor"| wc -l)" >> $GITHUB_ENV
+          sudo mkdir cmake-build-release
+          cd cmake-build-release
+          sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $THREAD_COUNT
+          sudo mkdir bin && sudo cp staticscript bin/
+      - name: Upload Release File
+        uses: actions/upload-artifact@v2
+        with:
+          name: staticscript-ubuntu-release
+          path: |
+            cmake-build-release/bin/staticscript
+            cmake-build-release/lib/*.bc
+
+  build_on_macos_before_release:
+    name: Build on macOS Before Release
+    runs-on: macos-10.15
+    env:
+      CC: clang
+      CXX: clang++
+    steps:
+      - name: Install Prerequirements
+        run: brew install antlr antlr4-cpp-runtime doxygen graphviz
+      - name: Fetch Codebase
+        uses: actions/checkout@v2
+      - name: CMake Build
+        run: |
+          echo "THREAD_COUNT=$(sudo sysctl -n machdep.cpu.thread_count)" >> $GITHUB_ENV
+          sudo mkdir cmake-build-debug cmake-build-release
+          cd cmake-build-release
+          sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
+          sudo cmake --build . --target staticscript document -- -j $THREAD_COUNT
+          sudo mkdir bin && sudo cp staticscript bin/
+      - name: Upload Release File
+        uses: actions/upload-artifact@v2
+        with:
+          name: staticscript-macos-release
+          path: |
+            cmake-build-release/bin/staticscript
+            cmake-build-release/lib/*.bc
+
+  release:
+    name: Release
+    needs: [ build_on_ubuntu_before_release, build_on_macos_before_release ]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Fetch Codebase
+        uses: actions/checkout@v2
+      - name: Download Release File
+        uses: actions/download-artifact@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Compress Release Attachments
+        run: |
+          sudo zip -r staticscript-ubuntu-release.zip staticscript-ubuntu-release
+          sudo zip -r staticscript-macos-release.zip staticscript-macos-release
+      - name: Upload Ubuntu Release Attachment
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./staticscript-ubuntu-release.zip
+          asset_name: staticscript-ubuntu-release.zip
+          asset_content_type: application/zip
+      - name: Upload macOS Release Attachment
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./staticscript-macos-release.zip
+          asset_name: staticscript-macos-release.zip
+          asset_content_type: application/zip

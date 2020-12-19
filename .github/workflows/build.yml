@@ -1,18 +1,26 @@
-name: Continuous Integration
+name: Build
 
 on:
   push:
+    branches:
+      - '**'
     paths-ignore:
       - 'README.md'
       - 'README-zh_CN.md'
       - 'ROADMAP-zh_CN.md'
       - 'LICENSE'
+    tags-ignore:
+      - '**'
   pull_request:
+    branches:
+      - '**'
     paths-ignore:
       - 'README.md'
       - 'README-zh_CN.md'
       - 'ROADMAP-zh_CN.md'
       - 'LICENSE'
+    tags-ignore:
+      - '**'
 
 jobs:
   build_on_linux:
@@ -69,14 +77,14 @@ jobs:
           cd ../cmake-build-release
           sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
           sudo cmake --build . --target staticscript document -- -j $THREAD_COUNT
-      - name: Upload Debug Executable File
+      - name: Upload Debug File
         uses: actions/upload-artifact@v2
         with:
           name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-debug
           path: |
             cmake-build-debug/staticscript
             cmake-build-debug/lib/*.bc
-      - name: Upload Release Executable File
+      - name: Upload Release File
         uses: actions/upload-artifact@v2
         with:
           name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-release
@@ -111,14 +119,14 @@ jobs:
           cd ../cmake-build-release
           sudo cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-w" -G "Unix Makefiles" ..
           sudo cmake --build . --target staticscript document -- -j $THREAD_COUNT
-      - name: Upload Debug Executable File
+      - name: Upload Debug File
         uses: actions/upload-artifact@v2
         with:
           name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-debug
           path: |
             cmake-build-debug/staticscript
             cmake-build-debug/lib/*.bc
-      - name: Upload Release Executable File
+      - name: Upload Release File
         uses: actions/upload-artifact@v2
         with:
           name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-release
@@ -139,12 +147,12 @@ jobs:
     steps:
       - name: Fetch Codebase
         uses: actions/checkout@v2
-      - name: Download Debug Executable File
+      - name: Download Debug File
         uses: actions/download-artifact@v2
         with:
           name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-debug
           path: executables/debug
-      - name: Download Release Executable File
+      - name: Download Release File
         uses: actions/download-artifact@v2
         with:
           name: staticscript-${{ matrix.os }}-${{ matrix.compiler.cc }}-release
