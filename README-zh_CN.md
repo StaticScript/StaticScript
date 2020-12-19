@@ -4,23 +4,76 @@
 
 StaticScript是一门类TypeScript的静态强类型编程语言
 
-![Github Workflow Status](https://img.shields.io/github/workflow/status/StaticScript/StaticScript/Build?style=for-the-badge)
-![Platform](https://img.shields.io/badge/platform-linux--64%20%7C%20macos--64-brightgreen?style=for-the-badge)
-![License](https://img.shields.io/github/license/StaticScript/StaticScript?style=for-the-badge)
+![Github Workflow Status](https://img.shields.io/github/workflow/status/StaticScript/StaticScript/Build?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-linux--64%20%7C%20macos--64-brightgreen?style=flat-square)
+![License](https://img.shields.io/github/license/StaticScript/StaticScript?style=flat-square)
 
-![GitHub Repo stars](https://img.shields.io/github/stars/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
-![GitHub forks](https://img.shields.io/github/forks/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
-![GitHub issues](https://img.shields.io/github/issues-raw/StaticScript/StaticScript?style=for-the-badge)
-![GitHub pull requests](https://img.shields.io/github/issues-pr-raw/StaticScript/StaticScript?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/StaticScript/StaticScript?style=flat-square&color=brightgreen)
+![GitHub forks](https://img.shields.io/github/forks/StaticScript/StaticScript?style=flat-square&color=brightgreen)
+![GitHub issues](https://img.shields.io/github/issues-raw/StaticScript/StaticScript?style=flat-square)
+![GitHub pull requests](https://img.shields.io/github/issues-pr-raw/StaticScript/StaticScript?style=flat-square)
 
-![GitHub Repository Size](https://img.shields.io/github/repo-size/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
-![GitHub top language](https://img.shields.io/github/languages/top/StaticScript/StaticScript?style=for-the-badge&color=brightgreen)
+![GitHub Repository Size](https://img.shields.io/github/repo-size/StaticScript/StaticScript?style=flat-square&color=brightgreen)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/StaticScript/StaticScript?style=flat-square&color=brightgreen)
+![GitHub top language](https://img.shields.io/github/languages/top/StaticScript/StaticScript?style=flat-square&color=brightgreen)
 
 [English](./README.md) | 简体中文
 
 </div>
 
+## 安装
+
+### Ubuntu
+
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/StaticScript/StaticScript/master/install-ubuntu.sh)"
+```
+或者
+```shell
+wget https://raw.githubusercontent.com/StaticScript/StaticScript/master/install-ubuntu.sh
+sudo chmod +x install-ubuntu.sh
+sudo /bin/bash install-ubuntu.sh
+```
+
+> 对于其他的Linux发行版, 你需要修改安装脚本才能正常安装
+> 
+> 安装脚本需要sudo权限
+
+### macOS
+
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/StaticScript/StaticScript/master/install-macos.sh)"
+```
+或者
+```shell
+wget https://raw.githubusercontent.com/StaticScript/StaticScript/master/install-macos.sh
+sudo chmod +x install-macos.sh
+sudo /bin/bash install-macos.sh
+```
+
+> 安装脚本需要sudo权限
+
+### Windows
+
+**_暂不支持_**
+
+
+## 使用
+
+首先你编写像下面这样一个合法的StaticScript代码文件
+```typescript
+// test.ss
+
+let content: string = "Hello World";
+
+ss_println_string(content);
+```
+
+然后在命令行里执行下面这样的命令
+```shell
+staticscript test.ss -o test
+./test
+```
 
 ## 语言特性概要
 
