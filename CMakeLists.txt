@@ -45,3 +45,7 @@ add_executable(
 add_dependencies(staticscript antlr4_static)
 
 target_link_libraries(staticscript PRIVATE antlr4_static ${llvm_libs})
+
+enable_testing()
+
+add_subdirectory(tests)

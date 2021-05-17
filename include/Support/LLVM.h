@@ -65,39 +65,19 @@ inline void initLLVMTarget() {
 inline void initLLVMPasses() {
     llvm::PassRegistry &registry = *llvm::PassRegistry::getPassRegistry();
     llvm::initializeCore(registry);
-    llvm::initializeCoroutines(registry);
+    llvm::initializeTransformUtils(registry);
     llvm::initializeScalarOpts(registry);
     llvm::initializeObjCARCOpts(registry);
     llvm::initializeVectorization(registry);
-    llvm::initializeIPO(registry);
-    llvm::initializeAnalysis(registry);
-    llvm::initializeTransformUtils(registry);
     llvm::initializeInstCombine(registry);
     llvm::initializeAggressiveInstCombine(registry);
+    llvm::initializeIPO(registry);
     llvm::initializeInstrumentation(registry);
+    llvm::initializeAnalysis(registry);
+    llvm::initializeCoroutines(registry);
+    llvm::initializeCodeGen(registry);
+    llvm::initializeGlobalISel(registry);
     llvm::initializeTarget(registry);
-    llvm::initializeExpandMemCmpPassPass(registry);
-    llvm::initializeScalarizeMaskedMemIntrinPass(registry);
-    llvm::initializeCodeGenPreparePass(registry);
-    llvm::initializeAtomicExpandPass(registry);
-    llvm::initializeRewriteSymbolsLegacyPassPass(registry);
-    llvm::initializeWinEHPreparePass(registry);
-    llvm::initializeDwarfEHPreparePass(registry);
-    llvm::initializeSafeStackLegacyPassPass(registry);
-    llvm::initializeSjLjEHPreparePass(registry);
-    llvm::initializePreISelIntrinsicLoweringLegacyPassPass(registry);
-    llvm::initializeGlobalMergePass(registry);
-    llvm::initializeIndirectBrExpandPassPass(registry);
-    llvm::initializeInterleavedLoadCombinePass(registry);
-    llvm::initializeInterleavedAccessPass(registry);
-    llvm::initializeEntryExitInstrumenterPass(registry);
-    llvm::initializePostInlineEntryExitInstrumenterPass(registry);
-    llvm::initializeUnreachableBlockElimLegacyPassPass(registry);
-    llvm::initializeExpandReductionsPass(registry);
-    llvm::initializeWasmEHPreparePass(registry);
-    llvm::initializeWriteBitcodePassPass(registry);
-    llvm::initializeHardwareLoopsPass(registry);
-    llvm::initializeTypePromotionPass(registry);
 }
 
 inline void initLLVMCodeGen() {
@@ -118,7 +98,7 @@ inline llvm::CodeGenOpt::Level getCodeGenOptLevel(unsigned optLevel = 2) {
 }
 
 inline String getTargetTriple() {
-    return llvm::sys::getDefaultTargetTriple();
+    return llvm::sys::getProcessTriple();
 }
 
 inline llvm::TargetMachine *getTargetMachine(unsigned optLevel = 2) {
@@ -129,7 +109,7 @@ inline llvm::TargetMachine *getTargetMachine(unsigned optLevel = 2) {
     return target->createTargetMachine(targetTriple,
                                        llvm::codegen::getCPUStr(),
                                        llvm::codegen::getFeaturesStr(),
-                                       llvm::codegen::InitTargetOptionsFromCodeGenFlags(),
+                                       llvm::codegen::InitTargetOptionsFromCodeGenFlags(llvm::Triple(targetTriple)),
                                        llvm::codegen::getExplicitRelocModel(),
                                        llvm::codegen::getExplicitCodeModel(),
                                        getCodeGenOptLevel(optLevel));

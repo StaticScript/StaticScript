@@ -1,9 +1,9 @@
 list(APPEND CMAKE_PREFIX_PATH /usr/local/lib/cmake/antlr4)
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
-    set(ANTLR4_JAR_LOCATION ${PROJECT_SOURCE_DIR}/thirdparty/antlr/antlr-4.9-complete.jar)
+    set(ANTLR4_JAR_LOCATION ${PROJECT_SOURCE_DIR}/thirdparty/antlr/antlr-4.9.2-complete.jar)
 elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL Darwin)
-    set(ANTLR4_JAR_LOCATION /usr/local/opt/antlr/antlr-4.9-complete.jar)
+    set(ANTLR4_JAR_LOCATION /usr/local/opt/antlr/antlr-4.9.2-complete.jar)
 endif ()
 
 find_package(antlr4-runtime REQUIRED)

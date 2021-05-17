@@ -25,14 +25,14 @@ jobs:
         run: |
           sudo wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
-          sudo ./llvm.sh 11
+          sudo ./llvm.sh
           sudo apt-get -y install uuid-dev pkg-config doxygen graphviz
       - name: Install Antlr4 and Antlr4 Runtime
         if: steps.cache-antlr.outputs.cache-hit != 'true'
         run: |
           sudo mkdir -p thirdparty/antlr && cd thirdparty/antlr
-          sudo wget https://www.antlr.org/download/antlr-4.9-complete.jar
-          sudo wget -O ${{ runner.temp }}/antlr4-src.zip https://www.antlr.org/download/antlr4-cpp-runtime-4.9-source.zip
+          sudo wget https://www.antlr.org/download/antlr-4.9.2-complete.jar
+          sudo wget -O ${{ runner.temp }}/antlr4-src.zip https://www.antlr.org/download/antlr4-cpp-runtime-4.9.2-source.zip
           cd ${{ runner.temp }}
           sudo unzip antlr4-src.zip
           sudo mkdir build && cd build

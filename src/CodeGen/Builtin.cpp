@@ -55,7 +55,7 @@ void BuiltinError::linkModule(LLVMModule &module, LLVMContext &context) {
 }
 
 void BuiltinError::getTypeAndFunction(LLVMModule &module) {
-    llvm::StructType *errStructType = module.getTypeByName("struct.ss_error");
+    llvm::StructType *errStructType = llvm::StructType::getTypeByName(module.getContext(), "struct.ss_error");
     type = errStructType->getPointerTo();
     exitIfErrorFunc = module.getFunction("ss_exit_if_error");
     assertFunc = module.getFunction("ss_assert");
@@ -66,7 +66,7 @@ void BuiltinString::linkModule(LLVMModule &module, LLVMContext &context) {
 }
 
 void BuiltinString::getTypeAndFunction(LLVMModule &module) {
-    llvm::StructType *strStructType = module.getTypeByName("struct.ss_string");
+    llvm::StructType *strStructType = llvm::StructType::getTypeByName(module.getContext(), "struct.ss_string");
     type = strStructType->getPointerTo();
     createFunc = module.getFunction("ss_string_create");
     deleteFunc = module.getFunction("ss_string_delete");
@@ -87,7 +87,7 @@ void BuiltinArray::linkModule(LLVMModule &module, LLVMContext &context) {
 }
 
 void BuiltinArray::getTypeAndFunction(LLVMModule &module) {
-    llvm::StructType *arrStructType = module.getTypeByName("struct.ss_array");
+    llvm::StructType *arrStructType = llvm::StructType::getTypeByName(module.getContext(), "struct.ss_array");
     type = arrStructType->getPointerTo();
     createIntegerArrayFunc = module.getFunction("ss_array_create_integer_array");
     createFloatArrayFunc = module.getFunction("ss_array_create_float_array");
